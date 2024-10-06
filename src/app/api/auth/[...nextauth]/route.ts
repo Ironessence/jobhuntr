@@ -4,6 +4,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
 const handler = NextAuth({
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -20,15 +21,14 @@ const handler = NextAuth({
 
         if (existingUser) {
           // Update existing user
-          existingUser.profilePicture = image;
           await existingUser.save();
         } else {
           // Create new user
           await User.create({
             name,
             email,
-            profilePicture: image,
-            // Add any other default values here
+            image,
+            cv: "",
           });
         }
 
@@ -36,7 +36,7 @@ const handler = NextAuth({
       }
       return false;
     },
-    async redirect({ url, baseUrl }) {
+    async redirect({ baseUrl }) {
       // Redirect to dashboard after successful login
       return `${baseUrl}/dashboard`;
     },

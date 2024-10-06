@@ -1,3 +1,3 @@
 export const constants = {
-  APP_TITLE: "AppTitle",
+  APP_TITLE: "JobHuntR",
 };

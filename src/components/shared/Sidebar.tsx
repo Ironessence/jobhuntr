@@ -1,8 +1,11 @@
 'use client';
 
 
-import { signOut, useSession } from 'next-auth/react';
+import { useUserContext } from '@/context/AuthContext';
+import { useUpdateCV } from '@/lib/queryFunctions';
+import { signOut } from 'next-auth/react';
 import Image from 'next/image';
+import { useEffect } from 'react';
 import { ThemeToggle } from '../theme/ThemeToggle';
 import { Button } from '../ui/button';
 
@@ -12,7 +15,16 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
-  const { data: session } = useSession();
+  const {user} = useUserContext();
+  const {mutate: updateCV} = useUpdateCV();
+
+  useEffect(() => {
+    console.log('USER IN SIDEBAR:', user);
+  }, [user]);
+
+  if (!user) return null;
+
+ 
  
   return (
     <aside className={`bg-gray-800 text-white w-64 min-h-screen ${isOpen ? '' : 'hidden'} md:block`}>
@@ -26,9 +38,9 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         </button>
         <div className='flex flex-col items-center justify-center'>
           <div className="flex items-center justify-between mb-4">
-            {session?.user?.image && (
+            {user.image && (
               <Image
-                src={session.user.image}
+                src={user.image}
                 alt="Profile picture"
                 width={60}
                 height={60}
@@ -36,8 +48,8 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               />
             )}
           </div>
-          <p className="mb-4 font-bold">@{session?.user?.name || "No username set"}</p>
-          
+          <p className="mb-4 font-bold">@{user.name || "No username set"}</p>
+        <Button variant="outline" className='mt-10' onClick={() => updateCV({cv: "test", email: user.email})}>Write test CV</Button>
         <Button className='mt-10' onClick={() => signOut()}>Logout</Button>
       </div>
       </div>
