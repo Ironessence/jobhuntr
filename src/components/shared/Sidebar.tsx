@@ -5,7 +5,8 @@ import { useUserContext } from '@/context/AuthContext';
 import { useUpdateCV } from '@/lib/queryFunctions';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { toast } from 'react-hot-toast';
 import { ThemeToggle } from '../theme/ThemeToggle';
 import { Button } from '../ui/button';
 
@@ -16,7 +17,8 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const {user} = useUserContext();
-  const {mutate: updateCV} = useUpdateCV();
+  const {mutate: updateCV, isPending} = useUpdateCV();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     console.log('USER IN SIDEBAR:', user);
@@ -24,8 +26,35 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
   if (!user) return null;
 
- 
- 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const base64String = e.target?.result as string;
+        // Remove the data URL prefix (e.g., "data:application/pdf;base64,")
+        const base64Data = base64String.split(',')[1];
+
+        updateCV({
+          fileName: file.name,
+          fileType: file.type,
+          fileData: base64Data
+        }, {
+          onSuccess: (data) => {
+            toast.success('CV uploaded and processed successfully');
+            console.log('CV Text:', data.summary);
+          },
+          onError: () => {
+            toast.error('Failed to upload and process CV');
+          }
+        });
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <aside className={`bg-gray-800 text-white w-64 min-h-screen ${isOpen ? '' : 'hidden'} md:block`}>
       <div className='flex justify-between items-center px-4 mt-4'>
@@ -49,7 +78,21 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             )}
           </div>
           <p className="mb-4 font-bold">@{user.name || "No username set"}</p>
-        <Button variant="outline" className='mt-10' onClick={() => updateCV({cv: "test", email: user.email})}>Write test CV</Button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileUpload}
+          accept=".pdf,.docx"
+          style={{ display: 'none' }}
+        />
+        <Button 
+          variant="outline" 
+          className='mt-10' 
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isPending}
+        >
+          {isPending ? 'Uploading...' : 'Upload CV'}
+        </Button>
         <Button className='mt-10' onClick={() => signOut()}>Logout</Button>
       </div>
       </div>

@@ -15,7 +15,8 @@ export const useGetUser = (email: string) => {
 export const useUpdateCV = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ cv, email }: { cv: string; email: string }) => updateCV(cv, email),
+    mutationFn: (fileData: { fileName: string; fileType: string; fileData: string }) =>
+      updateCV(fileData),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_USER],
