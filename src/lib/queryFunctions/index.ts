@@ -1,7 +1,8 @@
 //REACT QUERY FUNCTIONS GO HERE
 
+import { CvProcessResponse } from "@/types/Cv.types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUser, updateCV } from "../clientFunctions";
+import { getCv, getUser, updateCV } from "../clientFunctions";
 import { QUERY_KEYS } from "./queryKeys";
 
 export const useGetUser = (email: string) => {
@@ -12,14 +13,33 @@ export const useGetUser = (email: string) => {
   });
 };
 
+export const useGetCv = (email: string) => {
+  return useQuery<CvProcessResponse>({
+    queryKey: [QUERY_KEYS.GET_CV, email],
+    queryFn: () => getCv(email),
+    enabled: !!email,
+  });
+};
+
 export const useUpdateCV = () => {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (fileData: { fileName: string; fileType: string; fileData: string }) =>
-      updateCV(fileData),
+  return useMutation<
+    CvProcessResponse,
+    Error,
+    { fileName: string; fileType: string; fileData: string; email: string }
+  >({
+    mutationFn: (fileData: {
+      fileName: string;
+      fileType: string;
+      fileData: string;
+      email: string;
+    }) => updateCV(fileData),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_USER],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_CV],
       });
     },
   });

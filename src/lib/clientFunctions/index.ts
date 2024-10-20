@@ -13,6 +13,7 @@ export const updateCV = async (fileData: {
   fileName: string;
   fileType: string;
   fileData: string;
+  email: string;
 }) => {
   try {
     const response = await fetch("/api/update-cv", {
@@ -23,6 +24,17 @@ export const updateCV = async (fileData: {
       body: JSON.stringify(fileData),
     });
     if (!response.ok) throw new Error("Failed to update CV");
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const getCv = async (email: string) => {
+  try {
+    const response = await fetch(`/api/getCv?email=${encodeURIComponent(email)}`);
+    if (!response.ok) throw new Error("Failed to fetch CV");
     return await response.json();
   } catch (error) {
     console.error(error);

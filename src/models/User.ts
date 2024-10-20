@@ -4,7 +4,9 @@ const UserSchema = new mongoose.Schema({
   name: String,
   email: { type: String, required: true, unique: true },
   image: String,
-  cv: String,
+  type: { type: String, default: "FREE", enum: ["FREE", "PRO", "PLATINUM"] },
+  cv_full_text: String,
+  cv_file_name: String,
 });
 
 export default mongoose.models.User || mongoose.model("User", UserSchema);

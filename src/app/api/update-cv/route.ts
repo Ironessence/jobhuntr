@@ -1,61 +1,54 @@
 // app/api/update-cv/route.ts
 "use server";
+import { connectToDatabase } from "@/lib/mongodb";
+import User from "@/models/User";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
 import pdf from "pdf-parse/lib/pdf-parse";
 
-// Initialize the OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export async function POST(request: NextRequest) {
-  console.log("Received POST request at /api/update-cv");
-
   try {
+    await connectToDatabase();
     // Parse the JSON body
-    const { fileName, fileType, fileData } = await request.json();
-
-    console.log("Received file:", fileName, "Type:", fileType, "Size:", fileData.length, "bytes");
+    const { fileName, fileData, email } = await request.json();
 
     if (!fileData) {
-      console.error("No file data provided");
       return NextResponse.json({ error: "No file data provided" }, { status: 400 });
+    }
+
+    if (!email) {
+      return NextResponse.json({ error: "No email provided" }, { status: 400 });
     }
 
     // Decode the Base64 string back into a Buffer
     const buffer = Buffer.from(fileData, "base64");
 
-    console.log("BUFFER:", buffer);
-
     // Extract text from PDF
     const data = await pdf(buffer);
     const fullText = data.text;
 
-    // Send the extracted text to GPT-4 for summarization
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a professional HR assistant. Provide a brief, professional, corporate summary of the following CV.",
+    // Update user document in the database
+    const updatedUser = await User.findOneAndUpdate(
+      { email: email },
+      {
+        $set: {
+          cv_full_text: fullText,
+          cv_file_name: fileName,
         },
-        { role: "user", content: fullText },
-      ],
-      max_tokens: 15000, // Adjust as needed
-    });
+      },
+      { new: true }, // This option returns the updated document
+    );
 
-    const summary = completion.choices[0].message.content;
+    if (!updatedUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
-    // Return both the full text and the summary
+    // Return the full text
     return NextResponse.json({
+      fileName: fileName,
       fullText: fullText,
-      summary: summary,
     });
   } catch (error) {
-    console.error("Error processing CV:", error);
     return NextResponse.json(
       { error: "An error occurred while processing the CV" },
       { status: 500 },
