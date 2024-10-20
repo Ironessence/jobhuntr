@@ -4,6 +4,7 @@
 import replace from '@/assets/icons/icon-replace.png';
 import { useUserContext } from '@/context/AuthContext';
 import { useGetCv, useUpdateCV } from '@/lib/queryFunctions';
+import { LucideLoader2 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
 import { useRef } from 'react';
@@ -20,19 +21,18 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const {user} = useUserContext();
   const {mutate: updateCV, isPending} = useUpdateCV();
-  const { data: cvData, isLoading: isCvLoading } = useGetCv(user?.email || '');
+  const { data: cvData, isLoading: isCvLoading, refetch: refetchCv,  } = useGetCv(user?.email || '');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!user) return null;
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, isReplacing = false) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
 
       reader.onload = function(e) {
         const base64String = e.target?.result as string;
-        // Remove the data URL prefix (e.g., "data:application/pdf;base64,")
         const base64Data = base64String.split(',')[1];
 
         updateCV({
@@ -40,19 +40,27 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           fileType: file.type,
           fileData: base64Data,
           email: user.email,
+          isReplacing: isReplacing
         }, {
           onSuccess: (data) => {
-            toast.success('CV uploaded and processed successfully');
+            toast.success(isReplacing ? 'CV replaced successfully' : 'CV uploaded and processed successfully');
             console.log('CV Text:', data.fullText);
             console.log('CV file name:', data.fileName);
+            refetchCv(); // Refetch CV data to update the UI
           },
           onError: () => {
-            toast.error('Failed to upload and process CV');
+            toast.error(isReplacing ? 'Failed to replace CV' : 'Failed to upload and process CV');
           }
         });
       };
 
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleReplaceCv = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
     }
   };
 
@@ -78,41 +86,50 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               />
             )}
           </div>
-          <p className="mb-4 font-bold">@{user.name || "No username set"}</p>
+          </div>
+          <p className="mb-4 font-bold text-center">@{user.name || "No username set"}</p>
         <input
           type="file"
           ref={fileInputRef}
-          onChange={handleFileUpload}
+          onChange={(e) => handleFileUpload(e, !!cvData)} // Pass true if CV exists
           accept=".pdf,.docx"
           style={{ display: 'none' }}
         />
-        {!cvData ? <Button 
-          variant="outline" 
-          className='mt-10' 
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isPending}
-        >
-          {isPending ? 'Uploading...' : 'Upload CV'}
-        </Button> : <div className='flex flex-col items-center justify-center'>
-          <div className='flex gap-2 items-center justify-center'>
-            
-            
-          <p className='text-center'>CV Uploaded:</p>
-          <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild className='cursor-pointer'>
-          <Image src={replace} alt='replace' width={20} height={20} />
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Replace CV</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+        {!cvData ? (
+          <Button 
+            variant="outline" 
+            className='mt-10' 
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isPending}
+          >
+            {isPending ? 'Uploading...' : 'Upload CV'}
+          </Button>
+        ) : (
+          <div className='flex flex-col items-center justify-center'>
+            <div className='flex gap-2 items-center justify-center'>
+              <p className='text-center'>CV Uploaded:</p>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild className='cursor-pointer'>
+                    <Image 
+                      src={replace} 
+                      alt='replace' 
+                      width={20} 
+                      height={20} 
+                      onClick={handleReplaceCv}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Replace CV</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            {isCvLoading && <LucideLoader2 className='animate-spin' />}
+            <p className='text-center font-bold'>{cvData.fileName}</p>
           </div>
-          <p className='text-center font-bold'>{cvData.fileName}</p>
-          </div>}
+        )}
         <Button className='mt-10' onClick={() => signOut()}>Logout</Button>
-      </div>
       </div>
     </aside>
   );

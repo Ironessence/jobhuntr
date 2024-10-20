@@ -14,6 +14,7 @@ export const updateCV = async (fileData: {
   fileType: string;
   fileData: string;
   email: string;
+  isReplacing: boolean;
 }) => {
   try {
     const response = await fetch("/api/update-cv", {

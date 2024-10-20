@@ -26,13 +26,14 @@ export const useUpdateCV = () => {
   return useMutation<
     CvProcessResponse,
     Error,
-    { fileName: string; fileType: string; fileData: string; email: string }
+    { fileName: string; fileType: string; fileData: string; email: string; isReplacing: boolean }
   >({
     mutationFn: (fileData: {
       fileName: string;
       fileType: string;
       fileData: string;
       email: string;
+      isReplacing: boolean;
     }) => updateCV(fileData),
     onSuccess: () => {
       queryClient.invalidateQueries({

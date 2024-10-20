@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
     // Parse the JSON body
-    const { fileName, fileData, email } = await request.json();
+    const { fileName, fileData, email, isReplacing } = await request.json();
 
     if (!fileData) {
       return NextResponse.json({ error: "No file data provided" }, { status: 400 });
@@ -28,27 +28,37 @@ export async function POST(request: NextRequest) {
     const fullText = data.text;
 
     // Update user document in the database
+    const updateOperation = isReplacing
+      ? {
+          $set: {
+            cv_full_text: fullText,
+            cv_file_name: fileName,
+          },
+        }
+      : {
+          $setOnInsert: {
+            cv_full_text: fullText,
+            cv_file_name: fileName,
+          },
+        };
+
     const updatedUser = await User.findOneAndUpdate(
       { email: email },
-      {
-        $set: {
-          cv_full_text: fullText,
-          cv_file_name: fileName,
-        },
-      },
-      { new: true }, // This option returns the updated document
+      updateOperation,
+      { new: true, upsert: true }, // This option returns the updated document and creates it if it doesn't exist
     );
 
     if (!updatedUser) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
     }
 
-    // Return the full text
+    // Return the full text and file name
     return NextResponse.json({
       fileName: fileName,
       fullText: fullText,
     });
   } catch (error) {
+    console.error("Error processing CV:", error);
     return NextResponse.json(
       { error: "An error occurred while processing the CV" },
       { status: 500 },
