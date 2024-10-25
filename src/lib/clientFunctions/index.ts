@@ -42,3 +42,14 @@ export const getCv = async (email: string) => {
     throw error;
   }
 };
+
+export const getJobs = async (email: string) => {
+  try {
+    const response = await fetch(`/api/getJobs/${email}`);
+    if (!response.ok) throw new Error("Failed to fetch jobs");
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
