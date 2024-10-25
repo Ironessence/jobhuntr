@@ -2,7 +2,7 @@
 
 import { CvProcessResponse } from "@/types/Cv.types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { generateCoverLetter, getCv, getJobs, getUser, updateCV } from "../clientFunctions";
+import { getCv, getJobs, getUser, updateCV } from "../clientFunctions";
 import { QUERY_KEYS } from "./queryKeys";
 
 export const useGetUser = (email: string) => {
@@ -51,17 +51,5 @@ export const useGetJobs = (email: string) => {
     queryKey: [QUERY_KEYS.GET_JOBS, email],
     queryFn: () => getJobs(email),
     enabled: !!email,
-  });
-};
-
-export const useGenerateCoverLetter = () => {
-  const queryClient = useQueryClient();
-  return useMutation<{ coverLetter: string }, Error, { jobId: string; userEmail: string }>({
-    mutationFn: (data: { jobId: string; userEmail: string }) => generateCoverLetter(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_JOBS],
-      });
-    },
   });
 };
