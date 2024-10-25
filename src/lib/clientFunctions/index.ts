@@ -53,3 +53,26 @@ export const getJobs = async (email: string) => {
     throw error;
   }
 };
+
+export const generateCoverLetter = async ({
+  jobId,
+  userEmail,
+}: {
+  jobId: string;
+  userEmail: string;
+}) => {
+  try {
+    const response = await fetch("/api/generateCoverLetter", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ jobId, userEmail }),
+    });
+    if (!response.ok) throw new Error("Failed to generate cover letter");
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

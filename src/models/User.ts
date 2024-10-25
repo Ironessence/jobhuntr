@@ -4,6 +4,7 @@ const JobSchema = new mongoose.Schema({
   jobTitle: String,
   company: String,
   jobDescription: String,
+  coverLetter: String,
 });
 
 const UserSchema = new mongoose.Schema({

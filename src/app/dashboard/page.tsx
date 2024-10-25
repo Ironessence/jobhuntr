@@ -1,11 +1,12 @@
 'use client';
 
 import addIcon from '@/assets/icons/icon-add.png';
+import JobCard from '@/components/shared/JobCard';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useGetJobs } from '@/lib/queryFunctions';
+import { useGetJobs, useGetUser } from '@/lib/queryFunctions';
 import { useSession } from "next-auth/react";
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
@@ -16,6 +17,7 @@ export default function Dashboard() {
   const router = useRouter();
 
   const { data: jobs, isLoading: jobsLoading } = useGetJobs(session?.user?.email || "");
+  const {data: user} = useGetUser(session?.user.email || "");
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [jobTitle, setJobTitle] = useState("");
@@ -63,17 +65,18 @@ export default function Dashboard() {
 
   useEffect(() => {
     console.log(jobs);
-  }, [jobs]);
+    console.log(user);
+  }, [jobs, user]);
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
       
       {/* Add New Job Card */}
-     {jobs && jobs.jobs.length > 0 ? (
+     {jobs && jobs.length > 0 ? (
       <div>
-        {jobs.jobs.map((job: any) => (
-          <div key={job._id}>{job.jobTitle}</div>
+        {jobs.map((job: any) => (
+          <JobCard key={job._id} jobId={job._id} jobTitle={job.jobTitle} company={job.company} jobDescription={job.jobDescription} userEmail={session?.user?.email || ""} />
         ))}
       </div>
      ) : (<div 
