@@ -1,7 +1,7 @@
 "use client";
 
 import { useToast } from "@/hooks/use-toast";
-import { useGetUser } from "@/lib/queryFunctions";
+import { useGetQuery } from "@/lib";
 import { User } from "@/types/User.types";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -31,7 +31,8 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const router = useRouter();
   const {toast} = useToast();
-  const { data: userData, isError, isLoading, isSuccess } = useGetUser(session?.user?.email!);
+ 
+    const {data: userData, isError, isLoading, isSuccess} = useGetQuery<User>(`/api/getUser/${session?.user?.email}`, ['getUser', session?.user?.email]);
 
   // The function is used to both get the user and also refresh the user data for example for displaying the new tokens
   const refreshUser = useCallback(async () => {

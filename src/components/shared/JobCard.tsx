@@ -16,7 +16,6 @@ const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, company, jobDescript
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isCoverLetterDialogOpen, setIsCoverLetterDialogOpen] = React.useState(false);
   const [coverLetter, setCoverLetter] = React.useState<string | null>(null);
-  // const {mutateAsync: generateCoverLetter, isPending} = useGenerateCoverLetter()
   const { mutateAsync: generateCoverLetter, isPending } = useMutateApi<{ coverLetter: string }>(
     '/api/generateCoverLetter',
     ['coverLetter', jobId]

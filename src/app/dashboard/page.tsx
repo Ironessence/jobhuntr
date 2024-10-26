@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useGetJobs, useGetUser } from '@/lib/queryFunctions';
+import { useGetQuery } from '@/lib';
+import { Job, User } from '@/types/User.types';
 import { useSession } from "next-auth/react";
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
@@ -16,8 +17,8 @@ export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const { data: jobs, isLoading: jobsLoading } = useGetJobs(session?.user?.email || "");
-  const {data: user} = useGetUser(session?.user.email || "");
+  const {data: jobs} = useGetQuery<Job[]>(`/api/getJobs/${session?.user?.email}`, ['getJobs', session?.user?.email]);
+  const {data: user} = useGetQuery<User>(`/api/getUser/${session?.user?.email}`, ['getUser', session?.user?.email]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [jobTitle, setJobTitle] = useState("");
