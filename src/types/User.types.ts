@@ -1,9 +1,4 @@
-export type Job = {
-  jobTitle: string;
-  company: string;
-  jobDescription: string;
-  coverLetter?: string;
-};
+import { Job } from "./Job.types";
 
 export type User = {
   name: string;

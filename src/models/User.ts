@@ -1,6 +1,8 @@
+import { createId } from "@/utils";
 import mongoose from "mongoose";
 
 const JobSchema = new mongoose.Schema({
+  id: { type: String, default: createId() },
   jobTitle: String,
   company: String,
   jobDescription: String,

@@ -52,16 +52,18 @@ export function useGetQuery<TData = unknown, TError = unknown>(
  */
 export function useMutateApi<TData = unknown, TError = unknown, TVariables = unknown>(
   url: string,
-  queryKey: QueryKeyT,
+  mutationKey: QueryKeyT,
+  invalidateKeys: QueryKeyT[],
   options?: Omit<UseMutationOptions<TData, TError, TVariables>, "mutationFn">,
 ) {
   const queryClient = useQueryClient();
-  const finalQueryKey = Array.isArray(queryKey) ? queryKey : [queryKey];
+  const finalMutationKey = Array.isArray(mutationKey) ? mutationKey : [mutationKey];
 
   return useMutation<TData, TError, TVariables>({
+    mutationKey: finalMutationKey,
     mutationFn: (variables) =>
       fetch(url, {
-        method: "POST", // Default to POST, but you can override this in the fetch call if needed
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -71,7 +73,9 @@ export function useMutateApi<TData = unknown, TError = unknown, TVariables = unk
         return res.json();
       }),
     onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: finalQueryKey });
+      invalidateKeys.forEach((key) => {
+        queryClient.invalidateQueries({ queryKey: Array.isArray(key) ? key : [key] });
+      });
       if (options?.onSuccess) {
         options.onSuccess(...args);
       }

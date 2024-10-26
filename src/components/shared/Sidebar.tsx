@@ -4,6 +4,7 @@ import replace from '@/assets/icons/icon-replace.png';
 import { useUserContext } from '@/context/AuthContext';
 import { useGetQuery, useMutateApi } from '@/lib';
 import { CvProcessResponse } from '@/types/Cv.types';
+import QueryKeys from '@/utils/queryKeys';
 import { LucideLoader2 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
@@ -20,8 +21,8 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const {user} = useUserContext();
-  const {mutate: updateCV, isPending} = useMutateApi<CvProcessResponse, Error, {fileName: string, fileType: string, fileData: string, email: string, isReplacing: boolean}>('/api/update-cv', ['updateCV', user?.email]);
-  const {data: cvData, refetch: refetchCv, isLoading: isCvLoading} = useGetQuery<CvProcessResponse>(`/api/getCv?email=${encodeURIComponent(user?.email || '')}`, ['getCv', user?.email]);
+  const {mutate: updateCV, isPending} = useMutateApi<CvProcessResponse, Error, {fileName: string, fileType: string, fileData: string, email: string, isReplacing: boolean}>('/api/update-cv', [QueryKeys.UPDATE_CV], [[QueryKeys.GET_CV, user?.email]]);
+  const {data: cvData, refetch: refetchCv, isLoading: isCvLoading} = useGetQuery<CvProcessResponse>(`/api/getCv?email=${encodeURIComponent(user?.email || '')}`, [QueryKeys.GET_CV, user?.email]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!user) return null;
