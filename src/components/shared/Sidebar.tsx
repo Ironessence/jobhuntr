@@ -9,10 +9,11 @@ import QueryKeys from '@/utils/queryKeys';
 import { LucideLoader2 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { ThemeToggle } from '../theme/ThemeToggle';
 import { Button } from '../ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 interface SidebarProps {
@@ -31,6 +32,15 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     enabled: !!user?.email,
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { mutate: analyzeCv, isPending: isAnalyzing } = useMutateApi<
+    { tips: string[] },
+    Error,
+    { cvText: string }
+  >('/api/analyzeCv', {
+    queryKey: QueryKeys.ANALYZE_CV,
+  });
+  const [isCvTipsDialogOpen, setIsCvTipsDialogOpen] = useState(false);
+  const [cvTips, setCvTips] = useState<string[]>([]);
 
   if (!user) return null;
 
@@ -70,6 +80,26 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
+  };
+
+  const handleAnalyzeCv = () => {
+    if (!cvData?.fullText) {
+      toast.error('No CV text available for analysis');
+      return;
+    }
+
+    analyzeCv(
+      { cvText: cvData.fullText },
+      {
+        onSuccess: (data) => {
+          toast.success('CV analysis completed');
+          setCvTips(data.tips);
+        },
+        onError: () => {
+          toast.error('Failed to analyze CV');
+        }
+      }
+    );
   };
 
   return (
@@ -134,11 +164,28 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               </TooltipProvider>
             </div>
             {isCvLoading && <LucideLoader2 className='animate-spin' />}
-            <p className='text-center font-bold'>{cvData.fileName}</p>
+            <div className='relative'>
+              <p className='text-center font-bold'>{cvData.fileName}</p>
+              {cvTips && cvTips.length > 0 && <div className='absolute top-[-5px] right-0 bg-red-500 w-5 h-5 rounded-full cursor-pointer flex items-center justify-center'><p className='text-white text-xs text-center font-bold' onClick={() => setIsCvTipsDialogOpen(true)}>!</p></div>}
+            </div>
+              <Button onClick={handleAnalyzeCv}  disabled={isAnalyzing} className='mt-2'>{isAnalyzing ? 'Analyzing...' : 'Analyze CV'}</Button>
+           
           </div>
         )}
         <Button className='mt-10' onClick={() => signOut()}>Logout</Button>
       </div>
+      <Dialog open={isCvTipsDialogOpen} onOpenChange={setIsCvTipsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>CV Tips</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            {cvTips.map((tip, index) => (
+              <p key={index}>~{tip}</p>
+            ))}
+          </DialogDescription>
+        </DialogContent>
+      </Dialog>
     </aside>
   );
 }

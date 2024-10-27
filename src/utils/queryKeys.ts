@@ -7,6 +7,7 @@ export enum QueryKeys {
   UPDATE_CV = "updateCV",
   SAVE_JOB = "saveJob",
   GENERATE_COVER_LETTER = "generateCoverLetter",
+  ANALYZE_CV = "analyzeCV",
 }
 
 export default QueryKeys;
