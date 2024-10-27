@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useMutateApi } from "@/lib";
 import QueryKeys from "@/utils/queryKeys";
 import jsPDF from 'jspdf';
+import { useRouter } from "next/navigation";
 import React from 'react';
 
 interface JobCardProps {
@@ -17,10 +18,14 @@ const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, company, jobDescript
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isCoverLetterDialogOpen, setIsCoverLetterDialogOpen] = React.useState(false);
   const [coverLetter, setCoverLetter] = React.useState<string | null>(null);
+  const router = useRouter();
   const { mutateAsync: generateCoverLetter, isPending } = useMutateApi<{ coverLetter: string }>(
     '/api/generateCoverLetter',
-    [QueryKeys.GENERATE_COVER_LETTER, jobId],
-    [[QueryKeys.GET_JOBS, userEmail]]
+    {
+      queryKey: QueryKeys.GENERATE_COVER_LETTER,
+      invalidate: QueryKeys.GET_JOBS,
+    },
+   
   );
 
   // Function to shorten the job description
@@ -63,13 +68,17 @@ const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, company, jobDescript
     }
   };
 
+   const handleClick = () => {
+    router.push(`/dashboard/${jobId}`);
+  };
+
   //TODO: Add functionality to GET the cover letter from the server.
 
   return (
     <>
       <div 
-        className=" shadow-md rounded-lg p-4 mb-4 max-w-sm cursor-pointer hover:shadow-lg transition-shadow border-2 border-gray-300"
-        onClick={() => setIsDialogOpen(true)}
+        className=" shadow-md rounded-lg p-4 mb-4 max-w-sm cursor-pointer hover:shadow-lg transition-shadow border-2 border-gray-300 min-w-[300px]"
+        onClick={handleClick}
       >
         <h3 className="font-bold text-lg mb-1">{jobTitle}</h3>
         <p className="text-gray-300 text-sm mb-2">{company}</p>

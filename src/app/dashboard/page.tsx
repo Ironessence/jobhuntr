@@ -1,6 +1,6 @@
 'use client';
 
-import addIcon from '@/assets/icons/icon-add.png';
+import addIcon from '@/assets/icons/icon-add2.png';
 import JobCard from '@/components/shared/JobCard';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -79,17 +79,23 @@ export default function Dashboard() {
 
   return (
     <div className="container mx-auto p-4">
+      <div className='flex justify-between items-center mb-5'>
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+      <Button variant="outline" onClick={() => setIsDialogOpen(true)} className='flex items-center gap-2'>
+        <Image src={addIcon} alt="Add new job" width={16} height={16} />
+        Add New Job
+      </Button>
+      </div>
       
       {/* Add New Job Card */}
      {jobs && jobs.length > 0 && (
-      <div>
+      <div className='flex flex-wrap gap-4'>
         {jobs.map((job: any) => (
           <JobCard key={job._id} jobId={job._id} jobTitle={job.jobTitle} company={job.company} jobDescription={job.jobDescription} userEmail={session?.user?.email || ""} />
         ))}
       </div>
      )}
-      <div 
+      {/* <div 
         className="border-2 border-dashed rounded-lg p-8 flex items-center justify-center cursor-pointer max-w-[400px]"
         onClick={() => setIsDialogOpen(true)}
       >
@@ -97,7 +103,7 @@ export default function Dashboard() {
           <Image src={addIcon} alt="Add new job" width={50} height={50} /> 
           <p>Add new job</p>
         </div>
-      </div>
+      </div> */}
 
       {/* New Job Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -132,7 +138,7 @@ export default function Dashboard() {
               />
               <DialogFooter>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Matching..." : "Match"}
+                  {isSubmitting ? "Adding..." : "Add"}
                 </Button>
               </DialogFooter>
             </form>

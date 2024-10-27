@@ -1,6 +1,7 @@
 'use client';
 
 import replace from '@/assets/icons/icon-replace.png';
+import { constants } from '@/constants';
 import { useUserContext } from '@/context/AuthContext';
 import { useGetQuery, useMutateApi } from '@/lib';
 import { CvProcessResponse } from '@/types/Cv.types';
@@ -74,7 +75,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   return (
     <aside className={`bg-gray-800 text-white w-64 min-h-screen ${isOpen ? '' : 'hidden'} md:block`}>
       <div className='flex justify-between items-center px-4 mt-4'>
-        <h1 className='text-2xl font-bold'>AppTitle</h1>
+        <h1 className='text-2xl font-bold'>{constants.APP_TITLE}</h1>
         <ThemeToggle />
       </div>
       <div className="p-4">
