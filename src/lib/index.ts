@@ -11,8 +11,7 @@ type QueryKeyT = string | readonly unknown[];
 /**
  * General GET request hook
  * @param url - The URL to send the request to
- * @param queryKey - The query key to invalidate
- * @param options - The query options
+ * @param options - The query options - queryKey and enabled
  * @returns The query hook
  * Example of usage:
  *   const { data, isLoading } = useGetQuery<{ coverLetter: string }>(
@@ -22,10 +21,13 @@ type QueryKeyT = string | readonly unknown[];
  */
 export function useGetQuery<TData = unknown, TError = unknown>(
   url: string,
-  queryKey: QueryKeyT,
-  options?: Omit<UseQueryOptions<TData, TError>, "queryKey" | "queryFn">,
+  options: {
+    queryKey: QueryKeyT;
+    enabled?: boolean;
+  },
+  queryOptions?: Omit<UseQueryOptions<TData, TError>, "queryKey" | "queryFn" | "enabled">,
 ) {
-  const finalQueryKey = Array.isArray(queryKey) ? queryKey : [queryKey];
+  const finalQueryKey = Array.isArray(options.queryKey) ? options.queryKey : [options.queryKey];
 
   return useQuery<TData, TError>({
     queryKey: finalQueryKey,
@@ -34,30 +36,33 @@ export function useGetQuery<TData = unknown, TError = unknown>(
         if (!res.ok) throw new Error("Network response was not ok");
         return res.json();
       }),
-    ...options,
+    enabled: options.enabled ?? true,
+    ...queryOptions,
   });
 }
 
 /**
  * General mutation hook (POST/PUT/DELETE)
  * @param url - The URL to send the request to
- * @param queryKey - The query key to invalidate
- * @param options - The mutation options
+ * @param options - An object containing queryKey and invalidate options
+ * @param mutationOptions - The mutation options
  * @returns The mutation hook
- * Example of usage:
- *   const { mutate: generateCoverLetter, isLoading } = useMutateApi<{ coverLetter: string }>(
-    '/api/generateCoverLetter',
-    ['coverLetter', jobId]
-  );
  */
 export function useMutateApi<TData = unknown, TError = unknown, TVariables = unknown>(
   url: string,
-  mutationKey: QueryKeyT,
-  invalidateKeys: QueryKeyT[],
-  options?: Omit<UseMutationOptions<TData, TError, TVariables>, "mutationFn">,
+  options: {
+    queryKey: QueryKeyT;
+    invalidate?: QueryKeyT | QueryKeyT[];
+  },
+  mutationOptions?: Omit<UseMutationOptions<TData, TError, TVariables>, "mutationFn">,
 ) {
   const queryClient = useQueryClient();
-  const finalMutationKey = Array.isArray(mutationKey) ? mutationKey : [mutationKey];
+  const finalMutationKey = Array.isArray(options.queryKey) ? options.queryKey : [options.queryKey];
+  const invalidateKeys = options.invalidate
+    ? Array.isArray(options.invalidate)
+      ? options.invalidate
+      : [options.invalidate]
+    : [];
 
   return useMutation<TData, TError, TVariables>({
     mutationKey: finalMutationKey,
@@ -76,10 +81,10 @@ export function useMutateApi<TData = unknown, TError = unknown, TVariables = unk
       invalidateKeys.forEach((key) => {
         queryClient.invalidateQueries({ queryKey: Array.isArray(key) ? key : [key] });
       });
-      if (options?.onSuccess) {
-        options.onSuccess(...args);
+      if (mutationOptions?.onSuccess) {
+        mutationOptions.onSuccess(...args);
       }
     },
-    ...options,
+    ...mutationOptions,
   });
 }

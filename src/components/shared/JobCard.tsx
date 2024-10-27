@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useMutateApi } from "@/lib";
+import QueryKeys from "@/utils/queryKeys";
 import jsPDF from 'jspdf';
 import React from 'react';
 
@@ -18,7 +19,8 @@ const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, company, jobDescript
   const [coverLetter, setCoverLetter] = React.useState<string | null>(null);
   const { mutateAsync: generateCoverLetter, isPending } = useMutateApi<{ coverLetter: string }>(
     '/api/generateCoverLetter',
-    ['coverLetter', jobId]
+    [QueryKeys.GENERATE_COVER_LETTER, jobId],
+    [[QueryKeys.GET_JOBS, userEmail]]
   );
 
   // Function to shorten the job description

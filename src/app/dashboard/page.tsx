@@ -19,12 +19,21 @@ export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const {data: jobs} = useGetQuery<Job[]>(`/api/getJobs/${session?.user?.email}`, [QueryKeys.GET_JOBS, session?.user?.email]);
-  const {data: user} = useGetQuery<User>(`/api/getUser/${session?.user?.email}`, [QueryKeys.GET_USER, session?.user?.email]);
+  const {data: jobs} = useGetQuery<Job[]>(`/api/getJobs/${session?.user?.email}`,{
+    queryKey: QueryKeys.GET_JOBS,
+    enabled: !!session?.user?.email,
+  });
+  const {data: user} = useGetQuery<User>(`/api/getUser/${session?.user?.email}`, {
+    queryKey: QueryKeys.GET_USER,
+    enabled: !!session?.user?.email,
+  });
   const {mutateAsync: saveJob, isPending} = useMutateApi(
   '/api/saveJob', 
-  [QueryKeys.SAVE_JOB, session?.user?.email],
-  [[QueryKeys.GET_JOBS, session?.user?.email]]
+  {
+    queryKey: QueryKeys.SAVE_JOB,
+    invalidate: QueryKeys.GET_JOBS,
+  },
+ 
 );
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);

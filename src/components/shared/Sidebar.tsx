@@ -21,8 +21,14 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const {user} = useUserContext();
-  const {mutate: updateCV, isPending} = useMutateApi<CvProcessResponse, Error, {fileName: string, fileType: string, fileData: string, email: string, isReplacing: boolean}>('/api/update-cv', [QueryKeys.UPDATE_CV], [[QueryKeys.GET_CV, user?.email]]);
-  const {data: cvData, refetch: refetchCv, isLoading: isCvLoading} = useGetQuery<CvProcessResponse>(`/api/getCv?email=${encodeURIComponent(user?.email || '')}`, [QueryKeys.GET_CV, user?.email]);
+  const {mutate: updateCV, isPending} = useMutateApi<CvProcessResponse, Error, {fileName: string, fileType: string, fileData: string, email: string, isReplacing: boolean}>('/api/update-cv', {
+    queryKey: QueryKeys.UPDATE_CV,
+    invalidate: QueryKeys.GET_CV,
+  });
+  const {data: cvData, refetch: refetchCv, isLoading: isCvLoading} = useGetQuery<CvProcessResponse>(`/api/getCv?email=${encodeURIComponent(user?.email || '')}`, {
+    queryKey: QueryKeys.GET_CV,
+    enabled: !!user?.email,
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!user) return null;

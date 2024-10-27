@@ -33,7 +33,10 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
   const router = useRouter();
   const {toast} = useToast();
  
-    const {data: userData, isError, isLoading, isSuccess} = useGetQuery<User>(`/api/getUser/${session?.user?.email}`, [QueryKeys.GET_USER, session?.user?.email]);
+    const {data: userData, isError, isLoading, isSuccess} = useGetQuery<User>(`/api/getUser/${session?.user?.email}`, {
+      queryKey: QueryKeys.GET_USER,
+      enabled: !!session?.user?.email,
+    });
 
   // The function is used to both get the user and also refresh the user data for example for displaying the new tokens
   const refreshUser = useCallback(async () => {
