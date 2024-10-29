@@ -16,6 +16,7 @@ const UserSchema = new mongoose.Schema({
   type: { type: String, default: "FREE", enum: ["FREE", "PRO", "PLATINUM"] },
   cv_full_text: String,
   cv_file_name: String,
+  cv_suggestions: { type: [String], default: [] },
   jobs: [JobSchema],
 });
 

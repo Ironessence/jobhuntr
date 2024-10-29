@@ -7,5 +7,6 @@ export type User = {
   type: string;
   cv_full_text?: string;
   cv_file_name?: string;
+  cv_suggestions?: string[];
   jobs?: Job[];
 };

@@ -9,7 +9,7 @@ import QueryKeys from '@/utils/queryKeys';
 import { LucideLoader2 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { ThemeToggle } from '../theme/ThemeToggle';
 import { Button } from '../ui/button';
@@ -39,8 +39,16 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   >('/api/analyzeCv', {
     queryKey: QueryKeys.ANALYZE_CV,
   });
+  const { mutate: updateSuggestions } = useMutateApi<
+    { success: boolean },
+    Error,
+    { email: string; suggestions: string[] }
+  >('/api/updateCvSuggestions', {
+    queryKey: QueryKeys.UPDATE_SUGGESTIONS,
+    invalidate: QueryKeys.GET_USER,
+  });
   const [isCvTipsDialogOpen, setIsCvTipsDialogOpen] = useState(false);
-  const [cvTips, setCvTips] = useState<string[]>([]);
+ 
 
   if (!user) return null;
 
@@ -88,12 +96,23 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       return;
     }
 
-    analyzeCv(
+     analyzeCv(
       { cvText: cvData.fullText },
       {
         onSuccess: (data) => {
-          toast.success('CV analysis completed');
-          setCvTips(data.tips);
+          
+          // Save suggestions to DB
+          updateSuggestions(
+            { email: user.email, suggestions: data.tips },
+            {
+              onSuccess: () => {
+                toast.success('CV analysis completed');
+              },
+              onError: () => {
+                toast.error('Failed to save suggestions');
+              }
+            }
+          );
         },
         onError: () => {
           toast.error('Failed to analyze CV');
@@ -101,6 +120,10 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       }
     );
   };
+
+  useEffect(() => {
+  console.log('CV DATA:', cvData)
+  }, [cvData]);
 
   return (
     <aside className={`bg-gray-800 text-white w-64 min-h-screen ${isOpen ? '' : 'hidden'} md:block`}>
@@ -166,7 +189,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             {isCvLoading && <LucideLoader2 className='animate-spin' />}
             <div className='relative'>
               <p className='text-center font-bold'>{cvData.fileName}</p>
-              {cvTips && cvTips.length > 0 && <div className='absolute top-[-5px] right-0 bg-red-500 w-5 h-5 rounded-full cursor-pointer flex items-center justify-center'><p className='text-white text-xs text-center font-bold' onClick={() => setIsCvTipsDialogOpen(true)}>!</p></div>}
+              {user.cv_suggestions && user.cv_suggestions.length > 0 && <div className='absolute top-[-5px] right-0 bg-red-500 w-5 h-5 rounded-full cursor-pointer flex items-center justify-center'><p className='text-white text-xs text-center font-bold' onClick={() => setIsCvTipsDialogOpen(true)}>!</p></div>}
             </div>
               <Button onClick={handleAnalyzeCv}  disabled={isAnalyzing} className='mt-2'>{isAnalyzing ? 'Analyzing...' : 'Analyze CV'}</Button>
            
@@ -178,12 +201,13 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>CV Tips</DialogTitle>
+            <DialogDescription>Here's what to improve in your CV:</DialogDescription>
           </DialogHeader>
-          <DialogDescription>
-            {cvTips.map((tip, index) => (
+          
+            {user.cv_suggestions?.map((tip, index) => (
               <p key={index}>~{tip}</p>
             ))}
-          </DialogDescription>
+          
         </DialogContent>
       </Dialog>
     </aside>
