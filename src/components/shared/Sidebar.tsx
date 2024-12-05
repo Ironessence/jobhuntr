@@ -9,7 +9,7 @@ import QueryKeys from '@/utils/queryKeys';
 import { LucideLoader2 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { ThemeToggle } from '../theme/ThemeToggle';
 import { Button } from '../ui/button';
@@ -121,9 +121,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     );
   };
 
-  useEffect(() => {
-  console.log('CV DATA:', cvData)
-  }, [cvData]);
+
 
   return (
     <aside className={`bg-gray-800 text-white w-64 min-h-screen ${isOpen ? '' : 'hidden'} md:block`}>
@@ -203,11 +201,9 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             <DialogTitle>CV Tips</DialogTitle>
             <DialogDescription>Here's what to improve in your CV:</DialogDescription>
           </DialogHeader>
-          
             {user.cv_suggestions?.map((tip, index) => (
               <p key={index}>~{tip}</p>
             ))}
-          
         </DialogContent>
       </Dialog>
     </aside>

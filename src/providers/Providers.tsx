@@ -9,7 +9,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
     <QueryProvider>
     <SessionProvider refetchInterval={0} refetchOnWindowFocus={false}>
       <AuthContextProvider>
-      {children}
+         {children}
       </AuthContextProvider>
     </SessionProvider>
     </QueryProvider>
