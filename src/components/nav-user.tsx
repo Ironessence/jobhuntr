@@ -23,21 +23,25 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { CaretSortIcon } from "@radix-ui/react-icons"
 import { signOut } from "next-auth/react"
+import { useState } from "react"
 
 export function NavUser({
   user,
+  setIsResumeDialogOpen,
 }: {
   user: {
     name: string
     email: string
     image: string
   }
+  setIsResumeDialogOpen: (open: boolean) => void
 }) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
 
   return (
     
-        <DropdownMenu>
+        <DropdownMenu open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DropdownMenuTrigger asChild>
             <div
             
@@ -80,7 +84,10 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-               <DropdownMenuItem className="flex items-center gap-2">
+               <DropdownMenuItem className="flex items-center gap-2" onClick={() => {
+                setIsResumeDialogOpen(true)
+                setIsDialogOpen(false)
+               } }>
                 <DollarSign className="w-5 h-5" />
                 Resume
               </DropdownMenuItem>

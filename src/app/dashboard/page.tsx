@@ -3,6 +3,7 @@
 import addIcon from '@/assets/icons/icon-add2.png';
 import { NavUser } from '@/components/nav-user';
 import JobCard from '@/components/shared/JobCard';
+import ResumeDialog from '@/components/shared/ResumeDialog';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,7 @@ export default function Dashboard() {
 );
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isResumeDialogOpen, setIsResumeDialogOpen] = useState(false);
   const [jobTitle, setJobTitle] = useState("");
   const [company, setCompany] = useState("");
   const [jobDescription, setJobDescription] = useState("");
@@ -86,7 +88,7 @@ export default function Dashboard() {
         <Image src={addIcon} alt="Add new job" width={16} height={16} />
         Add New Job
       </Button>
-      {user && <NavUser user={user} />}
+      {user && <NavUser user={user} setIsResumeDialogOpen={setIsResumeDialogOpen} />}
       </header>
       
       {/* Add New Job Card */}
@@ -139,6 +141,8 @@ export default function Dashboard() {
          
         </DialogContent>
       </Dialog>
+
+      <ResumeDialog isDialogOpen={isResumeDialogOpen} setIsDialogOpen={setIsResumeDialogOpen} />
     </div>
   );
 }
