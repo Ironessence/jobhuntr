@@ -1,4 +1,3 @@
-// app/api/update-cv/route.ts
 "use server";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
@@ -33,6 +32,7 @@ export async function POST(request: NextRequest) {
           $set: {
             cv_full_text: fullText,
             cv_file_name: fileName,
+            cv_suggestions: [],
           },
         }
       : {

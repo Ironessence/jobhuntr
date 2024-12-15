@@ -36,7 +36,7 @@ export default function Dashboard() {
     queryKey: QueryKeys.GET_USER,
     enabled: !!session?.user?.email,
   });
-  const { mutateAsync: saveJob, isPending } = useMutateApi("/api/saveJob", {
+  const { mutateAsync: saveJob } = useMutateApi("/api/saveJob", {
     queryKey: QueryKeys.SAVE_JOB,
     invalidate: QueryKeys.GET_JOBS,
   });

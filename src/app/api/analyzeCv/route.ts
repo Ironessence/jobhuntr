@@ -1,3 +1,4 @@
+import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
@@ -14,8 +15,6 @@ export async function POST(request: NextRequest) {
     }
 
     const { cvText } = await request.json();
-
-    console.log("~~~~~CV:", cvText);
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -35,7 +34,23 @@ export async function POST(request: NextRequest) {
     });
 
     const response = JSON.parse(completion.choices[0]?.message?.content || '{"tips": []}');
-    return NextResponse.json(response);
+
+    console.log("RESPONSE:", response);
+
+    // Update user document in the database
+    const updateOperation = {
+      $set: {
+        cv_suggestions: response.tips,
+      },
+    };
+
+    const updatedUser = await User.findOneAndUpdate(
+      { email: session.user?.email },
+      updateOperation,
+      { new: true },
+    );
+
+    return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Error analyzing CV:", error);
     return NextResponse.json({ error: "Failed to analyze CV" }, { status: 500 });

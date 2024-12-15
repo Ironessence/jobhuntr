@@ -2,6 +2,8 @@ import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
 
+//TODO: Might not need this route anymore
+
 export async function POST(req: Request) {
   try {
     await connectToDatabase();
@@ -19,6 +21,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
