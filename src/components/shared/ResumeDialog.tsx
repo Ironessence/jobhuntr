@@ -5,6 +5,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useUserContext } from "@/context/AuthContext";
+import { RefreshCcwIcon } from "lucide-react";
+import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 
 const ResumeDialog = ({
@@ -21,14 +23,20 @@ const ResumeDialog = ({
       open={isDialogOpen}
       onOpenChange={setIsDialogOpen}
     >
-      <DialogContent className="max-h-[80vh] overflow-y-auto max-w-[90%] rounded-xl">
+      <DialogContent className="max-h-[80vh] overflow-y-auto md:max-w-[30vw] max-w-[90%] rounded-xl">
         <DialogHeader>
           <DialogTitle>Resume</DialogTitle>
           <DialogDescription>Manage your resume</DialogDescription>
         </DialogHeader>
-        <div>
-          <h3 className="font-medium">File name:</h3>
-          <p className="text-muted-foreground">{user?.cv_file_name}</p>
+        <div className="flex gap-3 items-center">
+          <div>
+            <h3 className="font-medium">File name:</h3>
+            <p className="text-muted-foreground">{user?.cv_file_name}</p>
+          </div>
+          <Button>
+            <RefreshCcwIcon className="w-4 h-4 mr-1" />
+            Replace
+          </Button>
         </div>
 
         <Accordion
