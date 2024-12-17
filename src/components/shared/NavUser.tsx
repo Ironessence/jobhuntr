@@ -1,6 +1,6 @@
 "use client";
 
-import { File, LogOut, Settings, Sparkles } from "lucide-react";
+import { File, HandCoins, LogOut, Settings } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function NavUser({
@@ -28,6 +29,7 @@ export function NavUser({
   setIsResumeDialogOpen: (open: boolean) => void;
 }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <DropdownMenu
@@ -72,9 +74,12 @@ export function NavUser({
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5" />
-            Upgrade to Pro
+          <DropdownMenuItem
+            className="flex items-center gap-2"
+            onClick={() => router.push("/dashboard/buy-tokens")}
+          >
+            <HandCoins className="w-5 h-5" />
+            Buy Tokens
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

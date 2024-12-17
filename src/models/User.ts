@@ -18,6 +18,7 @@ const UserSchema = new mongoose.Schema({
   cv_file_name: String,
   cv_suggestions: { type: [String], default: [] },
   jobs: [JobSchema],
+  tokens: { type: Number, default: 0 },
 });
 
 export default mongoose.models.User || mongoose.model("User", UserSchema);
