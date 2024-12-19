@@ -1,10 +1,14 @@
 "use client";
 
+import coins1 from "@/assets/images/coins1.png";
+import coins2 from "@/assets/images/coins2.png";
+import coins3 from "@/assets/images/coins3.png";
 import { Button } from "@/components/ui/button";
 import { constants } from "@/constants";
 import { useUserContext } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { loadStripe } from "@stripe/stripe-js";
+import Image, { StaticImageData } from "next/image";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -13,11 +17,13 @@ const TokenCard = ({
   price,
   bonus,
   priceId,
+  img,
 }: {
   tokens: number;
   price: number;
   bonus?: number;
   priceId: string;
+  img: StaticImageData;
 }) => {
   const { toast } = useToast();
   const { user } = useUserContext();
@@ -69,10 +75,10 @@ const TokenCard = ({
   };
 
   return (
-    <div className="relative group">
+    <div className="relative group max-w-[400px] mx-auto">
       <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
       <div className="relative bg-background/80 backdrop-blur-xl border rounded-lg p-6 h-full flex flex-col justify-between transition-all duration-200 hover:scale-105">
-        <div>
+        <div className="flex flex-col items-center justify-center">
           <h3 className="text-2xl font-bold mb-2">{tokens.toLocaleString()} Tokens</h3>
           {bonus && (
             <p className="text-emerald-500 font-semibold">
@@ -83,10 +89,17 @@ const TokenCard = ({
             Access our AI-powered features and enhance your job search
           </p>
         </div>
-        <div className="mt-6">
+        <div className="flex items-center justify-center mt-5">
+          <Image
+            src={img}
+            alt="Coins"
+            className="object-contain"
+          />
+        </div>
+        <div className="mt-6 flex flex-col items-center justify-center">
           <p className="text-3xl font-bold mb-4">${price}</p>
           <Button
-            className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
+            className="w-full text-white bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
             onClick={handleCheckout}
           >
             Purchase Now
@@ -106,18 +119,21 @@ const BuyTokens = () => {
           tokens={1000}
           price={10}
           priceId={constants.STRIPE.PRICES.TOKENS_1000}
+          img={coins1}
         />
         <TokenCard
           tokens={2300}
           price={20}
           bonus={300}
           priceId={constants.STRIPE.PRICES.TOKENS_2300}
+          img={coins2}
         />
         <TokenCard
           tokens={3800}
           price={30}
           bonus={800}
           priceId={constants.STRIPE.PRICES.TOKENS_3800}
+          img={coins3}
         />
       </div>
     </div>

@@ -14,8 +14,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { signOut } from "next-auth/react";
+import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Switch } from "../ui/switch";
 
 export function NavUser({
   user,
@@ -30,6 +32,7 @@ export function NavUser({
 }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
 
   return (
     <DropdownMenu
@@ -72,6 +75,19 @@ export function NavUser({
             </div>
           </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="flex items-center justify-between"
+          onSelect={(e) => e.preventDefault()}
+        >
+          <span>{theme === "dark" ? "Dark Mode" : "Light Mode"}</span>
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={theme === "dark"}
+              onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+            />
+          </div>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem
