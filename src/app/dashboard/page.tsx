@@ -1,9 +1,7 @@
 "use client";
 
 import addIcon from "@/assets/icons/icon-add2.png";
-import DashboardHeader from "@/components/shared/DashboardHeader";
 import JobCard from "@/components/shared/JobCard";
-import ResumeDialog from "@/components/shared/ResumeDialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,7 +40,6 @@ export default function Dashboard() {
   });
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isResumeDialogOpen, setIsResumeDialogOpen] = useState(false);
   const [jobTitle, setJobTitle] = useState("");
   const [company, setCompany] = useState("");
   const [jobDescription, setJobDescription] = useState("");
@@ -86,8 +83,6 @@ export default function Dashboard() {
 
   return (
     <div className="container mx-auto p-4">
-      <DashboardHeader setIsResumeDialogOpen={setIsResumeDialogOpen} />
-
       <section className="flex justify-end mb-4">
         <Button
           variant="outline"
@@ -171,11 +166,6 @@ export default function Dashboard() {
           </form>
         </DialogContent>
       </Dialog>
-
-      <ResumeDialog
-        isDialogOpen={isResumeDialogOpen}
-        setIsDialogOpen={setIsResumeDialogOpen}
-      />
     </div>
   );
 }

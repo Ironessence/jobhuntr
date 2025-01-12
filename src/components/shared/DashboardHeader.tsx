@@ -1,5 +1,6 @@
 import { useUserContext } from "@/context/AuthContext";
 import { NavUser } from "./NavUser";
+import TokensDisplay from "./TokensDisplay";
 
 const DashboardHeader = ({
   setIsResumeDialogOpen,
@@ -10,12 +11,15 @@ const DashboardHeader = ({
   return (
     <header className="flex justify-between items-center mb-5">
       <h1 className="md:text-2xl text-lg font-bold ">Dashboard</h1>
-      {user && (
-        <NavUser
-          user={user}
-          setIsResumeDialogOpen={setIsResumeDialogOpen}
-        />
-      )}
+      <div className="flex items-center gap-5">
+        <TokensDisplay />
+        {user && (
+          <NavUser
+            user={user}
+            setIsResumeDialogOpen={setIsResumeDialogOpen}
+          />
+        )}
+      </div>
     </header>
   );
 };

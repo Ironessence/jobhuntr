@@ -9,4 +9,5 @@ export type User = {
   cv_file_name?: string;
   cv_suggestions?: string[];
   jobs?: Job[];
+  tokens: number;
 };

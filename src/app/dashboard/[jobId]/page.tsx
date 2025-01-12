@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { useGetQuery } from '@/lib';
-import { QueryKeys } from '@/utils/queryKeys';
-import { useSession } from 'next-auth/react';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { useGetQuery } from "@/lib";
+import { QueryKeys } from "@/utils/queryKeys";
+import { useSession } from "next-auth/react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface Job {
   _id: string;
@@ -21,13 +21,15 @@ export default function JobDetailsPage() {
   const router = useRouter();
   const jobId = params.jobId as string;
 
-  const { data: job, isLoading, isError, error, } = useGetQuery<Job>(
-    `/api/getJob/${jobId}`,
-    {
-      queryKey: [QueryKeys.GET_JOB, jobId],
-      enabled: !!jobId && !!session?.user?.email,
-    }
-  );
+  const {
+    data: job,
+    isLoading,
+    isError,
+    error,
+  } = useGetQuery<Job>(`/api/getJob/${jobId}`, {
+    queryKey: [QueryKeys.GET_JOB, jobId],
+    enabled: !!jobId && !!session?.user?.email,
+  });
 
   useEffect(() => {
     if (error) {
@@ -43,13 +45,20 @@ export default function JobDetailsPage() {
 
   return (
     <div className="container mx-auto p-4">
-        <section className='flex justify-between items-center mb-5'>
-            <h1 className="text-2xl font-bold mb-4">{job.jobTitle}</h1>
-            <Button variant="outline" onClick={() => router.back()}>Back</Button>
-        </section>
-      <h2 className="text-xl mb-2">{job.company}</h2>
+      <section className="flex justify-between items-center mb-5">
+        <div>
+          <h3 className="text-sm text-gray-500">Job title</h3>
+          <h1 className="text-2xl font-bold mb-4">{`${job.jobTitle} @ ${job.company}`}</h1>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => router.back()}
+        >
+          Back
+        </Button>
+      </section>
       <div className="mb-4">
-        <h3 className="font-semibold">Job Description:</h3>
+        <h3 className="text-sm text-gray-500">Job Description:</h3>
         <p className="whitespace-pre-wrap">{job.jobDescription}</p>
       </div>
       {job.coverLetter && (
