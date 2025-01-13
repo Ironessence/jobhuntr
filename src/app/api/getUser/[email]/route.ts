@@ -19,6 +19,7 @@ export const GET = async (req: NextRequest, { params }: { params: { email: strin
       return new NextResponse("User not found", { status: 404 });
     }
   } catch (err) {
+    console.log(err);
     return new NextResponse("Error fetching user", { status: 500 });
   }
 };

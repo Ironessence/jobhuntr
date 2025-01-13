@@ -1,11 +1,14 @@
 "use client";
 
+import { CoverLetterTemplateDialog } from "@/components/shared/CoverLetterTemplateDialog";
 import { Button } from "@/components/ui/button";
+import { useUserContext } from "@/context/AuthContext";
+import { toast } from "@/hooks/use-toast";
 import { useGetQuery } from "@/lib";
 import { QueryKeys } from "@/utils/queryKeys";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface Job {
   _id: string;
@@ -20,16 +23,55 @@ export default function JobDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const jobId = params.jobId as string;
+  const { user } = useUserContext();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const {
     data: job,
     isLoading,
     isError,
     error,
+    refetch,
   } = useGetQuery<Job>(`/api/getJob/${jobId}`, {
     queryKey: [QueryKeys.GET_JOB, jobId],
     enabled: !!jobId && !!session?.user?.email,
   });
+
+  const handleGenerateCoverLetter = async () => {
+    if (!job || !user) return;
+
+    try {
+      const response = await fetch("/api/generate-cover-letter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jobDescription: job.jobDescription,
+          email: user.email,
+          jobId: jobId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate cover letter");
+      }
+
+      const data = await response.json();
+
+      // Refetch job data to get updated cover letter
+      await refetch();
+
+      return data;
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate cover letter",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     if (error) {
@@ -57,16 +99,24 @@ export default function JobDetailsPage() {
           Back
         </Button>
       </section>
+      <section className="flex justify-center gap-4">
+        <Button onClick={() => setIsDialogOpen(true)}>
+          {job.coverLetter ? "View Cover Letter" : "Generate Cover Letter"}
+        </Button>
+        <Button>Generate Tailored Resume</Button>
+        <Button>Generate Interview Questions</Button>
+      </section>
       <div className="mb-4">
         <h3 className="text-sm text-gray-500">Job Description:</h3>
         <p className="whitespace-pre-wrap">{job.jobDescription}</p>
       </div>
-      {job.coverLetter && (
-        <div>
-          <h3 className="font-semibold">Cover Letter:</h3>
-          <p className="whitespace-pre-wrap">{job.coverLetter}</p>
-        </div>
-      )}
+      <CoverLetterTemplateDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onGenerate={handleGenerateCoverLetter}
+        userTokens={user?.tokens || 0}
+        existingCoverLetter={job.coverLetter}
+      />
     </div>
   );
 }
