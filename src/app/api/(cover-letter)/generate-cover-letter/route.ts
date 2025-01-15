@@ -34,6 +34,24 @@ export async function POST(req: NextRequest) {
     // Generate cover letter using OpenAI
     const prompt = `Create a professional cover letter for the following job description, using the candidate's experience from their CV: ${user.cv_full_text}\n\nJob Description: ${jobDescription}`;
 
+    // const prompt = `
+    //   Based on the following CV and job description, generate a single, coherent, and tailored cover letter.
+    //   Use the candidate's actual information and the specific job details provided.
+    //   Do not use placeholders like [Your Name] or [Company Name].
+
+    //   Context:
+    //   ${context}
+
+    //   Instructions:
+    //   1. Create a professional and engaging cover letter.
+    //   2. Highlight relevant skills and experiences from the CV that match the job description.
+    //   3. Demonstrate enthusiasm for the specific role and company.
+    //   4. Keep the tone professional yet personable.
+    //   5. Ensure the letter is concise, typically not exceeding one page.
+
+    //   Generate the cover letter now:
+    // `;
+
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
