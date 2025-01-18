@@ -10,11 +10,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-export const config = {
-  api: {
-    bodyParser: false, // Disable Next.js body parser for raw payload
-  },
-};
+export const dynamic = "force-dynamic"; // Ensures the route uses dynamic rendering
+export const runtime = "nodejs"; // Required for raw body handling
+export const preferredRegion = "auto"; // Optional: Optimizes regional latency
 
 export async function POST(req: Request) {
   const rawBody = await req.arrayBuffer();
