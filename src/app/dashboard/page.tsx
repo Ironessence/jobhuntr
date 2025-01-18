@@ -101,7 +101,7 @@ export default function Dashboard() {
 
       {/* Add New Job Card */}
       {jobs && jobs.length > 0 && (
-        <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+        <div className="flex flex-wrap gap-4 justify-center">
           {jobs.map((job) => (
             <JobCard
               key={job._id}

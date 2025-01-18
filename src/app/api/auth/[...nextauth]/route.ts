@@ -1,7 +1,13 @@
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
-import NextAuth from "next-auth";
+import NextAuth, { Profile } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+
+interface GoogleProfile extends Profile {
+  picture?: string;
+  email_verified?: boolean;
+  sub?: string;
+}
 
 const handler = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
@@ -12,29 +18,29 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile }) {
       if (account?.provider === "google") {
-        const { name, email, image } = user;
+        const googleProfile = profile as GoogleProfile;
+
+        const { name, email } = user;
         await connectToDatabase();
 
         const existingUser = await User.findOne({ email });
 
         if (existingUser) {
-          // Update existing user
+          existingUser.image = googleProfile.picture;
           await existingUser.save();
         } else {
-          // Create new user
           await User.create({
             name,
             email,
-            image,
+            //TODO: Test if this works
+            image: googleProfile.picture,
             cv: "",
           });
         }
-
-        return true;
       }
-      return false;
+      return true;
     },
     async redirect({ baseUrl }) {
       // Redirect to dashboard after successful login

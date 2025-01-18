@@ -1,5 +1,5 @@
 export const constants = {
-  APP_TITLE: "JobHuntR",
+  APP_TITLE: "Apply.ninja",
   STRIPE: {
     PRICES: {
       TOKENS_1000: "price_1PJhG0EWxp49n5kPRInr0eaM",

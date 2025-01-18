@@ -6,6 +6,7 @@ import { useUserContext } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { useGetQuery } from "@/lib";
 import { QueryKeys } from "@/utils/queryKeys";
+import { ArrowLeftIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -79,44 +80,60 @@ export default function JobDetailsPage() {
     }
   }, [error]);
 
-  if (isLoading) return <div>Loading...</div>;
+  // if (isLoading) return <div>Loading...</div>;
   if (isError) {
     return <div>Error loading job details: {(error as Error).message}</div>;
   }
   if (!job) return <div>Job not found</div>;
 
   return (
-    <div className="container mx-auto p-4">
-      <section className="flex justify-between items-center mb-5">
-        <div>
-          <h3 className="text-sm text-gray-500">Job title</h3>
-          <h1 className="text-2xl font-bold mb-4">{`${job.jobTitle} @ ${job.company}`}</h1>
+    <>
+      <Button
+        variant="outline"
+        onClick={() => router.back()}
+        className="mb-4 flex items-center justify-center duration-200 ease-in-out transition-all hover:bg-gray-900 gap-1"
+      >
+        <ArrowLeftIcon className="w-4 h-4" />
+        Back
+      </Button>
+      {!isLoading ? (
+        <div className="container mx-auto p-4">
+          <section className="flex justify-between items-center mb-5">
+            <div>
+              <h3 className="text-sm text-gray-500">Job title</h3>
+              <h1 className="text-2xl font-bold mb-4">{`${job.jobTitle} @ ${job.company}`}</h1>
+            </div>
+          </section>
+          <section className="flex justify-center gap-4 flex-col mb-4">
+            <Button
+              variant="outline"
+              className="max-w-fit"
+              onClick={() => setIsDialogOpen(true)}
+            >
+              {job.coverLetter ? "View Cover Letter" : "Generate Cover Letter"}
+            </Button>
+            <Button
+              variant="outline"
+              className="max-w-fit"
+            >
+              Generate Interview Questions
+            </Button>
+          </section>
+          <div className="mb-4">
+            <h3 className="text-sm text-gray-500">Job Description:</h3>
+            <p className="whitespace-pre-wrap">{job.jobDescription}</p>
+          </div>
+          <CoverLetterTemplateDialog
+            isOpen={isDialogOpen}
+            onClose={() => setIsDialogOpen(false)}
+            onGenerate={handleGenerateCoverLetter}
+            userTokens={user?.tokens || 0}
+            existingCoverLetter={job.coverLetter}
+          />
         </div>
-        <Button
-          variant="outline"
-          onClick={() => router.back()}
-        >
-          Back
-        </Button>
-      </section>
-      <section className="flex justify-center gap-4">
-        <Button onClick={() => setIsDialogOpen(true)}>
-          {job.coverLetter ? "View Cover Letter" : "Generate Cover Letter"}
-        </Button>
-        <Button>Generate Tailored Resume</Button>
-        <Button>Generate Interview Questions</Button>
-      </section>
-      <div className="mb-4">
-        <h3 className="text-sm text-gray-500">Job Description:</h3>
-        <p className="whitespace-pre-wrap">{job.jobDescription}</p>
-      </div>
-      <CoverLetterTemplateDialog
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        onGenerate={handleGenerateCoverLetter}
-        userTokens={user?.tokens || 0}
-        existingCoverLetter={job.coverLetter}
-      />
-    </div>
+      ) : (
+        <div>Loading...</div>
+      )}
+    </>
   );
 }
