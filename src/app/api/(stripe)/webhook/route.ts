@@ -1,7 +1,6 @@
 import { constants } from "@/constants";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
@@ -11,14 +10,25 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
+export const config = {
+  api: {
+    bodyParser: false, // Disable Next.js body parser for raw payload
+  },
+};
+
 export async function POST(req: Request) {
-  const body = await req.text();
-  const sig = headers().get("stripe-signature");
+  const rawBody = await req.arrayBuffer();
+  const sig = req.headers.get("stripe-signature");
 
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(body, sig!, endpointSecret!);
+    // Verify the Stripe webhook signature
+    event = stripe.webhooks.constructEvent(
+      Buffer.from(rawBody), // Convert ArrayBuffer to Buffer
+      sig!,
+      endpointSecret!,
+    );
   } catch (err) {
     return NextResponse.json({ error: `Webhook Error: ${err}` }, { status: 400 });
   }
