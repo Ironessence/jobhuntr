@@ -25,8 +25,7 @@ const Navbar = () => {
           <Image 
             src={theme === 'dark' ? whiteLogo : blackLogo} 
             alt="Apply.ninja" 
-            width={400} 
-            height={100} 
+            className="md:w-[400px] md:h-[70px] w-[200px] h-[40px] object-contain" 
           />
           <div className="flex items-center gap-4">
             <ThemeToggle/>
