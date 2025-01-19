@@ -1,6 +1,7 @@
 "use client";
 
 import { CoverLetterTemplateDialog } from "@/components/shared/CoverLetterTemplateDialog";
+import NinjaLoader from "@/components/shared/NinjaLoader";
 import { Button } from "@/components/ui/button";
 import { useUserContext } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -9,7 +10,7 @@ import { QueryKeys } from "@/utils/queryKeys";
 import { ArrowLeftIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface Job {
   _id: string;
@@ -74,17 +75,10 @@ export default function JobDetailsPage() {
     }
   };
 
-  useEffect(() => {
-    if (error) {
-      console.log(error);
-    }
-  }, [error]);
 
-  // if (isLoading) return <div>Loading...</div>;
-  if (isError) {
-    return <div>Error loading job details: {(error as Error).message}</div>;
-  }
-  if (!job) return <div>Job not found</div>;
+
+
+ 
 
   return (
     <>
@@ -96,7 +90,8 @@ export default function JobDetailsPage() {
         <ArrowLeftIcon className="w-4 h-4" />
         Back
       </Button>
-      {!isLoading ? (
+      {!isLoading && !job && <div>Job not found</div>}
+      {!isLoading && job ? (
         <div className="container mx-auto p-4">
           <section className="flex justify-between items-center mb-5">
             <div>
@@ -132,7 +127,7 @@ export default function JobDetailsPage() {
           />
         </div>
       ) : (
-        <div>Loading...</div>
+        <NinjaLoader className="w-20 h-20" />
       )}
     </>
   );

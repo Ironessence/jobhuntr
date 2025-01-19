@@ -2,6 +2,7 @@
 
 import addIcon from "@/assets/icons/icon-add2.png";
 import JobCard from "@/components/shared/JobCard";
+import NinjaLoader from "@/components/shared/NinjaLoader";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -53,7 +54,7 @@ export default function Dashboard() {
   }, [status, router]);
 
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return <NinjaLoader className="w-20 h-20" />;
   }
 
   if (!session || !session.user) {
