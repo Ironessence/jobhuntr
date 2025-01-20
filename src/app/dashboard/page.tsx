@@ -83,7 +83,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="mx-auto p-4">
       <section className="flex justify-end mb-4">
         <Button
           variant="outline"

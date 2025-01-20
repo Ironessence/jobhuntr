@@ -10,7 +10,7 @@ export default function DashboardLayout({
 }>) {
   const [isResumeDialogOpen, setIsResumeDialogOpen] = useState(false);
   return (
-    <div className="container mx-auto p-4">
+    <div className="mx-auto p-10">
       <DashboardHeader setIsResumeDialogOpen={setIsResumeDialogOpen} />
       {children}
       <ResumeDialog
