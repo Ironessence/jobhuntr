@@ -1,12 +1,20 @@
 import { createId } from "@/utils";
 import mongoose from "mongoose";
 
+const InterviewQuestionSchema = new mongoose.Schema({
+  question: String,
+  choices: [String],
+  correctAnswer: Number,
+  explanation: String,
+});
+
 const JobSchema = new mongoose.Schema({
   id: { type: String, default: createId() },
   jobTitle: String,
   company: String,
   jobDescription: String,
   coverLetter: String,
+  interviewQuestions: [InterviewQuestionSchema],
 });
 
 const UserSchema = new mongoose.Schema({

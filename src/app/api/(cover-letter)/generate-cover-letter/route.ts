@@ -13,8 +13,6 @@ export async function POST(req: NextRequest) {
     // Get the job data and user email from request body
     const { jobDescription, email, jobId } = await req.json();
 
-    console.log("~~~~~~~~~JOB ID FROM REQ:", jobId);
-
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 401 });
     }

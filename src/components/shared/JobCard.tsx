@@ -25,7 +25,6 @@ export function JobCard({ job }: JobCardProps) {
       <div className="flex justify-between items-center text-sm text-gray-500">
         {/* <span>Created: {job.createdAt}</span> */}
         <span>Created: 15-04-2025</span>
-        {/* <button className="text-blue-600 hover:text-blue-800">View Details</button> */}
       </div>
     </div>
   );

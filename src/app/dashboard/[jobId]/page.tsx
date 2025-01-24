@@ -1,16 +1,16 @@
 "use client";
 
-import { CoverLetterTemplateDialog } from "@/components/shared/CoverLetterTemplateDialog";
 import { InterviewQuiz } from "@/components/shared/InterviewQuiz";
 import NinjaLoader from "@/components/shared/NinjaLoader";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserContext } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { useGetQuery, useMutateApi } from "@/lib";
-import { Job } from "@/types/Job.types";
+import { InterviewQuestion, Job } from "@/types/Job.types";
 import { QueryKeys } from "@/utils/queryKeys";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, Building2, FileText, MessageSquare, RefreshCcw } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -23,7 +23,7 @@ export default function JobDetailsPage() {
   const { user } = useUserContext();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState<InterviewQuestion[]>([]);
 
   const {
     data: job,
@@ -36,12 +36,11 @@ export default function JobDetailsPage() {
     enabled: !!jobId && !!session?.user?.email,
   });
 
-  const { mutateAsync: generateQuestions, isPending: isGeneratingQuestions } = useMutateApi(
-    "/api/generate-interview-questions",
-    {
-      queryKey: [QueryKeys.GENERATE_INTERVIEW_QUESTIONS, jobId],
-    },
-  );
+  const { mutateAsync: generateQuestions, isPending: isGeneratingQuestions } = useMutateApi<
+    InterviewQuestion[]
+  >("/api/generate-interview-questions", {
+    queryKey: [QueryKeys.GENERATE_INTERVIEW_QUESTIONS, jobId],
+  });
 
   const handleGenerateCoverLetter = async () => {
     if (!job || !user) return;
@@ -83,15 +82,18 @@ export default function JobDetailsPage() {
     if (!job || !user) return;
 
     try {
-      const result = await generateQuestions({
+      await generateQuestions({
         jobTitle: job.jobTitle,
         company: job.company,
         jobDescription: job.jobDescription,
         email: user.email,
+        jobId: jobId,
       });
 
-      // @ts-expect-error - TODO: Need to fix this
-      setQuestions(result.questions);
+      await refetch(); // Refetch job data to get updated questions
+      if (job.interviewQuestions) {
+        setQuestions(job.interviewQuestions); // Use the questions from the job object
+      }
       setShowQuiz(true);
     } catch (error) {
       console.error("Error:", error);
@@ -115,69 +117,127 @@ export default function JobDetailsPage() {
       </Button>
       {!isLoading && !job && <div>Job not found</div>}
       {!isLoading && job ? (
-        <div className="lg:flex justify-center gap-10">
-          {/* JOB ACTIONS */}
-          <div
-            id="job-actions"
-            className="flex flex-col flex-1 order-2"
-          >
-            <h1 className="text-2xl font-bold mt-5 mb-2">Actions</h1>
-            <Separator />
-            <section className="flex justify-center gap-4 flex-col mb-4 mt-4">
-              <Button
-                variant="outline"
-                className="max-w-fit"
-                onClick={() => setIsDialogOpen(true)}
-              >
-                {job.coverLetter ? "View Cover Letter" : "Generate Cover Letter"}
-              </Button>
-              <Button
-                variant="outline"
-                className="max-w-fit"
-                onClick={handleGenerateQuestions}
-                disabled={isGeneratingQuestions}
-              >
-                {isGeneratingQuestions ? "Generating..." : "Generate Interview Questions"}
-              </Button>
-            </section>
-            {isGeneratingQuestions && (
-              <div className="flex justify-center items-center">
-                <NinjaLoader className="w-20 h-20" />
-              </div>
-            )}
-            {showQuiz && questions && (
-              <InterviewQuiz
-                questions={questions}
-                onClose={() => setShowQuiz(false)}
-              />
-            )}
-          </div>
-          {/* JOB DETAILS */}
-          <div
-            id="job-details"
-            className="flex flex-col flex-1 order-1"
-          >
-            <h1 className="text-2xl font-bold mt-5 mb-2">Job Details</h1>
-            <Separator />
-            <section className="flex justify-between items-center mb-5 mt-4">
-              <div>
-                <h3 className="text-sm text-gray-500">Job title</h3>
-                <h1 className="text-2xl font-bold mb-4">{`${job.jobTitle} @ ${job.company}`}</h1>
-              </div>
-            </section>
+        <div className="flex flex-col max-w-5xl mx-auto">
+          {/* Job Details Section */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">{`${job.jobTitle} @ ${job.company}`}</h1>
+            <Separator className="my-4" />
 
-            <div className="mb-4">
-              <h3 className="text-sm text-gray-500">Job Description:</h3>
-              <p className="whitespace-pre-wrap">{job.jobDescription}</p>
-            </div>
+            {/* Actions Tabs */}
+            <Tabs
+              defaultValue="cover-letter"
+              className="w-full mb-10"
+            >
+              <TabsList className="grid grid-cols-3 h-16 sm:h-24 bg-background">
+                <TabsTrigger
+                  value="cover-letter"
+                  className="flex flex-col gap-1 sm:gap-2 data-[state=active]:bg-muted px-1 sm:px-2"
+                >
+                  <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <div className="flex flex-col text-center">
+                    <span className="text-sm sm:text-base font-semibold">Cover Letter</span>
+                    <span className="text-xs text-muted-foreground hidden sm:block">
+                      Create an AI-powered cover letter
+                    </span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="company"
+                  className="flex flex-col gap-1 sm:gap-2 data-[state=active]:bg-muted px-1 sm:px-2"
+                >
+                  <Building2 className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <div className="flex flex-col text-center">
+                    <span className="text-sm sm:text-base font-semibold">Insights</span>
+                    <span className="text-xs text-muted-foreground hidden sm:block">
+                      Get AI-generated insights
+                    </span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="interview"
+                  className="flex flex-col gap-1 sm:gap-2 data-[state=active]:bg-muted px-1 sm:px-2"
+                >
+                  <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <div className="flex flex-col text-center ">
+                    <span className="text-sm sm:text-base font-semibold">Interview Prep</span>
+                    <span className="text-xs text-muted-foreground hidden sm:block">
+                      Practice with AI questions
+                    </span>
+                  </div>
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent
+                value="cover-letter"
+                className="mt-6"
+              >
+                {job.coverLetter ? (
+                  <>
+                    <Button
+                      variant="default"
+                      className="mb-4 flex items-center gap-1 "
+                      onClick={handleGenerateCoverLetter}
+                    >
+                      <RefreshCcw className="w-4 h-4" />
+                      Regenerate
+                    </Button>
+                    <div className="p-4 rounded-lg border bg-muted">
+                      <p className="whitespace-pre-wrap">{job.coverLetter}</p>
+                    </div>
+                  </>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={handleGenerateCoverLetter}
+                  >
+                    Generate Cover Letter
+                  </Button>
+                )}
+              </TabsContent>
+
+              <TabsContent
+                value="company"
+                className="mt-6"
+              >
+                <div className="text-center text-muted-foreground">
+                  Company insights coming soon...
+                </div>
+              </TabsContent>
+
+              <TabsContent
+                value="interview"
+                className="mt-6"
+              >
+                {!job.interviewQuestions ? (
+                  <Button
+                    onClick={handleGenerateQuestions}
+                    disabled={isGeneratingQuestions}
+                    className="flex items-center gap-2 mb-4"
+                  >
+                    Generate Interview Questions
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="mb-4 flex items-center gap-1"
+                    >
+                      <RefreshCcw className="w-4 h-4" />
+                      Regenerate Questions
+                    </Button>
+                    <InterviewQuiz questions={job.interviewQuestions || []} />
+                  </>
+                )}
+                {isGeneratingQuestions && (
+                  <div className="flex justify-center items-center mt-4">
+                    <NinjaLoader className="w-20 h-20" />
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+            <Separator className="my-4" />
+            <p className="whitespace-pre-wrap text-muted-foreground mb-8">{job.jobDescription}</p>
           </div>
-          <CoverLetterTemplateDialog
-            isOpen={isDialogOpen}
-            onClose={() => setIsDialogOpen(false)}
-            onGenerate={handleGenerateCoverLetter}
-            userTokens={user?.tokens || 0}
-            existingCoverLetter={job.coverLetter}
-          />
         </div>
       ) : (
         <div className="flex justify-center items-center h-[70vw]">

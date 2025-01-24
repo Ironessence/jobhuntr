@@ -1,5 +1,6 @@
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
+import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
@@ -16,7 +17,19 @@ interface Question {
 
 export async function POST(req: NextRequest) {
   try {
-    const { jobTitle, company, jobDescription, email } = await req.json();
+    const {
+      jobTitle,
+      company,
+      jobDescription,
+      email,
+      jobId,
+    }: {
+      jobTitle: string;
+      company: string;
+      jobDescription: string;
+      email: string;
+      jobId: string;
+    } = await req.json();
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 401 });
@@ -67,9 +80,24 @@ export async function POST(req: NextRequest) {
 
     const response = JSON.parse(completion.choices[0].message.content);
 
-    // Deduct tokens
-    // TODO: Need to also save the questions to the database in the job model
-    await User.findOneAndUpdate({ email }, { $inc: { tokens: -50 } });
+    // Update user document: deduct tokens and update interview questions
+    const objectId = new ObjectId(jobId);
+    console.log("JOBID:", objectId);
+    const updatedUser = await User.findOneAndUpdate(
+      {
+        email,
+        "jobs._id": objectId,
+      },
+      {
+        $inc: { tokens: -50 },
+        $set: { "jobs.$.interviewQuestions": response.questions },
+      },
+      { new: true },
+    );
+
+    if (!updatedUser) {
+      throw new Error("Failed to update user document");
+    }
 
     return NextResponse.json(response);
   } catch (error) {

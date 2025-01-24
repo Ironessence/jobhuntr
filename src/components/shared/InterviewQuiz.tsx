@@ -14,14 +14,17 @@ interface Question {
 
 interface Props {
   questions: Question[];
-  onClose: () => void;
 }
 
-export function InterviewQuiz({ questions, onClose }: Props) {
+export function InterviewQuiz({ questions }: Props) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
+
+  if (!questions) {
+    return <div>Loading...</div>;
+  }
 
   const handleAnswer = (choiceIndex: number) => {
     setSelectedAnswer(choiceIndex);
@@ -100,16 +103,15 @@ export function InterviewQuiz({ questions, onClose }: Props) {
 
       <div className="flex justify-between mt-4">
         <Button
-          variant="outline"
-          onClick={onClose}
+          onClick={handleNext}
+          disabled={showExplanation && isLastQuestion}
         >
-          Exit Quiz
+          Next Question
         </Button>
-        {showExplanation && !isLastQuestion && <Button onClick={handleNext}>Next Question</Button>}
         {isLastQuestion && showExplanation && (
-          <Button onClick={onClose}>
-            Finish Quiz (Score: {score}/{questions.length})
-          </Button>
+          <span>
+            Final Score: {score}/{questions.length}
+          </span>
         )}
       </div>
     </div>
