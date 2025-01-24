@@ -8,19 +8,12 @@ import { Separator } from "@/components/ui/separator";
 import { useUserContext } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { useGetQuery, useMutateApi } from "@/lib";
+import { Job } from "@/types/Job.types";
 import { QueryKeys } from "@/utils/queryKeys";
 import { ArrowLeftIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-
-interface Job {
-  _id: string;
-  jobTitle: string;
-  company: string;
-  jobDescription: string;
-  coverLetter?: string;
-}
 
 export default function JobDetailsPage() {
   const { data: session } = useSession();

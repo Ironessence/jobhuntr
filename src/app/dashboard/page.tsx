@@ -1,7 +1,8 @@
 "use client";
 
 import addIcon from "@/assets/icons/icon-add2.png";
-import JobCard from "@/components/shared/JobCard";
+import { JobCard } from "@/components/shared/JobCard";
+
 import NinjaLoader from "@/components/shared/NinjaLoader";
 import { Button } from "@/components/ui/button";
 import {
@@ -102,15 +103,12 @@ export default function Dashboard() {
 
       {/* Add New Job Card */}
       {jobs && jobs.length > 0 && (
-        <div className="flex flex-wrap gap-4 justify-center">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {jobs.map((job) => (
             <JobCard
               key={job._id}
-              jobId={job._id}
-              jobTitle={job.jobTitle}
-              company={job.company}
-              jobDescription={job.jobDescription}
-              userEmail={user?.email || ""}
+              // jobId={job._id}
+              job={job}
             />
           ))}
         </div>

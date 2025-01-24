@@ -10,3 +10,8 @@ export const createId = (): string => {
 
   return result;
 };
+
+export const shortenDescription = (description: string, maxLength = 100): string => {
+  if (description.length <= maxLength) return description;
+  return description.slice(0, maxLength).trim() + "...";
+};
