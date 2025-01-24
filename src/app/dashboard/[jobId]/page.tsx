@@ -1,5 +1,6 @@
 "use client";
 
+import JobCoverLetter from "@/components/shared/cover-letter/JobCoverLetter";
 import { InterviewQuiz } from "@/components/shared/InterviewQuiz";
 import NinjaLoader from "@/components/shared/NinjaLoader";
 import { Button } from "@/components/ui/button";
@@ -80,6 +81,10 @@ export default function JobDetailsPage() {
 
   const handleGenerateQuestions = async () => {
     if (!job || !user) return;
+
+    if (job.interviewQuestions) {
+      setQuestions([]);
+    }
 
     try {
       await generateQuestions({
@@ -171,28 +176,7 @@ export default function JobDetailsPage() {
                 value="cover-letter"
                 className="mt-6"
               >
-                {job.coverLetter ? (
-                  <>
-                    <Button
-                      variant="default"
-                      className="mb-4 flex items-center gap-1 "
-                      onClick={handleGenerateCoverLetter}
-                    >
-                      <RefreshCcw className="w-4 h-4" />
-                      Regenerate
-                    </Button>
-                    <div className="p-4 rounded-lg border bg-muted">
-                      <p className="whitespace-pre-wrap">{job.coverLetter}</p>
-                    </div>
-                  </>
-                ) : (
-                  <Button
-                    variant="outline"
-                    onClick={handleGenerateCoverLetter}
-                  >
-                    Generate Cover Letter
-                  </Button>
-                )}
+                <JobCoverLetter job={job} />
               </TabsContent>
 
               <TabsContent
@@ -214,16 +198,16 @@ export default function JobDetailsPage() {
                     disabled={isGeneratingQuestions}
                     className="flex items-center gap-2 mb-4"
                   >
-                    Generate Interview Questions
+                    {isGeneratingQuestions ? "Generating..." : "Generate Interview Questions"}
                   </Button>
                 ) : (
                   <>
                     <Button
-                      variant="outline"
                       className="mb-4 flex items-center gap-1"
+                      onClick={handleGenerateQuestions}
                     >
                       <RefreshCcw className="w-4 h-4" />
-                      Regenerate Questions
+                      {isGeneratingQuestions ? "Generating..." : "Regenerate Questions"}
                     </Button>
                     <InterviewQuiz questions={job.interviewQuestions || []} />
                   </>

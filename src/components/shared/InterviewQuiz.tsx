@@ -45,7 +45,7 @@ export function InterviewQuiz({ questions }: Props) {
   const isLastQuestion = currentQuestion === questions.length - 1;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 overflow-x-hidden">
       <div className="flex justify-between items-center mb-4">
         <div className="text-sm text-muted-foreground">
           Question {currentQuestion + 1} of {questions.length}
@@ -63,10 +63,12 @@ export function InterviewQuiz({ questions }: Props) {
           exit={{ x: -20, opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">{questions[currentQuestion].question}</h3>
+          <Card className="p-6 w-full flex flex-col gap-4">
+            <h3 className="text-lg font-semibold mb-4 whitespace-pre-wrap break-words w-full">
+              {questions[currentQuestion].question}
+            </h3>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2 py-2">
               {questions[currentQuestion].choices.map((choice, index) => (
                 <Button
                   key={index}
@@ -79,7 +81,7 @@ export function InterviewQuiz({ questions }: Props) {
                           ? "destructive"
                           : "outline"
                   }
-                  className="w-full justify-start text-left"
+                  className="w-full justify-start text-left text-wrap h-auto"
                   onClick={() => !selectedAnswer && handleAnswer(index)}
                   disabled={selectedAnswer !== null}
                 >
@@ -88,15 +90,17 @@ export function InterviewQuiz({ questions }: Props) {
               ))}
             </div>
 
-            {showExplanation && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-4 p-4 bg-muted rounded-lg"
-              >
-                <p className="text-sm">{questions[currentQuestion].explanation}</p>
-              </motion.div>
-            )}
+            <div className="mt-4">
+              {showExplanation && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 bg-muted rounded-lg"
+                >
+                  <p className="text-sm">{questions[currentQuestion].explanation}</p>
+                </motion.div>
+              )}
+            </div>
           </Card>
         </motion.div>
       </AnimatePresence>
@@ -104,7 +108,7 @@ export function InterviewQuiz({ questions }: Props) {
       <div className="flex justify-between mt-4">
         <Button
           onClick={handleNext}
-          disabled={showExplanation && isLastQuestion}
+          disabled={(showExplanation && isLastQuestion) || !showExplanation}
         >
           Next Question
         </Button>
