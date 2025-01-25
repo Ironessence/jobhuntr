@@ -10,6 +10,7 @@ export enum QueryKeys {
   ANALYZE_CV = "analyzeCV",
   UPDATE_SUGGESTIONS = "updateSuggestions",
   GENERATE_INTERVIEW_QUESTIONS = "generateInterviewQuestions",
+  GENERATE_COMPANY_INSIGHTS = "generateCompanyInsights",
 }
 
 export default QueryKeys;

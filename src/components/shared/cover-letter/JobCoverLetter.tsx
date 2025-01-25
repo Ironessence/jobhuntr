@@ -6,6 +6,7 @@ import { Job } from "@/types/Job.types";
 import QueryKeys from "@/utils/queryKeys";
 import { RefreshCcw } from "lucide-react";
 import { useParams } from "next/navigation";
+import NinjaLoader from "../NinjaLoader";
 
 const JobCoverLetter = ({ job }: { job: Job }) => {
   const { user } = useUserContext();
@@ -52,9 +53,11 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
             <RefreshCcw className="w-4 h-4" />
             {isGeneratingCoverLetter ? "Generating..." : "Regenerate"}
           </Button>
-          <div className="p-4 rounded-lg border bg-muted">
-            <p className="whitespace-pre-wrap">{job.coverLetter}</p>
-          </div>
+          {!isGeneratingCoverLetter && (
+            <div className="p-4 rounded-lg border bg-muted">
+              <p className="whitespace-pre-wrap">{job.coverLetter}</p>
+            </div>
+          )}
         </>
       ) : (
         <Button
@@ -64,6 +67,11 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
         >
           {isGeneratingCoverLetter ? "Generating..." : "Generate Cover Letter"}
         </Button>
+      )}
+      {isGeneratingCoverLetter && (
+        <div className="flex justify-center items-center mt-4">
+          <NinjaLoader className="w-15 h-15" />
+        </div>
       )}
     </div>
   );

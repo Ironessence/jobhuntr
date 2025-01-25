@@ -1,7 +1,8 @@
 "use client";
 
+import CompanyInsights from "@/components/shared/company-insights/CompanyInsights";
 import JobCoverLetter from "@/components/shared/cover-letter/JobCoverLetter";
-import { InterviewQuiz } from "@/components/shared/InterviewQuiz";
+import InterviewArea from "@/components/shared/interview-prep/InterviewArea";
 import NinjaLoader from "@/components/shared/NinjaLoader";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -11,7 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { useGetQuery, useMutateApi } from "@/lib";
 import { InterviewQuestion, Job } from "@/types/Job.types";
 import { QueryKeys } from "@/utils/queryKeys";
-import { ArrowLeftIcon, Building2, FileText, MessageSquare, RefreshCcw } from "lucide-react";
+import { ArrowLeftIcon, Building2, FileText, MessageSquare } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -42,42 +43,6 @@ export default function JobDetailsPage() {
   >("/api/generate-interview-questions", {
     queryKey: [QueryKeys.GENERATE_INTERVIEW_QUESTIONS, jobId],
   });
-
-  const handleGenerateCoverLetter = async () => {
-    if (!job || !user) return;
-
-    try {
-      const response = await fetch("/api/generate-cover-letter", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jobDescription: job.jobDescription,
-          email: user.email,
-          jobId: jobId,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to generate cover letter");
-      }
-
-      const data = await response.json();
-
-      // Refetch job data to get updated cover letter
-      await refetch();
-
-      return data;
-    } catch (error) {
-      console.error("Error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to generate cover letter",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleGenerateQuestions = async () => {
     if (!job || !user) return;
@@ -183,40 +148,14 @@ export default function JobDetailsPage() {
                 value="company"
                 className="mt-6"
               >
-                <div className="text-center text-muted-foreground">
-                  Company insights coming soon...
-                </div>
+                <CompanyInsights job={job} />
               </TabsContent>
 
               <TabsContent
                 value="interview"
                 className="mt-6"
               >
-                {!job.interviewQuestions ? (
-                  <Button
-                    onClick={handleGenerateQuestions}
-                    disabled={isGeneratingQuestions}
-                    className="flex items-center gap-2 mb-4"
-                  >
-                    {isGeneratingQuestions ? "Generating..." : "Generate Interview Questions"}
-                  </Button>
-                ) : (
-                  <>
-                    <Button
-                      className="mb-4 flex items-center gap-1"
-                      onClick={handleGenerateQuestions}
-                    >
-                      <RefreshCcw className="w-4 h-4" />
-                      {isGeneratingQuestions ? "Generating..." : "Regenerate Questions"}
-                    </Button>
-                    <InterviewQuiz questions={job.interviewQuestions || []} />
-                  </>
-                )}
-                {isGeneratingQuestions && (
-                  <div className="flex justify-center items-center mt-4">
-                    <NinjaLoader className="w-20 h-20" />
-                  </div>
-                )}
+                <InterviewArea job={job} />
               </TabsContent>
             </Tabs>
             <Separator className="my-4" />

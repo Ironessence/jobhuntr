@@ -8,6 +8,18 @@ const InterviewQuestionSchema = new mongoose.Schema({
   explanation: String,
 });
 
+const CompanyInsightSchema = new mongoose.Schema({
+  rating: Number,
+  overview: String,
+  culture: String,
+  benefits: String,
+  interviewProcess: String,
+  prosAndCons: {
+    pros: [String],
+    cons: [String],
+  },
+});
+
 const JobSchema = new mongoose.Schema({
   id: { type: String, default: createId() },
   jobTitle: String,
@@ -15,6 +27,7 @@ const JobSchema = new mongoose.Schema({
   jobDescription: String,
   coverLetter: String,
   interviewQuestions: [InterviewQuestionSchema],
+  companyInsights: CompanyInsightSchema,
 });
 
 const UserSchema = new mongoose.Schema({

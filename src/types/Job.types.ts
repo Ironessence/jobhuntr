@@ -5,6 +5,18 @@ export type InterviewQuestion = {
   explanation: string;
 };
 
+export type CompanyInsight = {
+  rating: number;
+  overview: string;
+  culture: string;
+  benefits: string;
+  interviewProcess: string;
+  prosAndCons: {
+    pros: string[];
+    cons: string[];
+  };
+};
+
 export type Job = {
   _id: string;
   id: string;
@@ -13,4 +25,5 @@ export type Job = {
   jobDescription: string;
   coverLetter?: string;
   interviewQuestions?: InterviewQuestion[];
+  companyInsights?: CompanyInsight;
 };
