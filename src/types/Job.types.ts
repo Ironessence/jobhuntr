@@ -11,6 +11,11 @@ export type CompanyInsight = {
   culture: string;
   benefits: string;
   interviewProcess: string;
+  salaryRange: {
+    min: number;
+    max: number;
+    currency: string;
+  };
   prosAndCons: {
     pros: string[];
     cons: string[];

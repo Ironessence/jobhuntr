@@ -10,6 +10,14 @@ import { useParams } from "next/navigation";
 import NinjaLoader from "../NinjaLoader";
 import { StarRating } from "./StarRating";
 
+const formatSalary = (amount: number, currency: string) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
 const CompanyInsights = ({ job }: { job: Job }) => {
   const { user } = useUserContext();
   const params = useParams();
@@ -44,14 +52,6 @@ const CompanyInsights = ({ job }: { job: Job }) => {
     }
   };
 
-  if (isGeneratingInsights) {
-    return (
-      <div className="flex justify-center items-center mt-4">
-        <NinjaLoader className="w-15 h-15" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
       <Button
@@ -63,10 +63,27 @@ const CompanyInsights = ({ job }: { job: Job }) => {
         {job.companyInsights ? "Regenerate Insights" : "Generate Company Insights"}
       </Button>
 
-      {job.companyInsights && (
+      {job.companyInsights && !isGeneratingInsights && (
         <>
-          <div className="flex items-center justify-center">
+          <div className="flex flex-col sm:flex-row items-center justify-between">
             <StarRating rating={job.companyInsights.rating} />
+            {job.companyInsights.salaryRange && (
+              <div className="text-center sm:text-right">
+                <p className="text-sm text-muted-foreground">Estimated Salary Range</p>
+                <p className="font-semibold">
+                  {formatSalary(
+                    job.companyInsights.salaryRange.min,
+                    job.companyInsights.salaryRange.currency,
+                  )}{" "}
+                  -{" "}
+                  {formatSalary(
+                    job.companyInsights.salaryRange.max,
+                    job.companyInsights.salaryRange.currency,
+                  )}
+                  /year
+                </p>
+              </div>
+            )}
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
@@ -130,6 +147,11 @@ const CompanyInsights = ({ job }: { job: Job }) => {
             </Card>
           </div>
         </>
+      )}
+      {isGeneratingInsights && (
+        <div className="flex justify-center items-center mt-4">
+          <NinjaLoader className="w-20 h-20" />
+        </div>
       )}
     </div>
   );

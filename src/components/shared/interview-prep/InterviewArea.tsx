@@ -65,12 +65,16 @@ export default function InterviewArea({ job }: Props) {
             <RefreshCcw className="w-4 h-4" />
             {isGeneratingQuestions ? "Generating..." : "Regenerate Questions"}
           </Button>
-          {!isGeneratingQuestions && <InterviewQuiz questions={job.interviewQuestions || []} />}
+          {!isGeneratingQuestions &&
+            job.interviewQuestions &&
+            job.interviewQuestions.length > 0 && (
+              <InterviewQuiz questions={job.interviewQuestions} />
+            )}
         </>
       )}
       {isGeneratingQuestions && (
         <div className="flex justify-center items-center mt-4">
-          <NinjaLoader className="w-15 h-15" />
+          <NinjaLoader className="w-20 h-20" />
         </div>
       )}
     </div>

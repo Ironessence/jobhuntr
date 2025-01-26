@@ -32,7 +32,6 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
 
       return data;
     } catch (error) {
-      console.error("Error:", error);
       toast({
         title: "Error",
         description: "Failed to generate cover letter",
@@ -53,25 +52,31 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
             <RefreshCcw className="w-4 h-4" />
             {isGeneratingCoverLetter ? "Generating..." : "Regenerate"}
           </Button>
-          {!isGeneratingCoverLetter && (
+          {!isGeneratingCoverLetter ? (
             <div className="p-4 rounded-lg border bg-muted">
               <p className="whitespace-pre-wrap">{job.coverLetter}</p>
+            </div>
+          ) : (
+            <div className="flex justify-center items-center mt-4">
+              <NinjaLoader className="w-20 h-20" />
             </div>
           )}
         </>
       ) : (
-        <Button
-          variant="outline"
-          onClick={handleGenerateCoverLetter}
-          disabled={isGeneratingCoverLetter}
-        >
-          {isGeneratingCoverLetter ? "Generating..." : "Generate Cover Letter"}
-        </Button>
-      )}
-      {isGeneratingCoverLetter && (
-        <div className="flex justify-center items-center mt-4">
-          <NinjaLoader className="w-15 h-15" />
-        </div>
+        <>
+          <Button
+            variant="outline"
+            onClick={handleGenerateCoverLetter}
+            disabled={isGeneratingCoverLetter}
+          >
+            {isGeneratingCoverLetter ? "Generating..." : "Generate Cover Letter"}
+          </Button>
+          {isGeneratingCoverLetter && (
+            <div className="flex justify-center items-center mt-4">
+              <NinjaLoader className="w-20 h-20" />
+            </div>
+          )}
+        </>
       )}
     </div>
   );
