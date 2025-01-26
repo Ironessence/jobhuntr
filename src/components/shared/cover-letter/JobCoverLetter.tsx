@@ -180,7 +180,6 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
       ) : (
         <>
           <Button
-            variant="outline"
             onClick={handleGenerateCoverLetter}
             disabled={isGeneratingCoverLetter}
           >

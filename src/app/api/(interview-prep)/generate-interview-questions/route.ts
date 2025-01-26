@@ -23,12 +23,14 @@ export async function POST(req: NextRequest) {
       jobDescription,
       email,
       jobId,
+      currentQuestions,
     }: {
       jobTitle: string;
       company: string;
       jobDescription: string;
       email: string;
       jobId: string;
+      currentQuestions: Question[];
     } = await req.json();
 
     if (!email) {
@@ -44,10 +46,10 @@ export async function POST(req: NextRequest) {
     }
 
     const prompt = `
-      Create 20 likely interview questions for a ${jobTitle} position at ${company}. 
+      Create exactly 20 technical interview questions that are likely to appear in an interview for a ${jobTitle} position at ${company}. 
+      Do not repeat questions from the following list: ${currentQuestions.map((q) => q.question).join(", ")}
       Consider the following job description: ${jobDescription}
-
-      Generate both technical and behavioral questions. For each question:
+      Generate only technical questions. For each question:
       1. Create 4 possible answers
       2. Indicate which answer is correct (0-3)
       3. Provide a brief explanation of why the correct answer is best
@@ -82,7 +84,6 @@ export async function POST(req: NextRequest) {
 
     // Update user document: deduct tokens and update interview questions
     const objectId = new ObjectId(jobId);
-    console.log("JOBID:", objectId);
     const updatedUser = await User.findOneAndUpdate(
       {
         email,

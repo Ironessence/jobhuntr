@@ -34,6 +34,7 @@ export default function InterviewArea({ job }: Props) {
         jobDescription: job.jobDescription,
         email: user.email,
         jobId: job._id,
+        currentQuestions: job.interviewQuestions,
       });
     } catch (error) {
       console.error("Error:", error);
