@@ -31,14 +31,14 @@ export async function POST(req: NextRequest) {
 
     const prompt = `
       Based on the following CV: ${user.cv_full_text} and job description: ${jobDescription}, generate a single, coherent, and tailored cover letter, using the candidate's actual information and the specific job details provided.
-      Do not use placeholders like [Your Name] or [Company Name].
+      Do not use placeholders like [Your Name] or [Company Name] or [Job Title] or [Address] or [Phone Number] or [Email Address] or [Date].
 
       Instructions:
-      1. Create a professional and engaging cover letter.
+      1. Create a professional and engaging cover letter, making it sound like the candidate is writing it, as human as possible.
       2. Highlight relevant skills and experiences from the CV that match the job description.
       3. Demonstrate enthusiasm for the specific role and company.
       4. Keep the tone professional yet personable.
-      5. Ensure the letter is concise, typically not exceeding one page.
+      5. Ensure the letter is concise, and do not exceed 360 words.
 
       Generate the cover letter now:
     `;

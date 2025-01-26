@@ -7,73 +7,27 @@ import NinjaLoader from "@/components/shared/NinjaLoader";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useUserContext } from "@/context/AuthContext";
-import { toast } from "@/hooks/use-toast";
-import { useGetQuery, useMutateApi } from "@/lib";
-import { InterviewQuestion, Job } from "@/types/Job.types";
+import { useGetQuery } from "@/lib";
+import { Job } from "@/types/Job.types";
 import { QueryKeys } from "@/utils/queryKeys";
 import { ArrowLeftIcon, Building2, FileText, MessageSquare } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
 
 export default function JobDetailsPage() {
   const { data: session } = useSession();
   const params = useParams();
   const router = useRouter();
   const jobId = params.jobId as string;
-  const { user } = useUserContext();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [showQuiz, setShowQuiz] = useState(false);
-  const [questions, setQuestions] = useState<InterviewQuestion[]>([]);
 
   const {
     data: job,
     isLoading,
-    isError,
-    error,
-    refetch,
+    isSuccess,
   } = useGetQuery<Job>(`/api/getJob/${jobId}`, {
     queryKey: [QueryKeys.GET_JOB, jobId],
     enabled: !!jobId && !!session?.user?.email,
   });
-
-  const { mutateAsync: generateQuestions, isPending: isGeneratingQuestions } = useMutateApi<
-    InterviewQuestion[]
-  >("/api/generate-interview-questions", {
-    queryKey: [QueryKeys.GENERATE_INTERVIEW_QUESTIONS, jobId],
-  });
-
-  const handleGenerateQuestions = async () => {
-    if (!job || !user) return;
-
-    if (job.interviewQuestions) {
-      setQuestions([]);
-    }
-
-    try {
-      await generateQuestions({
-        jobTitle: job.jobTitle,
-        company: job.company,
-        jobDescription: job.jobDescription,
-        email: user.email,
-        jobId: jobId,
-      });
-
-      await refetch(); // Refetch job data to get updated questions
-      if (job.interviewQuestions) {
-        setQuestions(job.interviewQuestions); // Use the questions from the job object
-      }
-      setShowQuiz(true);
-    } catch (error) {
-      console.error("Error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to generate interview questions",
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <>
@@ -85,7 +39,7 @@ export default function JobDetailsPage() {
         <ArrowLeftIcon className="w-4 h-4" />
         Back
       </Button>
-      {!isLoading && !job && <div>Job not found</div>}
+      {!isLoading && !job && isSuccess && <div>Job not found</div>}
       {!isLoading && job ? (
         <div className="flex flex-col max-w-5xl mx-auto">
           {/* Job Details Section */}
@@ -163,7 +117,7 @@ export default function JobDetailsPage() {
           </div>
         </div>
       ) : (
-        <div className="flex justify-center items-center h-[70vw]">
+        <div className="flex justify-center items-center">
           <NinjaLoader className="w-20 h-20" />
         </div>
       )}

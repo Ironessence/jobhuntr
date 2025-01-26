@@ -4,14 +4,18 @@ import { toast } from "@/hooks/use-toast";
 import { useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
 import QueryKeys from "@/utils/queryKeys";
-import { RefreshCcw } from "lucide-react";
+import jsPDF from "jspdf";
+import { Download, RefreshCcw } from "lucide-react";
 import { useParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import NinjaLoader from "../NinjaLoader";
 
 const JobCoverLetter = ({ job }: { job: Job }) => {
   const { user } = useUserContext();
   const params = useParams();
   const jobId = params.jobId as string;
+  const [content, setContent] = useState(job?.coverLetter || "");
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const { mutateAsync: generateCoverLetter, isPending: isGeneratingCoverLetter } = useMutateApi(
     "/api/generate-cover-letter",
@@ -20,17 +24,18 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
       invalidate: [QueryKeys.GET_JOB, jobId],
     },
   );
+
   const handleGenerateCoverLetter = async () => {
     if (!job || !user) return;
 
     try {
-      const data = await generateCoverLetter({
+      const data = (await generateCoverLetter({
         jobDescription: job.jobDescription,
         email: user.email,
         jobId: jobId,
-      });
+      })) as { coverLetter: string };
 
-      return data;
+      setContent(data.coverLetter);
     } catch (error) {
       toast({
         title: "Error",
@@ -39,22 +44,132 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
       });
     }
   };
+
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF({
+      unit: "pt",
+      format: "letter",
+      orientation: "portrait",
+    });
+
+    doc.setFontSize(12);
+
+    // Get and process text immediately
+    let text = content;
+
+    // Process special characters for the entire text first
+    text = text
+      .replace(/ș/g, "s")
+      .replace(/ț/g, "t")
+      .replace(/î/g, "i")
+      .replace(/ă/g, "a")
+      .replace(/â/g, "a")
+      .replace(/Ș/g, "S")
+      .replace(/Ț/g, "T")
+      .replace(/Î/g, "I")
+      .replace(/Ă/g, "A")
+      .replace(/Â/g, "A");
+
+    const margin = 50;
+    const normalLineHeight = 16;
+    const headerLineHeight = 14;
+    let y = margin;
+
+    // Split the processed text
+    const allParagraphs = text.split("\n");
+    const headerParagraphs = allParagraphs.slice(0, 4); // First 8 lines are header
+    const bodyParagraphs = allParagraphs.slice(4);
+
+    // Process header with tighter spacing
+    headerParagraphs.forEach((paragraph) => {
+      if (paragraph.trim()) {
+        const lines = doc.splitTextToSize(paragraph, doc.internal.pageSize.width - margin * 2);
+        lines.forEach((line: string) => {
+          doc.text(line, margin, y);
+          y += headerLineHeight;
+        });
+      }
+    });
+
+    // Add space between header and body
+    y += normalLineHeight;
+
+    // Process body paragraphs with normal spacing
+    bodyParagraphs.forEach((paragraph) => {
+      if (paragraph.trim()) {
+        if (y > doc.internal.pageSize.getHeight() - margin) {
+          doc.addPage();
+          y = margin;
+        }
+
+        const lines = doc.splitTextToSize(paragraph, doc.internal.pageSize.width - margin * 2);
+
+        lines.forEach((line: string) => {
+          doc.text(line, margin, y);
+          y += normalLineHeight;
+        });
+
+        y += normalLineHeight / 2; // Add space between paragraphs
+      }
+    });
+
+    doc.save(`cover-letter-${job.company}.pdf`);
+  };
+
+  const adjustHeight = () => {
+    const textarea = textAreaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
+
+  useEffect(() => {
+    adjustHeight();
+  }, [content]);
+
   return (
     <div>
       {job?.coverLetter ? (
         <>
-          <Button
-            variant="default"
-            className="mb-4 flex items-center gap-1"
-            onClick={handleGenerateCoverLetter}
-            disabled={isGeneratingCoverLetter}
-          >
-            <RefreshCcw className="w-4 h-4" />
-            {isGeneratingCoverLetter ? "Generating..." : "Regenerate"}
-          </Button>
+          <div className="flex gap-2 mb-4">
+            <Button
+              variant="default"
+              className="flex items-center gap-1"
+              onClick={handleGenerateCoverLetter}
+              disabled={isGeneratingCoverLetter}
+            >
+              <RefreshCcw className="w-4 h-4" />
+              {isGeneratingCoverLetter ? "Generating..." : "Regenerate"}
+            </Button>
+            <Button
+              variant="outline"
+              className="flex items-center gap-1"
+              onClick={handleDownloadPDF}
+            >
+              <Download className="w-4 h-4" />
+              Download PDF
+            </Button>
+          </div>
           {!isGeneratingCoverLetter ? (
-            <div className="p-4 rounded-lg border bg-muted">
-              <p className="whitespace-pre-wrap">{job.coverLetter}</p>
+            <div className="p-8 rounded-lg border bg-gray-900 max-w-full mx-auto shadow-sm">
+              <textarea
+                ref={textAreaRef}
+                value={content}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                  adjustHeight();
+                }}
+                className="w-full bg-transparent border-none focus:outline-none resize-none scrollbar-hidden"
+                style={{
+                  lineHeight: "1.5",
+                  fontSize: "14px",
+                  padding: "0",
+                  color: "white",
+                  overflow: "hidden",
+                  whiteSpace: "pre-wrap",
+                }}
+              />
             </div>
           ) : (
             <div className="flex justify-center items-center mt-4">
