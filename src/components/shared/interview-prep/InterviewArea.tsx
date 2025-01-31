@@ -48,34 +48,25 @@ export default function InterviewArea({ job }: Props) {
 
   return (
     <div>
-      {!job.interviewQuestions ? (
-        <Button
-          onClick={handleGenerateQuestions}
-          disabled={isGeneratingQuestions}
-          className="flex items-center gap-2 mb-4"
-        >
-          {isGeneratingQuestions ? "Generating..." : "Generate Interview Questions"}
-        </Button>
-      ) : (
-        <>
-          <Button
-            className="mb-4 flex items-center gap-1"
-            onClick={handleGenerateQuestions}
-            disabled={isGeneratingQuestions}
-          >
-            <RefreshCcw className="w-4 h-4" />
-            {isGeneratingQuestions ? "Generating..." : "Regenerate Questions"}
-          </Button>
-          {!isGeneratingQuestions &&
-            job.interviewQuestions &&
-            job.interviewQuestions.length > 0 && (
-              <InterviewQuiz questions={job.interviewQuestions} />
-            )}
-        </>
+      <Button
+        onClick={handleGenerateQuestions}
+        disabled={isGeneratingQuestions}
+        className="flex items-center gap-2 mb-4"
+      >
+        {job.interviewQuestions && job.interviewQuestions.length > 0 && (
+          <RefreshCcw className="w-4 h-4" />
+        )}
+        {job.companyInsights ? "Regenerate Interview Questions" : "Generate Interview Questions"}
+      </Button>
+
+      {!isGeneratingQuestions && job.interviewQuestions && job.interviewQuestions.length > 0 && (
+        <InterviewQuiz questions={job.interviewQuestions} />
       )}
+
       {isGeneratingQuestions && (
-        <div className="flex justify-center items-center mt-4">
+        <div className="flex flex-col justify-center items-center mt-4">
           <NinjaLoader className="w-20 h-20" />
+          <p className="text-sm text-gray-500">Please wait. This may take up to one minute.</p>
         </div>
       )}
     </div>

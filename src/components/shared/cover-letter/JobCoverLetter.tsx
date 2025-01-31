@@ -36,6 +36,11 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
       })) as { coverLetter: string };
 
       setContent(data.coverLetter);
+
+      // Force height adjustment after content is set
+      setTimeout(() => {
+        adjustHeight();
+      }, 100);
     } catch (error) {
       toast({
         title: "Error",
@@ -44,6 +49,10 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
       });
     }
   };
+
+  useEffect(() => {
+    console.log(content);
+  }, [content]);
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF({
@@ -77,8 +86,15 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
 
     // Split the processed text
     const allParagraphs = text.split("\n");
-    const headerParagraphs = allParagraphs.slice(0, 4); // First 8 lines are header
-    const bodyParagraphs = allParagraphs.slice(4);
+
+    // Find the first empty line that separates header from body
+    const headerEndIndex = allParagraphs.findIndex((line, index) => {
+      return line.trim() === "" && allParagraphs[index + 1]?.trim() !== "" && index > 2; // Ensure we're not catching early blank lines
+    });
+
+    // Split into header and body based on the empty line
+    const headerParagraphs = allParagraphs.slice(0, headerEndIndex);
+    const bodyParagraphs = allParagraphs.slice(headerEndIndex + 1);
 
     // Process header with tighter spacing
     headerParagraphs.forEach((paragraph) => {
@@ -109,7 +125,7 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
           y += normalLineHeight;
         });
 
-        y += normalLineHeight / 2; // Add space between paragraphs
+        y += normalLineHeight / 2;
       }
     });
 
@@ -125,6 +141,12 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
   };
 
   useEffect(() => {
+    if (job?.coverLetter) {
+      setContent(job.coverLetter);
+    }
+  }, [job?.coverLetter]);
+
+  useEffect(() => {
     adjustHeight();
   }, [content]);
 
@@ -135,7 +157,7 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
           <div className="flex gap-2 mb-4">
             <Button
               variant="default"
-              className="flex items-center gap-1"
+              className="flex items-center gap-2"
               onClick={handleGenerateCoverLetter}
               disabled={isGeneratingCoverLetter}
             >
@@ -172,8 +194,9 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
               />
             </div>
           ) : (
-            <div className="flex justify-center items-center mt-4">
+            <div className="flex flex-col justify-center items-center mt-4">
               <NinjaLoader className="w-20 h-20" />
+              <p className="text-sm text-gray-500">Please wait. This may take up to one minute.</p>
             </div>
           )}
         </>
@@ -185,11 +208,6 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
           >
             {isGeneratingCoverLetter ? "Generating..." : "Generate Cover Letter"}
           </Button>
-          {isGeneratingCoverLetter && (
-            <div className="flex justify-center items-center mt-4">
-              <NinjaLoader className="w-20 h-20" />
-            </div>
-          )}
         </>
       )}
     </div>

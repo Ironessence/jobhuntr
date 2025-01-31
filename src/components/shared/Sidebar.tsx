@@ -173,7 +173,6 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         />
         {!cvData ? (
           <Button
-            variant="outline"
             className="mt-10"
             onClick={() => fileInputRef.current?.click()}
             disabled={isPending}

@@ -149,8 +149,9 @@ const CompanyInsights = ({ job }: { job: Job }) => {
         </>
       )}
       {isGeneratingInsights && (
-        <div className="flex justify-center items-center mt-4">
+        <div className="flex flex-col justify-center items-center mt-4">
           <NinjaLoader className="w-20 h-20" />
+          <p className="text-sm text-gray-500">Please wait. This may take up to one minute.</p>
         </div>
       )}
     </div>

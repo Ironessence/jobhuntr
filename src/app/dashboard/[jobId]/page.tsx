@@ -32,9 +32,8 @@ export default function JobDetailsPage() {
   return (
     <>
       <Button
-        variant="outline"
         onClick={() => router.back()}
-        className="mb-4 flex items-center justify-center duration-200 ease-in-out transition-all hover:bg-gray-900 gap-1"
+        className="mb-4 flex items-center justify-center duration-200 ease-in-out transition-all gap-1"
       >
         <ArrowLeftIcon className="w-4 h-4" />
         Back

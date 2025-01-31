@@ -1,6 +1,5 @@
 "use client";
 
-import addIcon from "@/assets/icons/icon-add2.png";
 import { JobCard } from "@/components/shared/JobCard";
 
 import NinjaLoader from "@/components/shared/NinjaLoader";
@@ -19,8 +18,8 @@ import { useGetQuery, useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
 import { User } from "@/types/User.types";
 import QueryKeys from "@/utils/queryKeys";
+import { PlusIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -66,37 +65,41 @@ export default function Dashboard() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    await saveJob({ jobTitle, company, jobDescription, email: session?.user?.email })
-      .then(() => {
-        setJobSaved(true);
-        setIsSubmitting(false);
-        setIsDialogOpen(false);
-      })
-      .catch((error) => {
-        console.error("Error saving job:", error);
-        setIsSubmitting(false);
-      })
-      .finally(() => {
-        setJobDescription("");
-        setCompany("");
-        setJobTitle("");
-      });
+    try {
+      const response = (await saveJob({
+        jobTitle,
+        company,
+        jobDescription,
+        email: session?.user?.email,
+      })) as { jobId: string; message: string };
+
+      setJobSaved(true);
+      setIsSubmitting(false);
+      setIsDialogOpen(false);
+
+      // Clear form
+      setJobDescription("");
+      setCompany("");
+      setJobTitle("");
+
+      // Navigate to the new job using the returned jobId
+      if (response.jobId) {
+        router.push(`/dashboard/${response.jobId}`);
+      }
+    } catch (error) {
+      console.error("Error saving job:", error);
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="mx-auto p-4">
       <section className="flex justify-end mb-4">
         <Button
-          variant="outline"
           onClick={() => setIsDialogOpen(true)}
           className="flex items-center gap-2"
         >
-          <Image
-            src={addIcon}
-            alt="Add new job"
-            width={16}
-            height={16}
-          />
+          <PlusIcon className="w-4 h-4" />
           Add New Job
         </Button>
       </section>
