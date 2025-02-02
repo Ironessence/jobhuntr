@@ -50,10 +50,6 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
     }
   };
 
-  useEffect(() => {
-    console.log(content);
-  }, [content]);
-
   const handleDownloadPDF = () => {
     const doc = new jsPDF({
       unit: "pt",
@@ -152,63 +148,51 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
 
   return (
     <div>
-      {job?.coverLetter ? (
-        <>
-          <div className="flex gap-2 mb-4">
-            <Button
-              variant="default"
-              className="flex items-center gap-2"
-              onClick={handleGenerateCoverLetter}
-              disabled={isGeneratingCoverLetter}
-            >
-              <RefreshCcw className="w-4 h-4" />
-              {isGeneratingCoverLetter ? "Generating..." : "Regenerate"}
-            </Button>
-            <Button
-              variant="outline"
-              className="flex items-center gap-1"
-              onClick={handleDownloadPDF}
-            >
-              <Download className="w-4 h-4" />
-              Download PDF
-            </Button>
-          </div>
-          {!isGeneratingCoverLetter ? (
-            <div className="p-8 rounded-lg border bg-gray-900 max-w-full mx-auto shadow-sm">
-              <textarea
-                ref={textAreaRef}
-                value={content}
-                onChange={(e) => {
-                  setContent(e.target.value);
-                  adjustHeight();
-                }}
-                className="w-full bg-transparent border-none focus:outline-none resize-none scrollbar-hidden"
-                style={{
-                  lineHeight: "1.5",
-                  fontSize: "14px",
-                  padding: "0",
-                  color: "white",
-                  overflow: "hidden",
-                  whiteSpace: "pre-wrap",
-                }}
-              />
-            </div>
-          ) : (
-            <div className="flex flex-col justify-center items-center mt-4">
-              <NinjaLoader className="w-20 h-20" />
-              <p className="text-sm text-gray-500">Please wait. This may take up to one minute.</p>
-            </div>
-          )}
-        </>
-      ) : (
-        <>
-          <Button
-            onClick={handleGenerateCoverLetter}
-            disabled={isGeneratingCoverLetter}
-          >
-            {isGeneratingCoverLetter ? "Generating..." : "Generate Cover Letter"}
-          </Button>
-        </>
+      <div className="flex gap-2 mb-4">
+        <Button
+          variant="default"
+          className="flex items-center gap-2"
+          onClick={handleGenerateCoverLetter}
+          disabled={isGeneratingCoverLetter}
+        >
+          {job?.coverLetter && <RefreshCcw className="w-4 h-4" />}
+          {job?.coverLetter ? "Regenerate Cover Letter" : "Generate Cover Letter"}
+        </Button>
+        <Button
+          variant="outline"
+          className="flex items-center gap-1"
+          onClick={handleDownloadPDF}
+        >
+          <Download className="w-4 h-4" />
+          Download PDF
+        </Button>
+      </div>
+      {job?.coverLetter && !isGeneratingCoverLetter && (
+        <div className="p-8 rounded-lg border bg-gray-900 max-w-full mx-auto shadow-sm">
+          <textarea
+            ref={textAreaRef}
+            value={content}
+            onChange={(e) => {
+              setContent(e.target.value);
+              adjustHeight();
+            }}
+            className="w-full bg-transparent border-none focus:outline-none resize-none scrollbar-hidden"
+            style={{
+              lineHeight: "1.5",
+              fontSize: "14px",
+              padding: "0",
+              color: "white",
+              overflow: "hidden",
+              whiteSpace: "pre-wrap",
+            }}
+          />
+        </div>
+      )}
+      {isGeneratingCoverLetter && (
+        <div className="flex flex-col justify-center items-center mt-4">
+          <NinjaLoader className="w-20 h-20" />
+          <p className="text-sm text-gray-500">Please wait. This may take up to one minute.</p>
+        </div>
       )}
     </div>
   );
