@@ -4,6 +4,8 @@ import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
+export const maxDuration = 60;
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -25,10 +27,9 @@ export async function POST(req: NextRequest) {
     }
 
     const prompt = `
-      Analyze the following company and job description to provide detailed insights, by browsing the internet, looking at reviews and other sources, like Glassdoor, Linkedin, Indeed etc.:
+      Analyze the following company on Glassdoor and other similar sources, by browsing the internet:
       Company: ${company}
       Role: ${role}
-      Job Description: ${jobDescription}
 
       Provide a comprehensive analysis in JSON format with the following structure:
       {
@@ -49,12 +50,12 @@ export async function POST(req: NextRequest) {
       }
 
       For the salary range:
-      1. Use real salary data from Glassdoor, Indeed, and similar sources
+      1. Use real salary data from Glassdoor, Indeed, and similar sources. Make it as accurate as possible, instead of a generic "90K-130K" range.
       2. Consider the role level, company location, and industry standards
       3. Provide realistic ranges based on market data
       4. Use the most common currency for the company's main location
 
-      Make the analysis detailed and insightful, based on the job description and company information.
+      Make the analysis detailed and insightful, based on the role and company information.
     `;
 
     const completion = await openai.chat.completions.create({

@@ -4,7 +4,7 @@ import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
-export const maxDuration = 60;
+export const maxDuration = 90;
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     const prompt = `
       Create exactly 20 technical interview questions that are likely to appear in an interview for a ${jobTitle} position at ${company}. 
       Do not repeat questions from the following list: ${currentQuestions.map((q) => q.question).join(", ")}
-      Consider the following job description: ${jobDescription}
+      When looking at the type of questions, consider likely questions that are relevant for the job title and company, found on the internet.
       Generate only technical questions. For each question:
       1. Create 4 possible answers
       2. Indicate which answer is correct (0-3)
