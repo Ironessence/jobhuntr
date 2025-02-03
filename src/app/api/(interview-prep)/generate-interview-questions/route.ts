@@ -22,7 +22,6 @@ export async function POST(req: NextRequest) {
     const {
       jobTitle,
       company,
-      jobDescription,
       email,
       jobId,
       currentQuestions,
@@ -49,9 +48,9 @@ export async function POST(req: NextRequest) {
 
     const prompt = `
       Create exactly 20 technical interview questions that are likely to appear in an interview for a ${jobTitle} position at ${company}. 
-      Do not repeat questions from the following list: ${currentQuestions.map((q) => q.question).join(", ")}
+      ${currentQuestions.length > 0 ? `Do not repeat questions from the following list: ${currentQuestions.map((q) => q.question).join(", ")}` : ""}
       When looking at the type of questions, consider likely questions that are relevant for the job title and company, found on the internet.
-      Generate only technical questions. For each question:
+      Generate only technical questions and practical exercises (coding, puzzles, etc.). For each question:
       1. Create 4 possible answers
       2. Indicate which answer is correct (0-3)
       3. Provide a brief explanation of why the correct answer is best
