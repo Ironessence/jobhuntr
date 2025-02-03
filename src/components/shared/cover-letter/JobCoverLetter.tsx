@@ -158,16 +158,18 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
           {job?.coverLetter && <RefreshCcw className="w-4 h-4" />}
           {job?.coverLetter ? "Regenerate Cover Letter" : "Generate Cover Letter"}
         </Button>
-        <Button
-          variant="outline"
-          className="flex items-center gap-1"
-          onClick={handleDownloadPDF}
-        >
-          <Download className="w-4 h-4" />
-          Download PDF
-        </Button>
+        {job?.coverLetter && (
+          <Button
+            variant="outline"
+            className="flex items-center gap-1"
+            onClick={handleDownloadPDF}
+          >
+            <Download className="w-4 h-4" />
+            Download PDF
+          </Button>
+        )}
       </div>
-      {job?.coverLetter && !isGeneratingCoverLetter && (
+      {content && !isGeneratingCoverLetter && (
         <div className="p-8 rounded-lg border bg-gray-900 max-w-full mx-auto shadow-sm">
           <textarea
             ref={textAreaRef}
