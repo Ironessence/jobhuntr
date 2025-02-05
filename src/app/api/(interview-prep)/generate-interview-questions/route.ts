@@ -47,25 +47,28 @@ export async function POST(req: NextRequest) {
     }
 
     const prompt = `
-      Create exactly 20 technical interview questions that are likely to appear in an interview for a ${jobTitle} position at ${company}. 
+      Create exactly 10 technical interview quizzes that are likely to appear in an interview for a ${jobTitle} position at ${company}. 
       ${currentQuestions.length > 0 ? `Do not repeat questions from the following list: ${currentQuestions.map((q) => q.question).join(", ")}` : ""}
-      When looking at the type of questions, consider likely questions that are relevant for the job title and company, found on the internet.
       Generate only technical questions and practical exercises (coding, puzzles, etc.). For each question:
       1. Create 4 possible answers
       2. Indicate which answer is correct (0-3)
       3. Provide a brief explanation of why the correct answer is best
 
       Format the response as a JSON array with objects containing:
-      - question: string
-      - choices: string[] (4 options)
-      - correctAnswer: number (0-3)
-      - explanation: string
-
+     questions: [
+     {
+     question: string;
+     choices: string[];
+     correctAnswer: number;
+     explanation: string;
+     },
+     etc...
+     ]
       Make the questions challenging but realistic for the position.
     `;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
