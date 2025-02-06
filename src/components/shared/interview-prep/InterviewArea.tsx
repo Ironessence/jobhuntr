@@ -21,7 +21,7 @@ export default function InterviewArea({ job }: Props) {
     InterviewQuestion[]
   >("/api/generate-interview-questions", {
     queryKey: [QueryKeys.GENERATE_INTERVIEW_QUESTIONS, job._id],
-    invalidate: [QueryKeys.GET_JOB, job._id],
+    invalidate: [QueryKeys.GET_JOB, job._id, QueryKeys.GET_USER],
   });
 
   const handleGenerateQuestions = async () => {

@@ -1,14 +1,8 @@
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
+import { GoogleGenerativeAI, ResponseSchema, SchemaType } from "@google/generative-ai";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
-
-export const maxDuration = 60;
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 interface Question {
   question: string;
@@ -22,6 +16,7 @@ export async function POST(req: NextRequest) {
     const {
       jobTitle,
       company,
+      jobDescription,
       email,
       jobId,
       currentQuestions,
@@ -38,73 +33,109 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email is required" }, { status: 401 });
     }
 
+    // Connect to database
     await connectToDatabase();
 
-    // Find user and check tokens
+    // Validate user and tokens
     const user = await User.findOne({ email });
     if (!user || user.tokens < 50) {
       return NextResponse.json({ error: "Insufficient tokens" }, { status: 400 });
     }
 
-    const prompt = `
-      Create exactly 10 technical interview quizzes that are likely to appear in an interview for a ${jobTitle} position at ${company}. 
-      ${currentQuestions.length > 0 ? `Do not repeat questions from the following list: ${currentQuestions.map((q) => q.question).join(", ")}` : ""}
-      Generate only technical questions and practical exercises (coding, puzzles, etc.). For each question:
-      1. Create 4 possible answers
-      2. Indicate which answer is correct (0-3)
-      3. Provide a brief explanation of why the correct answer is best
+    const prompt = `Generate exactly 10 NEW and UNIQUE technical interview questions for a ${jobTitle} role at ${company}.
 
-      Format the response as a JSON array with objects containing:
-     questions: [
-     {
-     question: string;
-     choices: string[];
-     correctAnswer: number;
-     explanation: string;
-     },
-     etc...
-     ]
-      Make the questions challenging but realistic for the position.
-    `;
+${
+  currentQuestions?.length > 0
+    ? `
+IMPORTANT: DO NOT USE OR REPHRASE ANY OF THESE EXISTING QUESTIONS:
+${currentQuestions.map((q, i) => `${i + 1}. ${q.question}`).join("\n")}
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are an expert technical interviewer. Create realistic interview questions with multiple choice answers.",
+Generate completely different questions covering other technical aspects or scenarios.
+`
+    : ""
+}
+
+Requirements:
+- Questions should be practical coding challenges or technical puzzles
+- Focus on real-world problem-solving rather than theoretical concepts
+- Each question should test different skills or concepts
+- Make questions challenging but realistic for the position level
+- Avoid basic definition questions
+- Questions should require analytical thinking
+
+Return only valid JSON with no markdown formatting.`;
+
+    const schema: ResponseSchema = {
+      description: "List of interview questions",
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          question: {
+            type: SchemaType.STRING,
+            description: "The interview question text",
+            nullable: false,
+          },
+          choices: {
+            type: SchemaType.ARRAY,
+            description: "An array of exactly 4 strings representing the possible answers",
+            nullable: false,
+            items: {
+              type: SchemaType.STRING,
+            },
+          },
+          correctAnswer: {
+            type: SchemaType.NUMBER,
+            description: "The index (0-3) of the correct answer",
+            nullable: false,
+          },
+          explanation: {
+            type: SchemaType.STRING,
+            description: "A brief explanation for why the answer is correct",
+            nullable: false,
+          },
         },
-        { role: "user", content: prompt },
-      ],
-      response_format: { type: "json_object" },
+        required: ["question", "choices", "correctAnswer", "explanation"],
+      },
+    };
+
+    // Instantiate the Gemini client using your Google API key
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
+
+    // Later, when calling the Gemini model, pass the valid schema:
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: schema,
+      },
     });
 
-    if (!completion.choices[0].message.content) {
-      throw new Error("No content received from OpenAI");
-    }
+    const result = await model.generateContent(prompt);
+    const resultText = result.response.text();
+    const cleanedResultText = resultText.replace(/```(json)?/g, "").trim();
+    const parsedQuestions = JSON.parse(cleanedResultText); // This is already an array
 
-    const response = JSON.parse(completion.choices[0].message.content);
+    // First update: Deduct tokens.
+    await User.findOneAndUpdate({ email }, { $inc: { tokens: -50 } });
 
-    // Update user document: deduct tokens and update interview questions
-    const objectId = new ObjectId(jobId);
+    // Second update: Update the interviewQuestions in the matching job using arrayFilters.
     const updatedUser = await User.findOneAndUpdate(
+      { email },
       {
-        email,
-        "jobs._id": objectId,
+        $set: { "jobs.$[job].interviewQuestions": parsedQuestions }, // Use parsedQuestions directly
       },
       {
-        $inc: { tokens: -50 },
-        $set: { "jobs.$.interviewQuestions": response.questions },
+        arrayFilters: [{ "job._id": new ObjectId(jobId) }],
+        new: true,
       },
-      { new: true },
     );
 
     if (!updatedUser) {
       throw new Error("Failed to update user document");
     }
 
-    return NextResponse.json(response);
+    return NextResponse.json(parsedQuestions);
   } catch (error) {
     console.error("Error generating interview questions:", error);
     return NextResponse.json({ error: "Failed to generate interview questions" }, { status: 500 });
