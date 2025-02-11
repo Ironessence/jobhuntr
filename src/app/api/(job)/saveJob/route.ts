@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
+import { JobStatus } from "@/types/Job.types";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,7 +16,17 @@ export async function POST(req: NextRequest) {
 
     const user = await User.findOneAndUpdate(
       { email: email },
-      { $push: { jobs: { jobTitle, company, jobDescription } } },
+      {
+        $push: {
+          jobs: {
+            jobTitle,
+            company,
+            jobDescription,
+            status: JobStatus.ADDED,
+            createdAt: new Date(),
+          },
+        },
+      },
       { new: true },
     );
 

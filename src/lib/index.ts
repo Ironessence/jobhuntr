@@ -1,4 +1,5 @@
 import {
+  QueryKey,
   useMutation,
   UseMutationOptions,
   useQuery,
@@ -6,7 +7,7 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query";
 
-type QueryKeyT = string | readonly unknown[];
+type QueryKeyT = QueryKey | string | readonly unknown[];
 
 /**
  * General GET request hook
@@ -41,6 +42,12 @@ export function useGetQuery<TData = unknown, TError = unknown>(
   });
 }
 
+interface MutateApiOptions {
+  queryKey: QueryKeyT;
+  invalidate?: QueryKeyT | QueryKeyT[];
+  method?: "POST" | "PUT" | "DELETE" | "PATCH";
+}
+
 /**
  * General mutation hook (POST/PUT/DELETE)
  * @param url - The URL to send the request to
@@ -50,39 +57,38 @@ export function useGetQuery<TData = unknown, TError = unknown>(
  */
 export function useMutateApi<TData = unknown, TError = unknown, TVariables = unknown>(
   url: string,
-  options: {
-    queryKey: QueryKeyT;
-    invalidate?: QueryKeyT | QueryKeyT[];
-  },
+  options: MutateApiOptions,
   mutationOptions?: Omit<UseMutationOptions<TData, TError, TVariables>, "mutationFn">,
 ) {
   const queryClient = useQueryClient();
-  const finalMutationKey = Array.isArray(options.queryKey) ? options.queryKey : [options.queryKey];
-  const invalidateKeys = options.invalidate
-    ? Array.isArray(options.invalidate)
-      ? options.invalidate
-      : [options.invalidate]
-    : [];
+  const { queryKey, invalidate, method = "POST" } = options;
 
   return useMutation<TData, TError, TVariables>({
-    mutationKey: finalMutationKey,
-    mutationFn: (variables) =>
-      fetch(url, {
-        method: "POST",
+    mutationKey: [queryKey],
+    mutationFn: async (variables: TVariables): Promise<TData> => {
+      const response = await fetch(url, {
+        method: method,
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(variables),
-      }).then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok");
-        return res.json();
-      }),
-    onSuccess: (...args) => {
-      invalidateKeys.forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: Array.isArray(key) ? key : [key] });
       });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      return response.json();
+    },
+    onSuccess: (data: TData, variables: TVariables, context: unknown) => {
+      if (invalidate) {
+        const invalidateKeys = Array.isArray(invalidate) ? invalidate : [invalidate];
+        invalidateKeys.forEach((key) => {
+          queryClient.invalidateQueries({ queryKey: [key] });
+        });
+      }
       if (mutationOptions?.onSuccess) {
-        mutationOptions.onSuccess(...args);
+        mutationOptions.onSuccess(data, variables, context);
       }
     },
     ...mutationOptions,

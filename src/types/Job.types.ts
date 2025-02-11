@@ -22,13 +22,23 @@ export type CompanyInsight = {
   };
 };
 
+export enum JobStatus {
+  ADDED = "ADDED",
+  APPLIED = "APPLIED",
+  REJECTED = "REJECTED",
+  INTERVIEWING = "INTERVIEWING",
+  OFFER_RECEIVED = "OFFER_RECEIVED",
+}
+
 export type Job = {
   _id: string;
   id: string;
   jobTitle: string;
   company: string;
   jobDescription: string;
+  status: JobStatus;
   coverLetter?: string;
   interviewQuestions?: InterviewQuestion[];
   companyInsights?: CompanyInsight;
+  createdAt: Date;
 };

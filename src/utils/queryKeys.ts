@@ -11,6 +11,8 @@ export enum QueryKeys {
   UPDATE_SUGGESTIONS = "updateSuggestions",
   GENERATE_INTERVIEW_QUESTIONS = "generateInterviewQuestions",
   GENERATE_COMPANY_INSIGHTS = "generateCompanyInsights",
+  UPDATE_JOB_STATUS = "updateJobStatus",
+  DELETE_JOB = "deleteJob",
 }
 
 export default QueryKeys;

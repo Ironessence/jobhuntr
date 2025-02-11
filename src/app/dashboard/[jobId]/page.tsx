@@ -4,13 +4,33 @@ import CompanyInsights from "@/components/shared/company-insights/CompanyInsight
 import JobCoverLetter from "@/components/shared/cover-letter/JobCoverLetter";
 import InterviewArea from "@/components/shared/interview-prep/InterviewArea";
 import NinjaLoader from "@/components/shared/NinjaLoader";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGetQuery } from "@/lib";
-import { Job } from "@/types/Job.types";
+import { toast } from "@/hooks/use-toast";
+import { useGetQuery, useMutateApi } from "@/lib";
+import { Job, JobStatus } from "@/types/Job.types";
+import { formatDate, formatJobStatus } from "@/utils/formatters";
 import { QueryKeys } from "@/utils/queryKeys";
-import { ArrowLeftIcon, Building2, FileText, MessageSquare } from "lucide-react";
+import { ArrowLeftIcon, Building2, FileText, MessageSquare, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 
@@ -29,6 +49,58 @@ export default function JobDetailsPage() {
     enabled: !!jobId && !!session?.user?.email,
   });
 
+  const { mutateAsync: updateStatus } = useMutateApi("/api/updateJobStatus", {
+    queryKey: [QueryKeys.UPDATE_JOB_STATUS, jobId],
+    invalidate: [QueryKeys.GET_JOB, jobId],
+    method: "POST",
+  });
+
+  const { mutateAsync: deleteJob } = useMutateApi("/api/deleteJob", {
+    queryKey: QueryKeys.DELETE_JOB,
+    invalidate: QueryKeys.GET_JOBS,
+    method: "POST",
+  });
+
+  const handleStatusChange = async (newStatus: JobStatus) => {
+    try {
+      await updateStatus({
+        jobId,
+        status: newStatus,
+        email: session?.user?.email,
+      });
+      toast({
+        title: "Status updated",
+        description: `Job status updated to ${newStatus}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update job status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteJob = async () => {
+    try {
+      await deleteJob({
+        jobId,
+        email: session?.user?.email,
+      });
+      router.push("/dashboard");
+      toast({
+        title: "Success",
+        description: "Job deleted successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete job",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       <Button
@@ -41,9 +113,61 @@ export default function JobDetailsPage() {
       {!isLoading && !job && isSuccess && <div>Job not found</div>}
       {!isLoading && job ? (
         <div className="flex flex-col max-w-5xl mx-auto">
-          {/* Job Details Section */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">{`${job.jobTitle} @ ${job.company}`}</h1>
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold">{`${job.jobTitle} @ ${job.company}`}</h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Created on {formatDate(job.createdAt)}
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <Select
+                  value={job.status}
+                  onValueChange={(value) => handleStatusChange(value as JobStatus)}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue>
+                      {job.status ? formatJobStatus(job.status as JobStatus) : "Select status"}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(JobStatus).map((status) => (
+                      <SelectItem
+                        key={status}
+                        value={status}
+                      >
+                        {formatJobStatus(status)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete this job and all
+                        its related data.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDeleteJob}>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
             <Separator className="my-4" />
 
             {/* Actions Tabs */}

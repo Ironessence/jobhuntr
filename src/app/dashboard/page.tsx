@@ -94,23 +94,41 @@ export default function Dashboard() {
 
   return (
     <div className="mx-auto p-4">
-      <section className="flex justify-end mb-4">
-        <Button
-          onClick={() => setIsDialogOpen(true)}
-          className="flex items-center gap-2"
-        >
-          <PlusIcon className="w-4 h-4" />
-          Add New Job
-        </Button>
-      </section>
+      {jobs && jobs.length > 0 && (
+        <section className="flex justify-end mb-4">
+          <Button
+            onClick={() => setIsDialogOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <PlusIcon className="w-4 h-4" />
+            Add New Job
+          </Button>
+        </section>
+      )}
 
-      {/* Add New Job Card */}
+      {/* Show message when no jobs exist */}
+      {(!jobs || jobs.length === 0) && (
+        <div className="flex flex-col items-center justify-center py-10 text-center">
+          <p className="text-2xl font-semibold mb-2">No jobs to display here</p>
+          <p className="text-muted-foreground mb-6">
+            Create your first job and enjoy applying like a ninja
+          </p>
+          <Button
+            onClick={() => setIsDialogOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <PlusIcon className="w-4 h-4" />
+            Add Your First Job
+          </Button>
+        </div>
+      )}
+
+      {/* Show job grid when jobs exist */}
       {jobs && jobs.length > 0 && (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {jobs.map((job) => (
             <JobCard
               key={job._id}
-              // jobId={job._id}
               job={job}
             />
           ))}

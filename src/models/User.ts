@@ -1,3 +1,4 @@
+import { JobStatus } from "@/types/Job.types";
 import { createId } from "@/utils";
 import mongoose from "mongoose";
 
@@ -30,9 +31,11 @@ const JobSchema = new mongoose.Schema({
   jobTitle: String,
   company: String,
   jobDescription: String,
+  status: { type: String, enum: Object.values(JobStatus), default: JobStatus.ADDED },
   coverLetter: String,
   interviewQuestions: [InterviewQuestionSchema],
   companyInsights: CompanyInsightSchema,
+  createdAt: { type: Date, default: Date.now },
 });
 
 const UserSchema = new mongoose.Schema({
@@ -45,6 +48,7 @@ const UserSchema = new mongoose.Schema({
   cv_suggestions: { type: [String], default: [] },
   jobs: [JobSchema],
   tokens: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now },
 });
 
 export default mongoose.models.User || mongoose.model("User", UserSchema);
