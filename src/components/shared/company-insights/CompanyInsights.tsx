@@ -5,9 +5,10 @@ import { toast } from "@/hooks/use-toast";
 import { useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
 import QueryKeys from "@/utils/queryKeys";
-import { RefreshCcw } from "lucide-react";
+import { CheckCircle2, RefreshCcw, XCircle } from "lucide-react";
 import { useParams } from "next/navigation";
 import NinjaLoader from "../NinjaLoader";
+import { SalaryRangeSelector } from "./SalaryRangeSelector";
 import { StarRating } from "./StarRating";
 
 const formatSalary = (amount: number, currency: string) => {
@@ -65,25 +66,9 @@ const CompanyInsights = ({ job }: { job: Job }) => {
 
       {job.companyInsights && !isGeneratingInsights && (
         <>
-          <div className="flex flex-col sm:flex-row items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-0">
             <StarRating rating={job.companyInsights.rating} />
-            {job.companyInsights.salaryRange && (
-              <div className="text-center sm:text-right">
-                <p className="text-sm text-muted-foreground">Estimated Salary Range</p>
-                <p className="font-semibold">
-                  {formatSalary(
-                    job.companyInsights.salaryRange.min,
-                    job.companyInsights.salaryRange.currency,
-                  )}{" "}
-                  -{" "}
-                  {formatSalary(
-                    job.companyInsights.salaryRange.max,
-                    job.companyInsights.salaryRange.currency,
-                  )}
-                  /year
-                </p>
-              </div>
-            )}
+            <SalaryRangeSelector job={job} />
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
@@ -129,17 +114,29 @@ const CompanyInsights = ({ job }: { job: Job }) => {
               <CardContent className="grid md:grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-semibold mb-2">Pros</h4>
-                  <ul className="list-disc pl-4">
+                  <ul className="space-y-2">
                     {job.companyInsights.prosAndCons.pros.map((pro, index) => (
-                      <li key={index}>{pro}</li>
+                      <li
+                        key={index}
+                        className="flex items-start gap-2"
+                      >
+                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-green-600 dark:text-green-400">{pro}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">Cons</h4>
-                  <ul className="list-disc pl-4">
+                  <ul className="space-y-2">
                     {job.companyInsights.prosAndCons.cons.map((con, index) => (
-                      <li key={index}>{con}</li>
+                      <li
+                        key={index}
+                        className="flex items-start gap-2"
+                      >
+                        <XCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-red-600 dark:text-red-400">{con}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>

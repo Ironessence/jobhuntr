@@ -1,14 +1,10 @@
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
+import { GoogleGenerativeAI, ResponseSchema, SchemaType } from "@google/generative-ai";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
 
 export const maxDuration = 60;
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,56 +22,82 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Insufficient tokens" }, { status: 400 });
     }
 
+    const schema: ResponseSchema = {
+      type: SchemaType.OBJECT,
+      properties: {
+        rating: {
+          type: SchemaType.NUMBER,
+          description:
+            "Rating from 1 to 5, combining ratings from Glassdoor, LinkedIn, Indeed etc.",
+        },
+        overview: {
+          type: SchemaType.STRING,
+          description: "General company overview and market position",
+        },
+        culture: {
+          type: SchemaType.STRING,
+          description: "Company culture and work environment details",
+        },
+        benefits: {
+          type: SchemaType.STRING,
+          description: "Known benefits and perks",
+        },
+        interviewProcess: {
+          type: SchemaType.STRING,
+          description: "Typical interview process description",
+        },
+        prosAndCons: {
+          type: SchemaType.OBJECT,
+          properties: {
+            pros: {
+              type: SchemaType.ARRAY,
+              items: { type: SchemaType.STRING },
+              description: "Array of company pros",
+            },
+            cons: {
+              type: SchemaType.ARRAY,
+              items: { type: SchemaType.STRING },
+              description: "Array of company cons",
+            },
+          },
+          required: ["pros", "cons"],
+        },
+      },
+      required: ["rating", "overview", "culture", "benefits", "interviewProcess", "prosAndCons"],
+    };
+
     const prompt = `
       Analyze the following company on Glassdoor and other similar sources, by browsing the internet:
       Company: ${company}
       Role: ${role}
 
-      Provide a comprehensive analysis in JSON format with the following structure:
-      {
-        "rating": "number 1 to 5, 5 being the highest, obtained from combining the ratings from Glassdoor, Linkedin, Indeed etc.",
-        "overview": "General company overview and market position",
-        "culture": "Company culture and work environment, based on employee reviews and company policies",
-        "benefits": "Known benefits and perks, based on employee reviews and company policies",
-        "interviewProcess": "Typical interview process and what to expect, based on employee reviews and company policies",
-        "salaryRange": {
-          "min": "Minimum salary in numbers (no currency symbol)",
-          "max": "Maximum salary in numbers (no currency symbol)",
-          "currency": "Currency code (e.g., USD, EUR, GBP)"
-        },
-        "prosAndCons": {
-          "pros": ["Array of pros based on employee reviews"],
-          "cons": ["Array of cons based on employee reviews"]
-        }
-      }
+      Provide a comprehensive analysis with the following requirements:
 
-      For the salary range:
-      1. Use real salary data from Glassdoor, Indeed, and similar sources. Make it as accurate as possible, instead of a generic "90K-130K" range.
-      2. Consider the role level, company location, and industry standards
-      3. Provide realistic ranges based on market data
-      4. Use the most common currency for the company's main location
+      1. Rating: Combine ratings from Glassdoor, LinkedIn, Indeed etc. (1-5 scale)
+      2. Overview: Provide detailed company overview and market position
+      3. Culture: Describe company culture and work environment based on employee reviews
+      4. Benefits: List known benefits and perks from employee reviews
+      5. Interview Process: Detail the typical interview process
+      6. Pros and Cons: List key advantages and disadvantages based on employee reviews
 
-      Make the analysis detailed and insightful, based on the role and company information.
+      Make the analysis detailed and insightful, focusing on the specific role and company information.
+      Return only valid JSON with no markdown formatting.
     `;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are an expert company analyst providing detailed insights about companies and their work environment.",
-        },
-        { role: "user", content: prompt },
-      ],
-      response_format: { type: "json_object" },
+    // Initialize Gemini
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: schema,
+      },
     });
 
-    if (!completion.choices[0].message.content) {
-      throw new Error("No content received from OpenAI");
-    }
-
-    const insights = JSON.parse(completion.choices[0].message.content);
+    const result = await model.generateContent(prompt);
+    const resultText = result.response.text();
+    const cleanedResultText = resultText.replace(/```(json)?/g, "").trim();
+    const insights = JSON.parse(cleanedResultText);
 
     // Update user document
     const objectId = ObjectId.createFromHexString(jobId);

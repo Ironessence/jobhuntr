@@ -121,6 +121,7 @@ export default function JobDetailsPage() {
                   Created on {formatDate(job.createdAt)}
                 </p>
               </div>
+              {/* TODO: Fix this to be flex-col on mobile */}
               <div className="flex items-center gap-4">
                 <Select
                   value={job.status}

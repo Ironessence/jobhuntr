@@ -15,6 +15,7 @@ export type CompanyInsight = {
     min: number;
     max: number;
     currency: string;
+    country: string;
   };
   prosAndCons: {
     pros: string[];

@@ -56,7 +56,9 @@ export default function InterviewArea({ job }: Props) {
         {job.interviewQuestions && job.interviewQuestions.length > 0 && (
           <RefreshCcw className="w-4 h-4" />
         )}
-        {job.companyInsights ? "Regenerate Interview Questions" : "Generate Interview Questions"}
+        {job.interviewQuestions && job.interviewQuestions.length > 0
+          ? "Regenerate Interview Questions"
+          : "Generate Interview Questions"}
       </Button>
 
       {!isGeneratingQuestions && job.interviewQuestions && job.interviewQuestions.length > 0 && (

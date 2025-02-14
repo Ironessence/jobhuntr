@@ -145,7 +145,7 @@ export default function Dashboard() {
           setCompany("");
         }}
       >
-        <DialogContent className={`max-w-[90%] rounded-xl border-0 overflow-y-auto`}>
+        <DialogContent className={`max-w-[90%] md:max-w-[50%] rounded-xl border-0 overflow-y-auto`}>
           <DialogHeader>
             <DialogTitle>{jobSaved ? "Job Saved" : "Add New Job"}</DialogTitle>
             <DialogDescription>Create a new job to get started.</DialogDescription>

@@ -16,9 +16,13 @@ const CompanyInsightSchema = new mongoose.Schema({
   benefits: String,
   interviewProcess: String,
   salaryRange: {
-    min: Number,
-    max: Number,
-    currency: String,
+    type: {
+      min: Number,
+      max: Number,
+      currency: String,
+      country: String,
+    },
+    required: false,
   },
   prosAndCons: {
     pros: [String],
