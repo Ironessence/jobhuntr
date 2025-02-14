@@ -4,6 +4,8 @@ import { GoogleGenerativeAI, ResponseSchema, SchemaType } from "@google/generati
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
+export const maxDuration = 60;
+
 interface Question {
   question: string;
   choices: string[];

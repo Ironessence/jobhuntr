@@ -3,6 +3,8 @@ import User from "@/models/User";
 import { GoogleGenerativeAI, ResponseSchema, SchemaType } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 
+export const maxDuration = 60;
+
 const TOKENS_COST = 50; // Increased token cost
 
 const schema: ResponseSchema = {
