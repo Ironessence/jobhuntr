@@ -10,6 +10,7 @@ import QueryKeys from "@/utils/queryKeys";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { countries } from "countries-list";
 import "flag-icons/css/flag-icons.min.css";
+import { NextResponse } from "next/server";
 import { useState } from "react";
 import NinjaLoader from "../NinjaLoader";
 // Convert countries object to array and sort by name
@@ -61,7 +62,7 @@ export function SalaryRangeSelector({ job }: { job: Job }) {
     } catch (error) {
       // Reset to original salary range if there's an error
       setSalaryRange(job.companyInsights?.salaryRange || null);
-      handleApiError(error, "fetching salary range");
+      handleApiError(error as NextResponse, "fetching salary range");
     }
   };
 

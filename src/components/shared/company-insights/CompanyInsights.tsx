@@ -3,10 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUserContext } from "@/context/AuthContext";
 import { useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
+
 import { handleApiError } from "@/utils/error-handling";
 import QueryKeys from "@/utils/queryKeys";
 import { CheckCircle2, RefreshCcw, XCircle } from "lucide-react";
 import { useParams } from "next/navigation";
+import { NextResponse } from "next/server";
 import NinjaLoader from "../NinjaLoader";
 import { SalaryRangeSelector } from "./SalaryRangeSelector";
 import { StarRating } from "./StarRating";
@@ -44,7 +46,7 @@ const CompanyInsights = ({ job }: { job: Job }) => {
         role: job.jobTitle,
       });
     } catch (error) {
-      handleApiError(error, "generating company insights");
+      handleApiError(error as NextResponse, "generating company insights");
     }
   };
 

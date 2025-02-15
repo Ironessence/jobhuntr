@@ -7,6 +7,7 @@ import QueryKeys from "@/utils/queryKeys";
 import jsPDF from "jspdf";
 import { Download, RefreshCcw } from "lucide-react";
 import { useParams } from "next/navigation";
+import { NextResponse } from "next/server";
 import { useEffect, useRef, useState } from "react";
 import NinjaLoader from "../NinjaLoader";
 
@@ -41,7 +42,7 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
     } catch (error) {
       // Reset content to the original cover letter if there's an error
       setContent(job.coverLetter || "");
-      handleApiError(error, "generating cover letter");
+      handleApiError(error as NextResponse, "generating cover letter");
     } finally {
       setTimeout(() => {
         adjustHeight();

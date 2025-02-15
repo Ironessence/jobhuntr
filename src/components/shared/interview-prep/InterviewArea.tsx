@@ -7,6 +7,7 @@ import { InterviewQuestion, Job } from "@/types/Job.types";
 import { handleApiError } from "@/utils/error-handling";
 import { QueryKeys } from "@/utils/queryKeys";
 import { RefreshCcw } from "lucide-react";
+import { NextResponse } from "next/server";
 import NinjaLoader from "../NinjaLoader";
 import { InterviewQuiz } from "./InterviewQuiz";
 
@@ -37,7 +38,7 @@ export default function InterviewArea({ job }: Props) {
         currentQuestions: job.interviewQuestions,
       });
     } catch (error) {
-      handleApiError(error, "generating interview questions");
+      handleApiError(error as NextResponse, "generating interview questions");
     }
   };
 

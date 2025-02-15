@@ -9,6 +9,7 @@ import { useMutateApi } from "@/lib";
 import { handleApiError } from "@/utils/error-handling";
 import QueryKeys from "@/utils/queryKeys";
 import { RefreshCcwIcon } from "lucide-react";
+import { NextResponse } from "next/server";
 import { ChangeEvent, useRef } from "react";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
@@ -52,7 +53,7 @@ const ResumeDialog = ({
       };
       reader.readAsDataURL(file);
     } catch (error) {
-      handleApiError(error, "updating resume");
+      handleApiError(error as NextResponse, "updating resume");
     }
   };
 
@@ -63,7 +64,7 @@ const ResumeDialog = ({
         email: user?.email,
       });
     } catch (error) {
-      handleApiError(error, "generating CV suggestions");
+      handleApiError(error as NextResponse, "generating CV suggestions");
     }
   };
 
