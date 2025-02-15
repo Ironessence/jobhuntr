@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUserContext } from "@/context/AuthContext";
-import { toast } from "@/hooks/use-toast";
 import { useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
+import { handleApiError } from "@/utils/error-handling";
 import QueryKeys from "@/utils/queryKeys";
 import { CheckCircle2, RefreshCcw, XCircle } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -44,12 +44,7 @@ const CompanyInsights = ({ job }: { job: Job }) => {
         role: job.jobTitle,
       });
     } catch (error) {
-      console.error("Error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to generate company insights",
-        variant: "destructive",
-      });
+      handleApiError(error, "generating company insights");
     }
   };
 

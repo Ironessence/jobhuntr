@@ -1,3 +1,4 @@
+import { constants } from "@/constants";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
 import { GoogleGenerativeAI, ResponseSchema, SchemaType } from "@google/generative-ai";
@@ -8,7 +9,7 @@ export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
-    const { company, jobDescription, email, jobId, role } = await req.json();
+    const { company, email, jobId, role } = await req.json();
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 401 });
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     // Find user and check tokens
     const user = await User.findOne({ email });
-    if (!user || user.tokens < 75) {
+    if (!user || user.tokens < constants.PRICE_COMPANY_INSIGHTS) {
       return NextResponse.json({ error: "Insufficient tokens" }, { status: 400 });
     }
 
@@ -107,7 +108,7 @@ export async function POST(req: NextRequest) {
         "jobs._id": objectId,
       },
       {
-        $inc: { tokens: -75 },
+        $inc: { tokens: -constants.PRICE_COMPANY_INSIGHTS },
         $set: { "jobs.$.companyInsights": insights },
       },
       { new: true },

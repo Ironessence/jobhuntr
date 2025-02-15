@@ -2,10 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useUserContext } from "@/context/AuthContext";
-import { toast } from "@/hooks/use-toast";
 import { useMutateApi } from "@/lib";
 import { cn } from "@/lib/utils";
 import { Job } from "@/types/Job.types";
+import { handleApiError } from "@/utils/error-handling";
 import QueryKeys from "@/utils/queryKeys";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { countries } from "countries-list";
@@ -59,11 +59,9 @@ export function SalaryRangeSelector({ job }: { job: Job }) {
       });
       setSalaryRange(result as SalaryRange);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch salary range",
-        variant: "destructive",
-      });
+      // Reset to original salary range if there's an error
+      setSalaryRange(job.companyInsights?.salaryRange || null);
+      handleApiError(error, "fetching salary range");
     }
   };
 

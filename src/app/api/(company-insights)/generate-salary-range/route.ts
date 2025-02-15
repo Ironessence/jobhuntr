@@ -1,11 +1,10 @@
+import { constants } from "@/constants";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
 import { GoogleGenerativeAI, ResponseSchema, SchemaType } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 
 export const maxDuration = 60;
-
-const TOKENS_COST = 50; // Increased token cost
 
 const schema: ResponseSchema = {
   type: SchemaType.OBJECT,
@@ -37,7 +36,7 @@ export async function POST(req: NextRequest) {
     await connectToDatabase();
 
     const user = await User.findOne({ email });
-    if (!user || user.tokens < TOKENS_COST) {
+    if (!user || user.tokens < constants.PRICE_ESTIMATED_SALARY) {
       return NextResponse.json({ error: "Insufficient tokens" }, { status: 400 });
     }
 
@@ -94,7 +93,7 @@ export async function POST(req: NextRequest) {
           "jobs.$.companyInsights.salaryRange": salaryRangeWithCountry,
         },
         $inc: {
-          tokens: -TOKENS_COST,
+          tokens: -constants.PRICE_ESTIMATED_SALARY,
         },
       },
       { new: true },

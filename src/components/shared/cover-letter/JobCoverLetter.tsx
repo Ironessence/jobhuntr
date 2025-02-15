@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useUserContext } from "@/context/AuthContext";
-import { toast } from "@/hooks/use-toast";
 import { useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
+import { handleApiError } from "@/utils/error-handling";
 import QueryKeys from "@/utils/queryKeys";
 import jsPDF from "jspdf";
 import { Download, RefreshCcw } from "lucide-react";
@@ -38,15 +38,14 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
       setContent(data.coverLetter);
 
       // Force height adjustment after content is set
+    } catch (error) {
+      // Reset content to the original cover letter if there's an error
+      setContent(job.coverLetter || "");
+      handleApiError(error, "generating cover letter");
+    } finally {
       setTimeout(() => {
         adjustHeight();
-      }, 100);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to generate cover letter",
-        variant: "destructive",
-      });
+      }, 1);
     }
   };
 
@@ -148,10 +147,10 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
 
   return (
     <div>
-      <div className="flex gap-2 mb-4">
+      <div className="flex flex-col sm:flex-row gap-2 mb-4 justify-center items-center sm:justify-start">
         <Button
           variant="default"
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 max-w-[250px]"
           onClick={handleGenerateCoverLetter}
           disabled={isGeneratingCoverLetter}
         >
@@ -161,7 +160,7 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
         {job?.coverLetter && (
           <Button
             variant="outline"
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 max-w-[250px]"
             onClick={handleDownloadPDF}
           >
             <Download className="w-4 h-4" />

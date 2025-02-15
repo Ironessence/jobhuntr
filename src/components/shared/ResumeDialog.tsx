@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/accordion";
 import { useUserContext } from "@/context/AuthContext";
 import { useMutateApi } from "@/lib";
+import { handleApiError } from "@/utils/error-handling";
 import QueryKeys from "@/utils/queryKeys";
 import { RefreshCcwIcon } from "lucide-react";
 import { ChangeEvent, useRef } from "react";
@@ -37,24 +38,33 @@ const ResumeDialog = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Convert file to base64
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const base64String = event.target?.result?.toString().split(",")[1];
-      await updateResume({
-        fileName: file.name,
-        fileData: base64String,
-        email: user?.email,
-        isReplacing: true,
-      });
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64String = event.target?.result?.toString().split(",")[1];
+        await updateResume({
+          fileName: file.name,
+          fileData: base64String,
+          email: user?.email,
+          isReplacing: true,
+        });
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      handleApiError(error, "updating resume");
+    }
   };
 
   const handleGenerateSuggestions = async () => {
-    await generateCvSuggestions({
-      cvText: user?.cv_full_text,
-    });
+    try {
+      await generateCvSuggestions({
+        cvText: user?.cv_full_text,
+        email: user?.email,
+      });
+    } catch (error) {
+      handleApiError(error, "generating CV suggestions");
+    }
   };
 
   return (
@@ -97,21 +107,45 @@ const ResumeDialog = ({
             <AccordionContent>
               {user?.cv_suggestions && user?.cv_suggestions.length > 0 ? (
                 <div>
-                  <h4 className="text-md font-medium mb-2 text-muted-foreground">
-                    AI Suggestions for Resume improvements:
-                  </h4>
-                  <p className="whitespace-pre-wrap text-muted-foreground">
-                    {user?.cv_suggestions.map((sugestion) => <p key={sugestion}>• {sugestion}</p>)}
-                  </p>
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-md font-medium text-muted-foreground">
+                      AI Suggestions for Resume improvements:
+                    </h4>
+                    <Button
+                      onClick={handleGenerateSuggestions}
+                      disabled={isGeneratingCvSuggestions}
+                      size="sm"
+                      variant="outline"
+                    >
+                      {isGeneratingCvSuggestions ? (
+                        "Generating..."
+                      ) : (
+                        <>
+                          <RefreshCcwIcon className="w-4 h-4 mr-2" />
+                          Regenerate
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    {user.cv_suggestions.map((suggestion) => (
+                      <p
+                        key={suggestion}
+                        className="text-muted-foreground"
+                      >
+                        • {suggestion}
+                      </p>
+                    ))}
+                  </div>
                 </div>
               ) : (
-                <div>
-                  <p className="text-muted-foreground mb-2">No suggestions found. </p>
+                <div className="space-y-4">
+                  <p className="text-muted-foreground">No suggestions found.</p>
                   <Button
-                    onClick={() => handleGenerateSuggestions()}
+                    onClick={handleGenerateSuggestions}
                     disabled={isGeneratingCvSuggestions}
                   >
-                    {isGeneratingCvSuggestions ? "Generating..." : "Generate"}
+                    {isGeneratingCvSuggestions ? "Generating..." : "Generate Suggestions"}
                   </Button>
                 </div>
               )}

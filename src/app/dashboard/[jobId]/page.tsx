@@ -114,15 +114,14 @@ export default function JobDetailsPage() {
       {!isLoading && job ? (
         <div className="flex flex-col max-w-5xl mx-auto">
           <div className="mb-8">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 md:gap-0">
               <div>
                 <h1 className="text-3xl font-bold">{`${job.jobTitle} @ ${job.company}`}</h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   Created on {formatDate(job.createdAt)}
                 </p>
               </div>
-              {/* TODO: Fix this to be flex-col on mobile */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 mr-auto md:mr-0">
                 <Select
                   value={job.status}
                   onValueChange={(value) => handleStatusChange(value as JobStatus)}

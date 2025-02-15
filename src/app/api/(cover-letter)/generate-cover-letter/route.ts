@@ -1,18 +1,25 @@
+import { constants } from "@/constants";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
+import { GoogleGenerativeAI, ResponseSchema, SchemaType } from "@google/generative-ai";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
 
 export const maxDuration = 60;
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const schema: ResponseSchema = {
+  type: SchemaType.OBJECT,
+  properties: {
+    coverLetter: {
+      type: SchemaType.STRING,
+      description: "A professional cover letter",
+    },
+  },
+  required: ["coverLetter"],
+};
 
 export async function POST(req: NextRequest) {
   try {
-    // Get the job data and user email from request body
     const { jobDescription, email, jobId } = await req.json();
 
     if (!email) {
@@ -21,9 +28,8 @@ export async function POST(req: NextRequest) {
 
     await connectToDatabase();
 
-    // Find user and check tokens
     const user = await User.findOne({ email });
-    if (!user || user.tokens < 100) {
+    if (!user || user.tokens < constants.PRICE_COVER_LETTER) {
       return NextResponse.json({ error: "Insufficient tokens" }, { status: 400 });
     }
 
@@ -42,34 +48,31 @@ export async function POST(req: NextRequest) {
       4. Keep the tone professional yet personable.
       5. Ensure the letter is concise, and do not exceed 360 words.
 
-      Generate the cover letter now:
+      Return only valid JSON with no markdown formatting.
     `;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a professional cover letter writer. Create a compelling cover letter that highlights relevant experience and skills from the CV that match the job description.",
-        },
-        { role: "user", content: prompt },
-      ],
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: schema,
+      },
     });
 
-    const coverLetter = completion.choices[0].message.content;
+    const result = await model.generateContent(prompt);
+    const resultText = result.response.text();
+    const cleanedResultText = resultText.replace(/```(json)?/g, "").trim();
+    const { coverLetter } = JSON.parse(cleanedResultText);
 
-    // Convert string jobId to ObjectId using the correct constructor
     const objectId = ObjectId.createFromHexString(jobId);
-
-    // Update user document: deduct tokens and update cover letter
     const updatedUser = await User.findOneAndUpdate(
       {
         email,
         "jobs._id": objectId,
       },
       {
-        $inc: { tokens: -100 },
+        $inc: { tokens: -constants.PRICE_COVER_LETTER },
         $set: { "jobs.$.coverLetter": coverLetter },
       },
       { new: true },

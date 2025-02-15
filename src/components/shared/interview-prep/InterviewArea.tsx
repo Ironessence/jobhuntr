@@ -2,9 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { useUserContext } from "@/context/AuthContext";
-import { toast } from "@/hooks/use-toast";
 import { useMutateApi } from "@/lib";
 import { InterviewQuestion, Job } from "@/types/Job.types";
+import { handleApiError } from "@/utils/error-handling";
 import { QueryKeys } from "@/utils/queryKeys";
 import { RefreshCcw } from "lucide-react";
 import NinjaLoader from "../NinjaLoader";
@@ -37,12 +37,7 @@ export default function InterviewArea({ job }: Props) {
         currentQuestions: job.interviewQuestions,
       });
     } catch (error) {
-      console.error("Error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to generate interview questions",
-        variant: "destructive",
-      });
+      handleApiError(error, "generating interview questions");
     }
   };
 

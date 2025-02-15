@@ -1,3 +1,4 @@
+import { constants } from "@/constants";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
 import { GoogleGenerativeAI, ResponseSchema, SchemaType } from "@google/generative-ai";
@@ -18,14 +19,12 @@ export async function POST(req: NextRequest) {
     const {
       jobTitle,
       company,
-      jobDescription,
       email,
       jobId,
       currentQuestions,
     }: {
       jobTitle: string;
       company: string;
-      jobDescription: string;
       email: string;
       jobId: string;
       currentQuestions: Question[];
@@ -40,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     // Validate user and tokens
     const user = await User.findOne({ email });
-    if (!user || user.tokens < 50) {
+    if (!user || user.tokens < constants.PRICE_INTERVIEW_QUESTIONS) {
       return NextResponse.json({ error: "Insufficient tokens" }, { status: 400 });
     }
 
@@ -119,7 +118,10 @@ Return only valid JSON with no markdown formatting.`;
     const parsedQuestions = JSON.parse(cleanedResultText); // This is already an array
 
     // First update: Deduct tokens.
-    await User.findOneAndUpdate({ email }, { $inc: { tokens: -50 } });
+    await User.findOneAndUpdate(
+      { email },
+      { $inc: { tokens: -constants.PRICE_INTERVIEW_QUESTIONS } },
+    );
 
     // Second update: Update the interviewQuestions in the matching job using arrayFilters.
     const updatedUser = await User.findOneAndUpdate(

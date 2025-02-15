@@ -34,7 +34,7 @@ export function useGetQuery<TData = unknown, TError = unknown>(
     queryKey: finalQueryKey,
     queryFn: () =>
       fetch(url).then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok");
+        if (!res.ok) throw res;
         return res.json();
       }),
     enabled: options.enabled ?? true,
@@ -75,7 +75,7 @@ export function useMutateApi<TData = unknown, TError = unknown, TVariables = unk
       });
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw response;
       }
 
       return response.json();

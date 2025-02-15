@@ -1,54 +1,104 @@
+import { constants } from "@/constants";
+import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
-import { getServerSession } from "next-auth";
+import { GoogleGenerativeAI, ResponseSchema, SchemaType } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { cvText, email } = await request.json();
+
+    if (!email) {
+      return NextResponse.json({ error: "Email is required" }, { status: 401 });
     }
 
-    const { cvText } = await request.json();
+    await connectToDatabase();
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a professional CV reviewer. Analyze the CV and provide specific, actionable suggestions for improvement. Focus on content, structure, and impact. Limit to 5 key suggestions. RESPOND IN JSON FORMAT WITH A SINGLE FIELD 'tips' CONTAINING AN ARRAY OF STRINGS.",
+    // Find user and check tokens
+    const user = await User.findOne({ email });
+    if (!user || user.tokens < constants.PRICE_CV_SUGGESTIONS) {
+      return NextResponse.json({ error: "Insufficient tokens" }, { status: 400 });
+    }
+
+    const schema: ResponseSchema = {
+      type: SchemaType.OBJECT,
+      properties: {
+        tips: {
+          type: SchemaType.ARRAY,
+          items: {
+            type: SchemaType.STRING,
+            description: "A specific, actionable suggestion for CV improvement",
+          },
+          description: "Array of CV improvement suggestions",
         },
-        {
-          role: "user",
-          content: `Please analyze this CV and provide improvement suggestions: ${cvText}`,
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.7,
-    });
-
-    const response = JSON.parse(completion.choices[0]?.message?.content || '{"tips": []}');
-
-    console.log("RESPONSE:", response);
-
-    // Update user document in the database
-    const updateOperation = {
-      $set: {
-        cv_suggestions: response.tips,
       },
+      required: ["tips"],
     };
 
+    const prompt = `
+      Analyze this CV and provide improvement suggestions:
+      ${cvText}
+
+      Return ONLY a valid JSON object with the following structure:
+      {
+        "tips": [
+          "suggestion 1",
+          "suggestion 2",
+          "suggestion 3",
+          "suggestion 4",
+          "suggestion 5"
+        ]
+      }
+
+      Requirements:
+      - Provide exactly 5 specific, actionable suggestions
+      - Focus on content, structure, and impact
+      - Each suggestion should be clear and implementable
+      - Do not include any text outside the JSON object
+      - Ensure the response is valid JSON
+    `;
+
+    // Initialize Gemini
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: schema,
+      },
+    });
+
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+
+    let suggestions;
+    try {
+      suggestions = JSON.parse(response.text());
+
+      // Validate the response structure
+      if (!suggestions.tips || !Array.isArray(suggestions.tips) || suggestions.tips.length !== 5) {
+        throw new Error("Invalid response format");
+      }
+    } catch (parseError) {
+      console.error("Error parsing Gemini response:", parseError);
+      return NextResponse.json({ error: "Failed to generate valid suggestions" }, { status: 500 });
+    }
+
+    // Update user document
     const updatedUser = await User.findOneAndUpdate(
-      { email: session.user?.email },
-      updateOperation,
+      { email },
+      {
+        $inc: { tokens: -constants.PRICE_CV_SUGGESTIONS },
+        $set: { cv_suggestions: suggestions.tips },
+      },
       { new: true },
     );
+
+    if (!updatedUser) {
+      throw new Error("Failed to update user document");
+    }
 
     return NextResponse.json(updatedUser);
   } catch (error) {
