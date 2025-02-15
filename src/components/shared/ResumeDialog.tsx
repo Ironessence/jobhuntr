@@ -52,7 +52,7 @@ const ResumeDialog = ({
       };
       reader.readAsDataURL(file);
     } catch (error) {
-      handleApiError(error as Response, "updating resume");
+      handleApiError(error, "updating resume");
     }
   };
 
@@ -63,7 +63,7 @@ const ResumeDialog = ({
         email: user?.email,
       });
     } catch (error) {
-      handleApiError(error as Response, "generating CV suggestions");
+      handleApiError(error, "generating CV suggestions");
     }
   };
 
