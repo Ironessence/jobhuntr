@@ -1,6 +1,8 @@
+import { AIActionButton } from "@/components/ui/ai-action-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { constants } from "@/constants";
 import { useUserContext } from "@/context/AuthContext";
 import { useMutateApi } from "@/lib";
 import { cn } from "@/lib/utils";
@@ -11,8 +13,9 @@ import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { countries } from "countries-list";
 import "flag-icons/css/flag-icons.min.css";
 import { NextResponse } from "next/server";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NinjaLoader from "../NinjaLoader";
+
 // Convert countries object to array and sort by name
 const countryList = Object.entries(countries)
   .map(([code, data]) => ({
@@ -35,10 +38,19 @@ export function SalaryRangeSelector({ job }: { job: Job }) {
   const [value, setValue] = useState(job.companyInsights?.salaryRange?.country || "");
   const [filteredCountries, setFilteredCountries] = useState(countryList);
   const [salaryRange, setSalaryRange] = useState(job.companyInsights?.salaryRange || null);
+  const [isButtonVisible, setIsButtonVisible] = useState(!job.companyInsights?.salaryRange);
 
   const { mutateAsync: fetchSalaryRange, isPending } = useMutateApi("/api/generate-salary-range", {
-    queryKey: [QueryKeys.FETCH_SALARY_RANGE, job._id, value],
+    queryKey: [QueryKeys.GET_SALARY_RANGE],
+    invalidate: [QueryKeys.GET_SALARY_RANGE, QueryKeys.GET_JOB, QueryKeys.GET_USER, job._id, value],
   });
+
+  // Update isButtonVisible when job.companyInsights changes
+  useEffect(() => {
+    setIsButtonVisible(
+      !job.companyInsights?.salaryRange || value !== job.companyInsights?.salaryRange?.country,
+    );
+  }, [job.companyInsights?.salaryRange, value]);
 
   const handleSearch = (input: string) => {
     const searchTerm = input.toLowerCase();
@@ -59,8 +71,8 @@ export function SalaryRangeSelector({ job }: { job: Job }) {
         jobId: job.id,
       });
       setSalaryRange(result as SalaryRange);
+      setIsButtonVisible(false); // Hide button after successful fetch
     } catch (error) {
-      // Reset to original salary range if there's an error
       setSalaryRange(job.companyInsights?.salaryRange || null);
       handleApiError(error as NextResponse, "fetching salary range");
     }
@@ -137,12 +149,15 @@ export function SalaryRangeSelector({ job }: { job: Job }) {
           </PopoverContent>
         </Popover>
 
-        <Button
-          onClick={handleFetchSalaryRange}
-          disabled={!value || isPending}
-        >
-          Find Estimated Salary Range
-        </Button>
+        {isButtonVisible && (
+          <AIActionButton
+            onClick={handleFetchSalaryRange}
+            isGenerating={isPending}
+            existingData={salaryRange}
+            price={constants.PRICE_ESTIMATED_SALARY}
+            disabled={!value || isPending}
+          />
+        )}
       </div>
 
       {isPending ? (

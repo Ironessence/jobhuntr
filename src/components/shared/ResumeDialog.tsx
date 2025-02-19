@@ -4,6 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { constants } from "@/constants";
 import { useUserContext } from "@/context/AuthContext";
 import { useMutateApi } from "@/lib";
 import { handleApiError } from "@/utils/error-handling";
@@ -11,6 +12,7 @@ import QueryKeys from "@/utils/queryKeys";
 import { RefreshCcwIcon } from "lucide-react";
 import { NextResponse } from "next/server";
 import { ChangeEvent, useRef } from "react";
+import { AIActionButton } from "../ui/ai-action-button";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 
@@ -108,25 +110,19 @@ const ResumeDialog = ({
             <AccordionContent>
               {user?.cv_suggestions && user?.cv_suggestions.length > 0 ? (
                 <div>
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-md font-medium text-muted-foreground">
+                  <div className="flex justify-between items-center mb-4 sm:flex-row flex-col gap-2">
+                    <h4 className="text-md font-medium text-muted-foreground order-2 sm:order-1">
                       AI Suggestions for Resume improvements:
                     </h4>
-                    <Button
-                      onClick={handleGenerateSuggestions}
-                      disabled={isGeneratingCvSuggestions}
-                      size="sm"
-                      variant="outline"
-                    >
-                      {isGeneratingCvSuggestions ? (
-                        "Generating..."
-                      ) : (
-                        <>
-                          <RefreshCcwIcon className="w-4 h-4 mr-2" />
-                          Regenerate
-                        </>
-                      )}
-                    </Button>
+                    <div className="order-1 sm:order-2 items-start sm:items-end justify-start sm:justify-end w-full sm:w-auto">
+                      <AIActionButton
+                        onClick={handleGenerateSuggestions}
+                        isGenerating={isGeneratingCvSuggestions}
+                        existingData={user.cv_suggestions}
+                        price={constants.PRICE_CV_SUGGESTIONS}
+                        size="sm"
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     {user.cv_suggestions.map((suggestion) => (
@@ -142,12 +138,11 @@ const ResumeDialog = ({
               ) : (
                 <div className="space-y-4">
                   <p className="text-muted-foreground">No suggestions found.</p>
-                  <Button
+                  <AIActionButton
                     onClick={handleGenerateSuggestions}
-                    disabled={isGeneratingCvSuggestions}
-                  >
-                    {isGeneratingCvSuggestions ? "Generating..." : "Generate Suggestions"}
-                  </Button>
+                    isGenerating={isGeneratingCvSuggestions}
+                    price={constants.PRICE_CV_SUGGESTIONS}
+                  />
                 </div>
               )}
             </AccordionContent>

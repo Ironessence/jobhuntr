@@ -1,12 +1,12 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { AIActionButton } from "@/components/ui/ai-action-button";
+import { constants } from "@/constants";
 import { useUserContext } from "@/context/AuthContext";
 import { useMutateApi } from "@/lib";
 import { InterviewQuestion, Job } from "@/types/Job.types";
 import { handleApiError } from "@/utils/error-handling";
 import { QueryKeys } from "@/utils/queryKeys";
-import { RefreshCcw } from "lucide-react";
 import { NextResponse } from "next/server";
 import NinjaLoader from "../NinjaLoader";
 import { InterviewQuiz } from "./InterviewQuiz";
@@ -44,18 +44,13 @@ export default function InterviewArea({ job }: Props) {
 
   return (
     <div>
-      <Button
+      <AIActionButton
         onClick={handleGenerateQuestions}
-        disabled={isGeneratingQuestions}
-        className="flex items-center gap-2 mb-4"
-      >
-        {job.interviewQuestions && job.interviewQuestions.length > 0 && (
-          <RefreshCcw className="w-4 h-4" />
-        )}
-        {job.interviewQuestions && job.interviewQuestions.length > 0
-          ? "Regenerate Interview Questions"
-          : "Generate Interview Questions"}
-      </Button>
+        isGenerating={isGeneratingQuestions}
+        existingData={job.interviewQuestions}
+        price={constants.PRICE_INTERVIEW_QUESTIONS}
+        className="mb-4"
+      />
 
       {!isGeneratingQuestions && job.interviewQuestions && job.interviewQuestions.length > 0 && (
         <InterviewQuiz questions={job.interviewQuestions} />

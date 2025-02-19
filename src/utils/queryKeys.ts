@@ -13,7 +13,7 @@ export enum QueryKeys {
   GENERATE_COMPANY_INSIGHTS = "generateCompanyInsights",
   UPDATE_JOB_STATUS = "updateJobStatus",
   DELETE_JOB = "deleteJob",
-  FETCH_SALARY_RANGE = "fetchSalaryRange",
+  GET_SALARY_RANGE = "fetchSalaryRange",
 }
 
 export default QueryKeys;

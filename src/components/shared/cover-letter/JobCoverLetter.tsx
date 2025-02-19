@@ -1,11 +1,13 @@
+import { AIActionButton } from "@/components/ui/ai-action-button";
 import { Button } from "@/components/ui/button";
+import { constants } from "@/constants";
 import { useUserContext } from "@/context/AuthContext";
 import { useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
 import { handleApiError } from "@/utils/error-handling";
 import QueryKeys from "@/utils/queryKeys";
 import jsPDF from "jspdf";
-import { Download, RefreshCcw } from "lucide-react";
+import { Download } from "lucide-react";
 import { useParams } from "next/navigation";
 import { NextResponse } from "next/server";
 import { useEffect, useRef, useState } from "react";
@@ -22,7 +24,7 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
     "/api/generate-cover-letter",
     {
       queryKey: [QueryKeys.GENERATE_COVER_LETTER, jobId],
-      invalidate: [QueryKeys.GET_JOB, jobId],
+      invalidate: [QueryKeys.GET_JOB, QueryKeys.GET_USER, jobId],
     },
   );
 
@@ -148,16 +150,14 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row gap-2 mb-4 justify-center items-center sm:justify-start">
-        <Button
-          variant="default"
-          className="flex items-center gap-2 max-w-[250px]"
+      <div className="flex flex-col sm:flex-row gap-2 mb-4 justify-start items-start sm:justify-start">
+        <AIActionButton
           onClick={handleGenerateCoverLetter}
-          disabled={isGeneratingCoverLetter}
-        >
-          {job?.coverLetter && <RefreshCcw className="w-4 h-4" />}
-          {job?.coverLetter ? "Regenerate Cover Letter" : "Generate Cover Letter"}
-        </Button>
+          isGenerating={isGeneratingCoverLetter}
+          existingData={job?.coverLetter}
+          price={constants.PRICE_COVER_LETTER}
+          className="max-w-[250px]"
+        />
         {job?.coverLetter && (
           <Button
             variant="outline"

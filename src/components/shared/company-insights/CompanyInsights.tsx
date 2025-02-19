@@ -1,12 +1,13 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUserContext } from "@/context/AuthContext";
 import { useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
 
+import { AIActionButton } from "@/components/ui/ai-action-button";
+import { constants } from "@/constants";
 import { handleApiError } from "@/utils/error-handling";
 import QueryKeys from "@/utils/queryKeys";
-import { CheckCircle2, RefreshCcw, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { useParams } from "next/navigation";
 import { NextResponse } from "next/server";
 import NinjaLoader from "../NinjaLoader";
@@ -30,7 +31,7 @@ const CompanyInsights = ({ job }: { job: Job }) => {
     "/api/generate-insights",
     {
       queryKey: [QueryKeys.GENERATE_COMPANY_INSIGHTS, jobId],
-      invalidate: [QueryKeys.GET_JOB, jobId],
+      invalidate: [QueryKeys.GET_JOB, QueryKeys.GET_SALARY_RANGE, QueryKeys.GET_USER, jobId],
     },
   );
 
@@ -52,14 +53,12 @@ const CompanyInsights = ({ job }: { job: Job }) => {
 
   return (
     <div className="space-y-4">
-      <Button
+      <AIActionButton
         onClick={handleGenerateInsights}
-        disabled={isGeneratingInsights}
-        className="flex items-center gap-2"
-      >
-        {job.companyInsights && <RefreshCcw className="w-4 h-4" />}
-        {job.companyInsights ? "Regenerate Insights" : "Generate Company Insights"}
-      </Button>
+        isGenerating={isGeneratingInsights}
+        existingData={job.companyInsights}
+        price={constants.PRICE_COMPANY_INSIGHTS}
+      />
 
       {job.companyInsights && !isGeneratingInsights && (
         <>

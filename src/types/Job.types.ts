@@ -26,9 +26,9 @@ export type CompanyInsight = {
 export enum JobStatus {
   ADDED = "ADDED",
   APPLIED = "APPLIED",
-  REJECTED = "REJECTED",
   INTERVIEWING = "INTERVIEWING",
   OFFER_RECEIVED = "OFFER_RECEIVED",
+  REJECTED = "REJECTED",
 }
 
 export type Job = {
