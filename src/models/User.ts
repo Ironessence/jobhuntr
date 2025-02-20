@@ -44,15 +44,28 @@ const JobSchema = new mongoose.Schema({
 
 const UserSchema = new mongoose.Schema({
   name: String,
-  email: { type: String, required: true, unique: true },
+  email: { type: String, unique: true },
   image: String,
-  type: { type: String, default: "FREE", enum: ["FREE", "PRO", "PLATINUM"] },
   cv_full_text: String,
   cv_file_name: String,
-  cv_suggestions: { type: [String], default: [] },
+  cv_suggestions: [String],
   jobs: [JobSchema],
   tokens: { type: Number, default: 0 },
+  tier: {
+    type: String,
+    enum: ["FREE", "APPRENTICE", "NINJA"],
+    default: "FREE",
+  },
+  stripeCustomerId: String,
+  stripeSubscriptionId: String,
+  currentPeriodEnd: Date,
+  cancelAtPeriodEnd: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.models.User || mongoose.model("User", UserSchema);
+const User = mongoose.models.User || mongoose.model("User", UserSchema);
+
+export default User;

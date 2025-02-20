@@ -1,6 +1,6 @@
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
-import NextAuth, { Profile } from "next-auth";
+import NextAuth, { NextAuthOptions, Profile } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
 interface GoogleProfile extends Profile {
@@ -9,7 +9,7 @@ interface GoogleProfile extends Profile {
   sub?: string;
 }
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
@@ -37,6 +37,7 @@ const handler = NextAuth({
             image: googleProfile.picture,
             cv: "",
             tokens: 1000,
+            tier: "FREE",
           });
         }
       }
@@ -47,6 +48,8 @@ const handler = NextAuth({
       return `${baseUrl}/dashboard`;
     },
   },
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
