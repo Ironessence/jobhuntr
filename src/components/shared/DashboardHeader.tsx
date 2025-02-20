@@ -20,12 +20,7 @@ const DashboardHeader = ({
       </h1>
       <div className="flex items-center gap-5">
         <TokensDisplay />
-        {user && (
-          <NavUser
-            user={user}
-            setIsResumeDialogOpen={setIsResumeDialogOpen}
-          />
-        )}
+        {user && <NavUser setIsResumeDialogOpen={setIsResumeDialogOpen} />}
       </div>
     </header>
   );

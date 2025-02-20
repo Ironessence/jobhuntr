@@ -34,9 +34,9 @@ const handler = NextAuth({
           await User.create({
             name,
             email,
-            //TODO: Test if this works
             image: googleProfile.picture,
             cv: "",
+            tokens: 1000,
           });
         }
       }

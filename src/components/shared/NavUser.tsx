@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useUserContext } from "@/context/AuthContext";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
@@ -20,19 +21,16 @@ import { useState } from "react";
 import { Switch } from "../ui/switch";
 
 export function NavUser({
-  user,
   setIsResumeDialogOpen,
 }: {
-  user: {
-    name: string;
-    email: string;
-    image: string;
-  };
   setIsResumeDialogOpen: (open: boolean) => void;
 }) {
+  const { user } = useUserContext();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+
+  if (!user) return null;
 
   return (
     <DropdownMenu
