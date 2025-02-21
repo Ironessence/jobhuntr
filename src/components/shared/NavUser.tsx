@@ -19,6 +19,7 @@ import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Switch } from "../ui/switch";
 
 export function NavUser({
@@ -44,6 +45,28 @@ export function NavUser({
         return "from-purple-500 to-purple-600";
       default:
         return "from-blue-400 to-blue-500";
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    try {
+      const response = await fetch("/api/create-portal-session", {
+        method: "POST",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to access subscription portal");
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error("Error accessing portal:", error);
+      toast.error("Unable to access subscription management", {
+        description: "Please try again later or contact support.",
+      });
     }
   };
 
@@ -118,12 +141,17 @@ export function NavUser({
           </div>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push("/dashboard/upgrade")}>
-          <Sparkles className="w-4 h-4 mr-2" />
-          Upgrade Plan
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          {user?.stripeCustomerId && (
+            <DropdownMenuItem onClick={handleManageSubscription}>
+              <Settings className="w-5 h-5 mr-2" />
+              Manage Subscription
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem onClick={() => router.push("/dashboard/upgrade")}>
+            <Sparkles className="w-4 h-4 mr-2" />
+            {user?.stripeCustomerId ? "Change Plan" : "Upgrade Plan"}
+          </DropdownMenuItem>
           <DropdownMenuItem
             className="flex items-center gap-2"
             onClick={() => {

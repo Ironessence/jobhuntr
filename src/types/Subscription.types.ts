@@ -1,3 +1,9 @@
+export enum SubscriptionTierEnum {
+  FREE = "FREE",
+  APPRENTICE = "APPRENTICE",
+  NINJA = "NINJA",
+}
+
 export interface SubscriptionTier {
   name: string;
   price: number;

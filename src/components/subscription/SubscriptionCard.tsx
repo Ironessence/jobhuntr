@@ -10,6 +10,7 @@ interface SubscriptionCardProps {
   isPopular?: boolean;
   isCurrentPlan?: boolean;
   currentTier?: keyof SubscriptionTiers;
+  subscriptionStatus?: string | null;
   onSelect: () => void;
 }
 
@@ -32,6 +33,7 @@ export function SubscriptionCard({
   isPopular,
   isCurrentPlan,
   currentTier = "FREE",
+  subscriptionStatus,
   onSelect,
 }: SubscriptionCardProps) {
   // Convert display tier name to enum tier name
@@ -73,14 +75,20 @@ export function SubscriptionCard({
         ))}
       </ul>
 
-      <Button
-        className="w-full mt-6"
-        variant={isPopular ? "default" : "outline"}
-        disabled={isDisabled}
-        onClick={isLowerTier ? undefined : onSelect}
-      >
-        {isCurrentPlan ? "Current Plan" : isLowerTier ? "Lower Tier" : "Upgrade"}
-      </Button>
+      {subscriptionStatus ? (
+        <div className="w-full mt-6 text-center text-sm text-muted-foreground">
+          {subscriptionStatus}
+        </div>
+      ) : (
+        <Button
+          className="w-full mt-6"
+          variant={isPopular ? "default" : "outline"}
+          disabled={isDisabled}
+          onClick={isLowerTier ? undefined : onSelect}
+        >
+          {isCurrentPlan ? "Current Plan" : isLowerTier ? "Lower Tier" : "Upgrade"}
+        </Button>
+      )}
     </Card>
   );
 }
