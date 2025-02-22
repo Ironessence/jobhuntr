@@ -10,7 +10,8 @@ import { LucideLoader2 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
 import { useRef, useState } from "react";
-import { toast } from "react-hot-toast";
+
+import { toast } from "sonner";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";

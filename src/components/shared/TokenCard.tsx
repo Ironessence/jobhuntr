@@ -1,7 +1,8 @@
 import { useUserContext } from "@/context/AuthContext";
-import { useToast } from "@/hooks/use-toast";
+
 import { loadStripe } from "@stripe/stripe-js";
 import Image, { StaticImageData } from "next/image";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
@@ -19,7 +20,6 @@ const TokenCard = ({
   priceId: string;
   img: StaticImageData;
 }) => {
-  const { toast } = useToast();
   const { user } = useUserContext();
 
   const handleCheckout = async () => {
@@ -44,27 +44,15 @@ const TokenCard = ({
         throw new Error("No session ID received from server");
       }
 
-      console.log("Session ID received:", data.sessionId); // Debug log
-
       const result = await stripe.redirectToCheckout({
         sessionId: data.sessionId,
       });
 
       if (result.error) {
-        console.error("Stripe redirect error:", result.error); // Debug log
-        toast({
-          title: "Error",
-          description: result.error.message || "Payment failed. Please try again.",
-          variant: "destructive",
-        });
+        toast(result.error.message || "Payment failed. Please try again.");
       }
     } catch (error) {
-      console.error("Checkout error:", error);
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Something went wrong. Please try again.");
     }
   };
 

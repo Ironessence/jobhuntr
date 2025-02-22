@@ -12,6 +12,7 @@ import QueryKeys from "@/utils/queryKeys";
 import { RefreshCcwIcon } from "lucide-react";
 import { NextResponse } from "next/server";
 import { ChangeEvent, useRef } from "react";
+import { toast } from "sonner";
 import { AIActionButton } from "../ui/ai-action-button";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
@@ -40,6 +41,18 @@ const ResumeDialog = ({
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 1MB in bytes
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("File too large", {
+        description: "Please upload a CV that is less than 2MB (approximately 5 pages).",
+      });
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      return;
+    }
 
     try {
       // Convert file to base64

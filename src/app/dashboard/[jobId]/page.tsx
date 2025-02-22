@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "@/hooks/use-toast";
+
 import { useGetQuery, useMutateApi } from "@/lib";
 import { Job, JobStatus } from "@/types/Job.types";
 import { formatDate, formatJobStatus } from "@/utils/formatters";
@@ -33,6 +33,7 @@ import { QueryKeys } from "@/utils/queryKeys";
 import { ArrowLeftIcon, Building2, FileText, MessageSquare, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function JobDetailsPage() {
   const { data: session } = useSession();
@@ -68,16 +69,9 @@ export default function JobDetailsPage() {
         status: newStatus,
         email: session?.user?.email,
       });
-      toast({
-        title: "Status updated",
-        description: `Job status updated to ${newStatus}`,
-      });
+      toast.success(`Job status updated to ${newStatus}`);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update job status",
-        variant: "destructive",
-      });
+      toast.error("Failed to update job status");
     }
   };
 
@@ -88,16 +82,9 @@ export default function JobDetailsPage() {
         email: session?.user?.email,
       });
       router.push("/dashboard");
-      toast({
-        title: "Success",
-        description: "Job deleted successfully",
-      });
+      toast.success("Job deleted successfully");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete job",
-        variant: "destructive",
-      });
+      toast.error("Failed to delete job");
     }
   };
 

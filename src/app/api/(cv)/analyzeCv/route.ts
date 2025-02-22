@@ -3,64 +3,56 @@ import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
 import { GoogleGenerativeAI, ResponseSchema, SchemaType } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 export const maxDuration = 60;
 
-export async function POST(request: NextRequest) {
-  try {
-    const { cvText, email } = await request.json();
+// Request validation schema
+const cvAnalysisSchema = z.object({
+  cvText: z.string().min(1, "CV text is required").max(50000, "CV text is too long"),
+  email: z.string().email("Invalid email address"),
+});
 
-    if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 401 });
-    }
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { cvText, email } = cvAnalysisSchema.parse(body);
 
     await connectToDatabase();
-
-    // Find user and check tokens
     const user = await User.findOne({ email });
-    if (!user || user.tokens < constants.PRICE_CV_SUGGESTIONS) {
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 401 });
+    }
+
+    if (user.tokens < constants.PRICE_CV_SUGGESTIONS) {
       return NextResponse.json({ error: "Insufficient tokens" }, { status: 400 });
     }
+
+    const prompt = `Analyze this CV and provide improvement suggestions:
+${cvText}
+
+Return ONLY a valid JSON object with the following structure:
+{
+  "suggestions": ["suggestion1", "suggestion2", ...]
+}
+
+Each suggestion should be clear, actionable, and focused on improving the CV.
+Limit to 5-7 most important suggestions.`;
 
     const schema: ResponseSchema = {
       type: SchemaType.OBJECT,
       properties: {
-        tips: {
+        suggestions: {
           type: SchemaType.ARRAY,
-          items: {
-            type: SchemaType.STRING,
-            description: "A specific, actionable suggestion for CV improvement",
-          },
+          items: { type: SchemaType.STRING },
           description: "Array of CV improvement suggestions",
         },
       },
-      required: ["tips"],
+      required: ["suggestions"],
     };
 
-    const prompt = `
-      Analyze this CV and provide improvement suggestions:
-      ${cvText}
-
-      Return ONLY a valid JSON object with the following structure:
-      {
-        "tips": [
-          "suggestion 1",
-          "suggestion 2",
-          "suggestion 3",
-          "suggestion 4",
-          "suggestion 5"
-        ]
-      }
-
-      Requirements:
-      - Provide exactly 5 specific, actionable suggestions
-      - Focus on content, structure, and impact
-      - Each suggestion should be clear and implementable
-      - Do not include any text outside the JSON object
-      - Ensure the response is valid JSON
-    `;
-
-    // Initialize Gemini
+    // Instantiate the Gemini client
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
     const model = genAI.getGenerativeModel({
       model: "gemini-2.0-flash",
@@ -71,27 +63,16 @@ export async function POST(request: NextRequest) {
     });
 
     const result = await model.generateContent(prompt);
-    const response = result.response;
+    const resultText = result.response.text();
+    const cleanedResultText = resultText.replace(/```(json)?/g, "").trim();
+    const { suggestions } = JSON.parse(cleanedResultText);
 
-    let suggestions;
-    try {
-      suggestions = JSON.parse(response.text());
-
-      // Validate the response structure
-      if (!suggestions.tips || !Array.isArray(suggestions.tips) || suggestions.tips.length !== 5) {
-        throw new Error("Invalid response format");
-      }
-    } catch (parseError) {
-      console.error("Error parsing Gemini response:", parseError);
-      return NextResponse.json({ error: "Failed to generate valid suggestions" }, { status: 500 });
-    }
-
-    // Update user document
+    // Update user tokens and suggestions in DB
     const updatedUser = await User.findOneAndUpdate(
       { email },
       {
         $inc: { tokens: -constants.PRICE_CV_SUGGESTIONS },
-        $set: { cv_suggestions: suggestions.tips },
+        $set: { cv_suggestions: suggestions },
       },
       { new: true },
     );
@@ -100,8 +81,12 @@ export async function POST(request: NextRequest) {
       throw new Error("Failed to update user document");
     }
 
-    return NextResponse.json(updatedUser);
+    return NextResponse.json({ suggestions });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
+    }
+
     console.error("Error analyzing CV:", error);
     return NextResponse.json({ error: "Failed to analyze CV" }, { status: 500 });
   }
