@@ -16,4 +16,6 @@ export interface User {
   currentPeriodEnd?: Date;
   cancelAtPeriodEnd: boolean;
   cancellingSubscriptionId?: string;
+  password?: string;
+  emailVerified?: boolean;
 }

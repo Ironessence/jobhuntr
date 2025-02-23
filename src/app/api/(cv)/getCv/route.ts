@@ -2,6 +2,10 @@ import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
+// This tells Next.js that this route should always be dynamic
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();

@@ -17,7 +17,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "JobHunt-R",
+  title: "ApplyNinja.ai",
   description: "Job hunt smarter",
 };
 

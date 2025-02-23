@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { SessionProvider, useSession } from "next-auth/react";
 import { useState } from "react";
-import LoginDialog from "./LoginDialog";
+
+import { LoginDialog } from "../auth/LoginDialog";
 import NinjaLoader from "./NinjaLoader";
 
 export default function LoginButton() {
@@ -11,7 +12,7 @@ export default function LoginButton() {
   const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   if (status === "loading") {
-    return <NinjaLoader className="w-20 h-20" />
+    return <NinjaLoader className="w-20 h-20" />;
   }
 
   if (session) {
@@ -19,11 +20,12 @@ export default function LoginButton() {
   }
 
   return (
-    
     <SessionProvider>
       <Button onClick={() => setShowLoginDialog(true)}>Login</Button>
-      <LoginDialog open={showLoginDialog} onOpenChange={setShowLoginDialog} />
+      <LoginDialog
+        isOpen={showLoginDialog}
+        onClose={() => setShowLoginDialog(false)}
+      />
     </SessionProvider>
-    
   );
 }

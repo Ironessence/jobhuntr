@@ -65,6 +65,9 @@ const UserSchema = new mongoose.Schema({
   },
   cancellingSubscriptionId: String,
   createdAt: { type: Date, default: Date.now },
+  password: { type: String, required: false },
+  emailVerified: { type: Boolean, default: false },
+  verificationTokenExpiry: Date,
 });
 
 const User = mongoose.models.User || mongoose.model("User", UserSchema);

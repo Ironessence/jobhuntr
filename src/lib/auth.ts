@@ -1,6 +1,8 @@
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
+import bcrypt from "bcryptjs";
 import { NextAuthOptions, Profile } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
 interface GoogleProfile extends Profile {
@@ -16,6 +18,37 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+    CredentialsProvider({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+
+        await connectToDatabase();
+        const user = await User.findOne({ email: credentials.email });
+
+        if (!user) return null;
+
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+
+        if (!isValid) return null;
+
+        // Check if email is verified
+        if (!user.emailVerified) {
+          throw new Error("UNVERIFIED_EMAIL");
+        }
+
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        };
+      },
+    }),
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
@@ -29,6 +62,7 @@ export const authOptions: NextAuthOptions = {
 
         if (existingUser) {
           existingUser.image = googleProfile.picture;
+          existingUser.emailVerified = true;
           await existingUser.save();
         } else {
           await User.create({
@@ -38,9 +72,17 @@ export const authOptions: NextAuthOptions = {
             cv: "",
             tokens: 1000,
             tier: "FREE",
+            emailVerified: true,
           });
         }
       }
+
+      // For credentials, check if email is verified
+      const dbUser = await User.findOne({ email: user.email });
+      if (!dbUser?.emailVerified) {
+        throw new Error("Please verify your email first");
+      }
+
       return true;
     },
     async redirect({ baseUrl }) {
