@@ -15,4 +15,5 @@ export interface User {
   stripeSubscriptionId?: string;
   currentPeriodEnd?: Date;
   cancelAtPeriodEnd: boolean;
+  cancellingSubscriptionId?: string;
 }

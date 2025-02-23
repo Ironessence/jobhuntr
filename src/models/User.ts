@@ -63,6 +63,7 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  cancellingSubscriptionId: String,
   createdAt: { type: Date, default: Date.now },
 });
 

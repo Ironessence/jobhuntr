@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
           stripeSubscriptionId: session.id,
           currentPeriodEnd: new Date(session.current_period_end * 1000),
           cancelAtPeriodEnd: false,
+          $unset: { cancellingSubscriptionId: "" },
           $inc: { tokens: tierData.monthlyTokens },
         });
       }
@@ -94,7 +95,10 @@ export async function POST(req: NextRequest) {
       if (updatedSubscription.cancel_at_period_end) {
         await User.findOneAndUpdate(
           { stripeSubscriptionId: updatedSubscription.id },
-          { cancelAtPeriodEnd: true },
+          {
+            cancelAtPeriodEnd: true,
+            cancellingSubscriptionId: updatedSubscription.id,
+          },
         );
       }
       break;

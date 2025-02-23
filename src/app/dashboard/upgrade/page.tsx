@@ -25,46 +25,47 @@ export default function UpgradePage() {
   const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
 
   const handleUpgrade = async (priceId: string) => {
-    // If user has an active subscription that's not cancelled
-    if (user?.stripeSubscriptionId && !user?.cancelAtPeriodEnd) {
-      toast.info("Change Plan Process", {
-        description:
-          "Please cancel your current plan in the subscription portal before selecting a new one.",
-        action: {
-          label: "Manage Subscription",
-          onClick: async () => {
-            try {
-              const response = await fetch("/api/create-portal-session", {
-                method: "POST",
-              });
-              const data = await response.json();
+    // If user has an active subscription (regardless of cancellation status)
+    if (user?.stripeSubscriptionId) {
+      // If it's not cancelled yet, inform user to cancel first
+      if (!user.cancelAtPeriodEnd) {
+        toast.info("Change Plan Process", {
+          description:
+            "Please cancel your current plan in the subscription portal before selecting a new one.",
+          action: {
+            label: "Manage Subscription",
+            onClick: async () => {
+              try {
+                const response = await fetch("/api/create-portal-session", {
+                  method: "POST",
+                });
+                const data = await response.json();
 
-              if (!response.ok) {
-                throw new Error(data.error || "Failed to access subscription portal");
-              }
+                if (!response.ok) {
+                  throw new Error(data.error || "Failed to access subscription portal");
+                }
 
-              if (data.url) {
-                window.location.href = data.url;
+                if (data.url) {
+                  window.location.href = data.url;
+                }
+              } catch (error) {
+                toast.error("Unable to access subscription management", {
+                  description: "Please try again later or contact support.",
+                });
               }
-            } catch (error) {
-              toast.error("Unable to access subscription management", {
-                description: "Please try again later or contact support.",
-              });
-            }
+            },
           },
-        },
-      });
-      return;
-    }
+        });
+        return;
+      }
 
-    // If user has a cancelled subscription that's still active, show confirmation dialog
-    if (user?.stripeSubscriptionId && user.cancelAtPeriodEnd) {
+      // If it's already cancelled, show confirmation dialog
       setSelectedPriceId(priceId);
       setIsDialogOpen(true);
       return;
     }
 
-    // Otherwise proceed directly to Stripe checkout
+    // No subscription - proceed directly to Stripe checkout
     try {
       const response = await fetch("/api/create-subscription", {
         method: "POST",
@@ -97,7 +98,6 @@ export default function UpgradePage() {
   };
 
   const getSubscriptionStatus = (tier: string) => {
-    console.log("tier", tier);
     // Free tier case
     if (tier === SubscriptionTierEnum.FREE && tier === user?.tier) {
       return "Current plan";
@@ -105,10 +105,13 @@ export default function UpgradePage() {
 
     // Subscription cases
     if (user?.tier === tier) {
-      if (!user.cancelAtPeriodEnd) {
+      if (user.stripeSubscriptionId) {
+        // If this subscription is being cancelled
+        if (user.cancelAtPeriodEnd && user.cancellingSubscriptionId === user.stripeSubscriptionId) {
+          return `Ends on ${formatDate(user.currentPeriodEnd)}`;
+        }
+        // Otherwise it's active
         return "Renews on " + formatDate(user.currentPeriodEnd);
-      } else {
-        return `Ends on ${formatDate(user.currentPeriodEnd)}`;
       }
     }
 
