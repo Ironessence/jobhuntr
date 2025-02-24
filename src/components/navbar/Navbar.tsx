@@ -30,7 +30,7 @@ const Navbar = () => {
             priority
           />
           <h1
-            className={`text-4xl font-bold font-archivo tracking-wide ${theme === "dark" ? "text-white" : "text-black"}`}
+            className={`sm:text-4xl text-xl font-bold font-archivo tracking-wide ${theme === "dark" ? "text-white" : "text-black"}`}
           >
             Applyninja.ai
           </h1>
