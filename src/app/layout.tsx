@@ -24,7 +24,13 @@ const archivoBlack = localFont({
 export const metadata: Metadata = {
   title: "ApplyNinja.ai",
   description: "Apply to jobs faster and better with AI",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    minimumScale: 1,
+  },
 };
 
 export default function RootLayout({
@@ -43,8 +49,8 @@ export default function RootLayout({
         <Providers>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
-            enableSystem
+            defaultTheme="dark"
+            enableSystem={false}
             disableTransitionOnChange
           >
             {children}

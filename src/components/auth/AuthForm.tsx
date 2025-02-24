@@ -203,7 +203,7 @@ export function AuthForm() {
   }
 
   return (
-    <div className="py-8">
+    <div>
       {registrationSuccess && (
         <div className="mb-6 p-4 border border-green-200 rounded-md">
           <p className="text-green-600 text-sm text-center">
@@ -261,7 +261,7 @@ export function AuthForm() {
                     <FormMessage />
                     <Button
                       variant="link"
-                      className="px-0 font-normal"
+                      className="px-0 font-normal underline"
                       onClick={() => (window.location.href = "/forgot-password")}
                     >
                       Forgot password?
