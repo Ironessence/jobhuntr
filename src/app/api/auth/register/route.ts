@@ -2,10 +2,16 @@ import { sendVerificationEmail } from "@/lib/email";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
-import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
+// Add this to prevent static page generation
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
+  if (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN) {
+    return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+  }
+
   try {
     const { email, password, name } = await req.json();
 
@@ -20,15 +26,11 @@ export async function POST(req: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Generate verification token
-    const verificationToken = crypto.randomInt(100000, 999999).toString();
-
     // Create unverified user
     const user = await User.create({
       email,
       password: hashedPassword,
       name,
-      verificationToken,
       emailVerified: false,
       tokens: 1000,
       tier: "FREE",
@@ -37,6 +39,7 @@ export async function POST(req: NextRequest) {
     try {
       await sendVerificationEmail(email);
     } catch (emailError) {
+      console.error("Email sending error:", emailError);
       // Clean up user if email fails
       await User.deleteOne({ _id: user._id });
       return NextResponse.json({ error: "Failed to send verification email" }, { status: 500 });
@@ -45,6 +48,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Registration error:", error);
+
     return NextResponse.json({ error: "Error creating user" }, { status: 500 });
   }
 }
