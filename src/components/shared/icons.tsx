@@ -8,7 +8,6 @@ import {
   CreditCard,
   File,
   FileText,
-  Github,
   HelpCircle,
   Laptop,
   Loader2,
@@ -21,10 +20,10 @@ import {
   Settings,
   SunMedium,
   Trash,
-  Twitter,
   User,
   X,
 } from "lucide-react";
+import Image from "next/image";
 
 export const Icons = {
   logo: Command,
@@ -48,8 +47,6 @@ export const Icons = {
   sun: SunMedium,
   moon: Moon,
   laptop: Laptop,
-  gitHub: Github,
-  twitter: Twitter,
   check: Check,
   logout: LogOut,
   google: ({ ...props }: LucideProps) => (

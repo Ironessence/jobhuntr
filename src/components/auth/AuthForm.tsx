@@ -48,7 +48,6 @@ const signInSchema = z.object({
 });
 
 export function AuthForm() {
-  console.log("RUNS AUTH FORM");
   const [isLoading, setIsLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState({
     length: false,

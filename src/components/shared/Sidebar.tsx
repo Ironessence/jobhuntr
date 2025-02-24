@@ -85,8 +85,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               toast.success(
                 isReplacing ? "CV replaced successfully" : "CV uploaded and processed successfully",
               );
-              console.log("CV Text:", data.fullText);
-              console.log("CV file name:", data.fileName);
+
               refetchCv(); // Refetch CV data to update the UI
             },
             onError: () => {
