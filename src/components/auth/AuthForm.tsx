@@ -1,5 +1,6 @@
 "use client";
 
+import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
 import { Icons } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -423,20 +424,7 @@ export function AuthForm() {
                       />
                     </FormControl>
                     <FormMessage className="text-red-500" />
-                    <div className="space-y-2 text-sm text-muted-foreground">
-                      <p className={passwordStrength.length ? "text-green-500" : ""}>
-                        • At least 8 characters
-                      </p>
-                      <p className={passwordStrength.number ? "text-green-500" : ""}>
-                        • At least one number
-                      </p>
-                      <p className={passwordStrength.special ? "text-green-500" : ""}>
-                        • At least one special character
-                      </p>
-                      <p className={passwordStrength.uppercase ? "text-green-500" : ""}>
-                        • At least one uppercase letter
-                      </p>
-                    </div>
+                    <PasswordStrengthIndicator password={field.value} />
                   </FormItem>
                 )}
               />

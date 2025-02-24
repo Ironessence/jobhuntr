@@ -24,13 +24,14 @@ const archivoBlack = localFont({
 export const metadata: Metadata = {
   title: "ApplyNinja.ai",
   description: "Apply to jobs faster and better with AI",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    minimumScale: 1,
-  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  minimumScale: 1,
 };
 
 export default function RootLayout({

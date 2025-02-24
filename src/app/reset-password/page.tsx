@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -19,7 +19,7 @@ const resetSchema = z.object({
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter"),
 });
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -91,5 +91,13 @@ export default function ResetPasswordPage() {
         </Button>
       </form>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }
