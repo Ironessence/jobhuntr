@@ -49,6 +49,7 @@ const signInSchema = z.object({
 
 export function AuthForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState({
     length: false,
     number: false,
@@ -86,6 +87,14 @@ export function AuthForm() {
       password: "",
     },
     mode: "onTouched",
+  });
+
+  const forgotPasswordForm = useForm<{ email: string }>({
+    resolver: zodResolver(
+      z.object({
+        email: z.string().email("Invalid email address"),
+      }),
+    ),
   });
 
   const validatePassword = (password: string) => {
@@ -202,6 +211,80 @@ export function AuthForm() {
     }
   }
 
+  async function onForgotPassword(values: { email: string }) {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: values.email.toLowerCase() }),
+      });
+
+      if (!response.ok) throw new Error((await response.json()).error);
+
+      toast.success("Password reset email sent!", {
+        description: "Please check your email for the reset link",
+      });
+      setIsForgotPassword(false);
+    } catch (error) {
+      toast.error("Failed to send reset email", {
+        description: error instanceof Error ? error.message : "Please try again later",
+      });
+    } finally {
+      setIsLoading(false);
+      forgotPasswordForm.reset();
+    }
+  }
+
+  if (isForgotPassword) {
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">Reset Password</h2>
+          <Button
+            variant="ghost"
+            onClick={() => setIsForgotPassword(false)}
+          >
+            Back to login
+          </Button>
+        </div>
+        <Form {...forgotPasswordForm}>
+          <form
+            onSubmit={forgotPasswordForm.handleSubmit(onForgotPassword)}
+            className="space-y-4"
+          >
+            <FormField
+              control={forgotPasswordForm.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="email@example.com"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value.toLowerCase())}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
+              Send Reset Link
+            </Button>
+          </form>
+        </Form>
+      </div>
+    );
+  }
+
   return (
     <div>
       {registrationSuccess && (
@@ -262,7 +345,8 @@ export function AuthForm() {
                     <Button
                       variant="link"
                       className="px-0 font-normal underline"
-                      onClick={() => (window.location.href = "/forgot-password")}
+                      onClick={() => setIsForgotPassword(true)}
+                      type="button"
                     >
                       Forgot password?
                     </Button>
