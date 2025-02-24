@@ -16,9 +16,15 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+const archivoBlack = localFont({
+  src: "./fonts/ArchivoBlack-Regular.ttf",
+  variable: "--font-archivo",
+});
+
 export const metadata: Metadata = {
   title: "ApplyNinja.ai",
-  description: "Job hunt smarter",
+  description: "Apply to jobs faster and better with AI",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
 export default function RootLayout({
@@ -31,7 +37,9 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
     >
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${archivoBlack.variable} antialiased`}
+      >
         <Providers>
           <ThemeProvider
             attribute="class"

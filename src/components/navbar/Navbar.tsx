@@ -1,6 +1,5 @@
 "use client";
-import blackLogo from "@/assets/logos/apply.ninja black.png";
-import whiteLogo from "@/assets/logos/apply.ninja white.png";
+import icon from "@/assets/icons/icon-applyninja.png";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
@@ -22,11 +21,20 @@ const Navbar = () => {
   return (
     <header className="border-b">
       <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Image
-          src={theme === "dark" ? whiteLogo : blackLogo}
-          alt="Apply.ninja"
-          className="md:w-[400px] md:h-[70px] w-[200px] h-[40px] object-contain"
-        />
+        <div className="flex items-center gap-1">
+          <Image
+            src={icon}
+            alt="applyninja-icon"
+            width={40}
+            height={40}
+            priority
+          />
+          <h1
+            className={`text-4xl font-bold font-archivo tracking-wide ${theme === "dark" ? "text-white" : "text-black"}`}
+          >
+            Applyninja.ai
+          </h1>
+        </div>
         <div className="flex items-center gap-4">
           <ThemeToggle />
           {session?.user ? (

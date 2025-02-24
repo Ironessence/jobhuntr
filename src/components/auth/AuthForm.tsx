@@ -115,7 +115,7 @@ export function AuthForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: values.email,
+          email: values.email.toLowerCase(),
           password: values.password,
           name: values.name,
         }),
@@ -148,7 +148,7 @@ export function AuthForm() {
     setSignInError("");
     try {
       const result = await signIn("credentials", {
-        email: values.email,
+        email: values.email.toLowerCase(),
         password: values.password,
         redirect: false,
       });
@@ -239,6 +239,7 @@ export function AuthForm() {
                       <Input
                         placeholder="email@example.com"
                         {...field}
+                        onChange={(e) => field.onChange(e.target.value.toLowerCase())}
                       />
                     </FormControl>
                     <FormMessage />
@@ -313,6 +314,7 @@ export function AuthForm() {
                         type="email"
                         placeholder="email@example.com"
                         {...field}
+                        onChange={(e) => field.onChange(e.target.value.toLowerCase())}
                       />
                     </FormControl>
                     <FormMessage className="text-red-500" />
