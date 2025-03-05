@@ -12,7 +12,7 @@ export async function sendVerificationEmail(email: string) {
   const mg = mailgun.client({
     username: "api",
     key: process.env.MAILGUN_API_KEY,
-    url: "https://api.mailgun.net",
+    url: "https://api.eu.mailgun.net",
   });
 
   const token = await generateVerificationToken(email);
@@ -63,7 +63,7 @@ export async function sendPasswordResetEmail(email: string) {
   const mg = mailgun.client({
     username: "api",
     key: process.env.MAILGUN_API_KEY,
-    url: "https://api.mailgun.net",
+    url: "https://api.eu.mailgun.net",
   });
 
   const token = await generateVerificationToken(email);
