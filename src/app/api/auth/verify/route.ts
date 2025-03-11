@@ -18,7 +18,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid verification code" }, { status: 400 });
     }
 
-    // Verify user
     await User.findByIdAndUpdate(user._id, {
       emailVerified: true,
       $unset: { verificationToken: "" },
