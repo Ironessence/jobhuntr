@@ -1,3 +1,4 @@
+import { sendWelcomeEmail } from "@/lib/email";
 import { connectToDatabase } from "@/lib/mongodb";
 import { verifyToken } from "@/lib/tokens";
 import User from "@/models/User";
@@ -24,7 +25,7 @@ export default async function VerifyPage({ searchParams }: { searchParams: { tok
     }
 
     await User.findOneAndUpdate({ email }, { emailVerified: true }, { new: true });
-
+    sendWelcomeEmail(email);
     redirect("/?verified=true");
   } catch (error) {
     if (error instanceof Error && !error.message.includes("NEXT_REDIRECT")) {
