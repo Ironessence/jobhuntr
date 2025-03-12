@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { constants } from "@/constants";
 import { useGetQuery, useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
 import { User } from "@/types/User.types";
@@ -22,6 +23,7 @@ import { PlusIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -92,12 +94,44 @@ export default function Dashboard() {
     }
   };
 
+  const handleAddNewJobClick = () => {
+    const userTier = user?.tier || "FREE";
+    let jobLimit;
+
+    switch (userTier) {
+      case "NINJA":
+        jobLimit = constants.LIMIT_JOBS_NINJA;
+        break;
+      case "APPRENTICE":
+        jobLimit = constants.LIMIT_JOBS_APPRENTICE;
+        break;
+      default:
+        jobLimit = constants.LIMIT_JOBS_FREE;
+    }
+
+    if (jobs && jobs.length >= jobLimit) {
+      toast("Job limit reached", {
+        description:
+          "You have reached your jobs limit. Please delete existing jobs or upgrade to add more jobs.",
+        action: {
+          label: "🚀 Upgrade",
+          onClick: () => router.push("/dashboard/upgrade"),
+        },
+        duration: 5000,
+      });
+      return;
+    }
+
+    // If under the limit, open the dialog
+    setIsDialogOpen(true);
+  };
+
   return (
     <div className="mx-auto p-4">
       {jobs && jobs.length > 0 && (
         <section className="flex justify-end mb-4">
           <Button
-            onClick={() => setIsDialogOpen(true)}
+            onClick={handleAddNewJobClick}
             className="flex items-center gap-2"
           >
             <PlusIcon className="w-4 h-4" />
