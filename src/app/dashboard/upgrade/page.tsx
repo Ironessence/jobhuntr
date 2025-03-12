@@ -16,10 +16,10 @@ import { SubscriptionTierEnum, SubscriptionTiers } from "@/types/Subscription.ty
 import { handleApiError } from "@/utils/error-handling";
 import { formatDate } from "@/utils/formatters";
 import { NextResponse } from "next/server";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { toast } from "sonner";
 
-export default function UpgradePage() {
+function UpgradePageContent() {
   const { user } = useUserContext();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
@@ -184,5 +184,13 @@ export default function UpgradePage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function UpgradePage() {
+  return (
+    <Suspense fallback={<div>Loading subscription options...</div>}>
+      <UpgradePageContent />
+    </Suspense>
   );
 }

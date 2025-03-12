@@ -1,10 +1,10 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { toast } from "sonner";
 
-export function ResetPasswordToast() {
+function ResetPasswordToastContent() {
   const searchParams = useSearchParams();
   const reset = searchParams.get("reset");
 
@@ -27,4 +27,12 @@ export function ResetPasswordToast() {
   }, [reset]);
 
   return null;
+}
+
+export function ResetPasswordToast() {
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordToastContent />
+    </Suspense>
+  );
 }

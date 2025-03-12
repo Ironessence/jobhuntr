@@ -1,10 +1,10 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { toast } from "sonner";
 
-export function VerificationToast() {
+function VerificationToastContent() {
   const searchParams = useSearchParams();
   const verified = searchParams.get("verified");
 
@@ -27,4 +27,12 @@ export function VerificationToast() {
   }, [verified]);
 
   return null;
+}
+
+export function VerificationToast() {
+  return (
+    <Suspense fallback={null}>
+      <VerificationToastContent />
+    </Suspense>
+  );
 }
