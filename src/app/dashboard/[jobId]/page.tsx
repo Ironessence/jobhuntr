@@ -26,6 +26,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import { usePageTracking } from "@/hooks/usePageTracking";
 import { useGetQuery, useMutateApi } from "@/lib";
 import { Job, JobStatus } from "@/types/Job.types";
 import { formatDate, formatJobStatus } from "@/utils/formatters";
@@ -60,6 +61,14 @@ export default function JobDetailsPage() {
     queryKey: QueryKeys.DELETE_JOB,
     invalidate: QueryKeys.GET_JOBS,
     method: "POST",
+  });
+
+  // Add page tracking with job details when available
+  usePageTracking("job_details", {
+    job_id: jobId,
+    job_title: job?.jobTitle,
+    company: job?.company,
+    job_status: job?.status,
   });
 
   const handleStatusChange = async (newStatus: JobStatus) => {

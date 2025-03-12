@@ -5,8 +5,12 @@ import coins2 from "@/assets/images/coins2.png";
 import coins3 from "@/assets/images/coins3.png";
 import TokenCard from "@/components/shared/TokenCard";
 import { constants } from "@/constants";
+import { usePageTracking } from "@/hooks/usePageTracking";
 
 const BuyTokens = () => {
+  // Add page tracking
+  usePageTracking("buy_tokens");
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8 text-center">Purchase Tokens</h1>

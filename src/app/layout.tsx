@@ -1,3 +1,4 @@
+import { PostHogProvider } from "@/components/analytics/PostHogProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import Providers from "@/providers/Providers";
@@ -47,16 +48,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${archivoBlack.variable} antialiased`}
       >
-        <Providers>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem={false}
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
-        </Providers>
+        <PostHogProvider>
+          <Providers>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem={false}
+              disableTransitionOnChange
+            >
+              {children}
+            </ThemeProvider>
+          </Providers>
+        </PostHogProvider>
         <Toaster />
       </body>
     </html>

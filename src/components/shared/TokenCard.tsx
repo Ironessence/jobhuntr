@@ -1,5 +1,6 @@
 import { useUserContext } from "@/context/AuthContext";
 
+import { trackEvent } from "@/lib/analytics";
 import { loadStripe } from "@stripe/stripe-js";
 import Image, { StaticImageData } from "next/image";
 import { toast } from "sonner";
@@ -23,6 +24,14 @@ const TokenCard = ({
   const { user } = useUserContext();
 
   const handleCheckout = async () => {
+    // Track the purchase attempt
+    trackEvent("token_purchase_initiated", {
+      token_amount: tokens,
+      price: price,
+      has_bonus: !!bonus,
+      bonus_amount: bonus || 0,
+    });
+
     try {
       const stripe = await stripePromise;
       if (!stripe) throw new Error("Stripe failed to load");
@@ -51,7 +60,21 @@ const TokenCard = ({
       if (result.error) {
         toast(result.error.message || "Payment failed. Please try again.");
       }
+
+      // Track successful checkout redirect
+      trackEvent("token_checkout_started", {
+        token_amount: tokens,
+        price: price,
+      });
+
+      window.location.href = data.url;
     } catch (error) {
+      // Track error
+      trackEvent("token_purchase_error", {
+        token_amount: tokens,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+
       toast.error("Something went wrong. Please try again.");
     }
   };

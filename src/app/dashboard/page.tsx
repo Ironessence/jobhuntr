@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { constants } from "@/constants";
+import { usePageTracking } from "@/hooks/usePageTracking";
 import { useGetQuery, useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
 import { User } from "@/types/User.types";
@@ -28,6 +29,12 @@ import { toast } from "sonner";
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
+
+  // Add page tracking
+  usePageTracking("dashboard", {
+    user_status: status,
+    has_session: !!session,
+  });
 
   const { data: jobs } = useGetQuery<Job[]>(`/api/getJobs/${session?.user?.email}`, {
     queryKey: QueryKeys.GET_JOBS,

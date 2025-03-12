@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { identifyUser, trackEvent } from "@/lib/analytics";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -192,6 +193,7 @@ export function AuthForm() {
       } else if (result?.error) {
         setSignInError("Invalid credentials");
       } else {
+        identifyUser(values.email.toLowerCase());
         window.location.href = "/dashboard";
       }
     } catch (error) {
@@ -222,6 +224,10 @@ export function AuthForm() {
       });
 
       if (!response.ok) throw new Error((await response.json()).error);
+
+      trackEvent("password_reset_requested", {
+        success: true,
+      });
 
       toast.success("Password reset email sent!", {
         description: "Please check your email for the reset link",
