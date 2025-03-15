@@ -2,16 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { usePageTracking } from "@/hooks/usePageTracking";
-import {
-  ArrowRight,
-  Briefcase,
-  Building,
-  FileText,
-  MessageSquare,
-  Star,
-  User,
-  UserIcon,
-} from "lucide-react";
+import { ArrowRight, Briefcase, Building, FileText, MessageSquare, Star } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function HeroSection() {
@@ -21,13 +13,20 @@ export default function HeroSection() {
   return (
     <section className="relative text-foreground overflow-hidden py-16 md:py-24">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           {/* Left content */}
-          <div className="z-10">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-archivo font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-400 to-blue-800 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] filter-none">
-              Land Your Dream Job 3x Faster
+          <div className="z-10 ">
+            <h1
+              className="text-4xl md:text-5xl lg:text-6xl font-archivo font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-400 to-blue-800 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] filter-none"
+              style={{ lineHeight: "1.2" }}
+            >
+              Land Your Dream Job{" "}
+              <span className="text-4xl md:text-5xl lg:text-6xl font-archivo font-bold text-white bg-gradient-to-r from-cyan-500 via-blue-400 to-blue-800 px-4 py-1 rounded relative inline-block transform -skew-y-2">
+                <span className="inline-block transform ">5x Faster</span>
+              </span>
             </h1>
-            <p className="text-lg md:text-xl mb-8 max-w-lg">
+
+            <p className="text-lg md:text-xl mb-8 max-w-lg font-sans">
               AI-powered tools that create personalized cover letters, company insights, and
               interview prep tailored to your specific job applications.
             </p>
@@ -35,7 +34,7 @@ export default function HeroSection() {
               <Link href="/auth">
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white"
+                  className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 font-bold text-white"
                 >
                   Try for free
                 </Button>
@@ -48,9 +47,15 @@ export default function HeroSection() {
                 {[...Array(5)].map((_, i) => (
                   <div
                     key={i}
-                    className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 flex items-center justify-center border-2 border-background"
+                    className="w-8 h-8 rounded-full overflow-hidden border-2 border-background"
                   >
-                    <UserIcon className="h-4 w-4 text-white" />
+                    <Image
+                      src={`https://randomuser.me/api/portraits/${i % 2 === 0 ? "women" : "men"}/${i + 1}.jpg`}
+                      alt={`User ${i + 1}`}
+                      width={32}
+                      height={32}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
                 ))}
               </div>
@@ -63,7 +68,9 @@ export default function HeroSection() {
                     />
                   ))}
                 </div>
-                <p className="text-sm font-medium">Trusted by 200+ job applicants</p>
+                <p className="text-sm font-medium">
+                  Trusted by <span className="font-extrabold ">200+ </span>job applicants
+                </p>
               </div>
             </div>
           </div>
@@ -76,10 +83,16 @@ export default function HeroSection() {
               <div className="flex flex-col items-center">
                 {/* User */}
                 <div className="flex flex-col items-center mb-8">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 flex items-center justify-center mb-2">
-                    <User className="h-8 w-8 text-white" />
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 flex items-center justify-center">
+                    <span
+                      className="text-3xl"
+                      role="img"
+                      aria-label="Pointing at you"
+                    >
+                      🫵🏼
+                    </span>
                   </div>
-                  <p className="font-medium">Job Seeker</p>
+                  <p className="font-extrabold font-archivo mt-2">You</p>
                 </div>
 
                 {/* Arrow down */}
@@ -120,6 +133,13 @@ export default function HeroSection() {
 
                 {/* Job opportunities */}
                 <div className="flex justify-center gap-4 flex-wrap">
+                  <span
+                    className="text-xl"
+                    role="img"
+                    aria-label="Confetti"
+                  >
+                    🎉
+                  </span>
                   {["Google", "Amazon", "Microsoft"].map((company, i) => (
                     <div
                       key={i}
@@ -131,6 +151,13 @@ export default function HeroSection() {
                       <span className="text-sm font-medium">{company}</span>
                     </div>
                   ))}
+                  <span
+                    className="text-xl transform scale-x-[-1]"
+                    role="img"
+                    aria-label="Confetti"
+                  >
+                    🎉
+                  </span>
                 </div>
               </div>
             </div>

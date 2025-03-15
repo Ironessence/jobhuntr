@@ -32,7 +32,7 @@ const Navbar = () => {
           <h1
             className={`sm:text-4xl text-xl font-bold font-archivo tracking-wide ${theme === "dark" ? "text-white" : "text-black"}`}
           >
-            Applyninja.ai
+            ApplyNinja.ai
           </h1>
         </div>
         <div className="flex items-center gap-4">
