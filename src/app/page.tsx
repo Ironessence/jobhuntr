@@ -1,7 +1,13 @@
 "use client";
 
 import HeroSection from "@/components/hero/hero-section";
+import Footer from "@/components/layout/footer";
 import Navbar from "@/components/navbar/Navbar";
+import CtaSection from "@/components/sections/cta-section";
+import FeaturesSection from "@/components/sections/features-section";
+import HowItWorks from "@/components/sections/how-it-works";
+import PricingSection from "@/components/sections/pricing-section";
+import TestimonialsSection from "@/components/sections/testimonials-section";
 import { ResetPasswordToast } from "@/components/verification/ResetPasswordToast";
 import { VerificationToast } from "@/components/verification/VerificationToast";
 import { usePageTracking } from "@/hooks/usePageTracking";
@@ -18,6 +24,12 @@ export default function Home() {
       <ResetPasswordToast />
       <Navbar />
       <HeroSection />
+      <HowItWorks />
+      <FeaturesSection />
+      <PricingSection />
+      <TestimonialsSection />
+      <CtaSection />
+      <Footer />
     </div>
   );
 }
