@@ -41,7 +41,7 @@ export default function HeroSection({
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <Button
                 size="lg"
-                className="flex items-center justify-center gap-1  bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-600 font-bold text-black self-center"
+                className="flex items-center justify-center gap-1 bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-600 font-bold text-black self-center group"
                 onClick={() => {
                   if (user) {
                     router.push("/dashboard");
@@ -50,12 +50,14 @@ export default function HeroSection({
                   }
                 }}
               >
-                <Image
-                  src={shuriken}
-                  alt="shuriken"
-                  width={25}
-                  height={25}
-                />
+                <div className="transition-transform duration-500 group-hover:rotate-180">
+                  <Image
+                    src={shuriken}
+                    alt="shuriken"
+                    width={25}
+                    height={25}
+                  />
+                </div>
                 Try for free
               </Button>
             </div>
