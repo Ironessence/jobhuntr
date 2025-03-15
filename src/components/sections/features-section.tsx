@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePageTracking } from "@/hooks/usePageTracking";
-import { CheckCircle, Clock, Sparkles, Target, Zap } from "lucide-react";
+import { CheckCircle, Clock, Database, Sparkles, Target, Zap } from "lucide-react";
 
 export default function FeaturesSection() {
   // Track page view
@@ -10,34 +10,40 @@ export default function FeaturesSection() {
 
   const features = [
     {
-      icon: <Zap className="h-12 w-12 text-pink-600" />,
-      title: "AI-Powered Efficiency",
+      icon: <Zap className="h-12 w-12 text-blue-500" />,
+      title: "Job-Specific AI Training",
       description:
-        "Save hours on each application with our AI tools that generate personalized content in seconds.",
+        "Our AI is specifically trained on successful job applications, resumes, and interview techniques to maximize your chances of landing your dream role.",
     },
     {
-      icon: <Target className="h-12 w-12 text-purple-600" />,
+      icon: <Target className="h-12 w-12 text-blue-400" />,
       title: "Tailored for Each Job",
       description:
-        "Every cover letter, resume suggestion, and interview prep is customized for the specific role you're applying to.",
+        "Every cover letter, resume suggestion, and interview prep is customized for the specific role you're applying to, highlighting your most relevant qualifications.",
     },
     {
-      icon: <Sparkles className="h-12 w-12 text-pink-600" />,
-      title: "Insider Knowledge",
+      icon: <Sparkles className="h-12 w-12 text-blue-500" />,
+      title: "Comprehensive Company Research",
       description:
-        "Get valuable company insights and salary information to negotiate better and stand out from other candidates.",
+        "Access insights gathered from employee reviews, company news, social media, and industry reports to understand company culture and values before applying.",
     },
     {
-      icon: <Clock className="h-12 w-12 text-purple-600" />,
+      icon: <Clock className="h-12 w-12 text-blue-400" />,
       title: "Interview Confidence",
       description:
-        "Practice with AI-generated interview questions specific to your target role and company.",
+        "Practice with AI-generated interview questions specific to your target role and company, with feedback to help you improve your responses.",
     },
     {
-      icon: <CheckCircle className="h-12 w-12 text-pink-600" />,
+      icon: <CheckCircle className="h-12 w-12 text-blue-500" />,
       title: "Flexible Token System",
       description:
-        "Use tokens however you want across all features, paying only for what you need when you need it.",
+        "Use your tokens across any feature without restrictions—allocate them to cover letters, resume reviews, or interview prep based on your current priorities.",
+    },
+    {
+      icon: <Database className="h-12 w-12 text-blue-400" />,
+      title: "Continuous Improvement",
+      description:
+        "ApplyNinja learns from successful applications and interviews, constantly refining its recommendations to stay current with hiring trends.",
     },
   ];
 
@@ -45,7 +51,9 @@ export default function FeaturesSection() {
     <section className="py-16 md:py-24">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose ApplyNinja.ai</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 font-archivo">
+            Why Choose ApplyNinja.ai
+          </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Our platform is designed to give you an unfair advantage in your job search
           </p>
@@ -55,7 +63,7 @@ export default function FeaturesSection() {
           {features.map((feature, index) => (
             <Card
               key={index}
-              className="border border-muted transition-all duration-200 hover:shadow-md hover:border-pink-200 dark:hover:border-pink-900"
+              className="border border-muted"
             >
               <CardHeader>
                 <div className="mb-4">{feature.icon}</div>

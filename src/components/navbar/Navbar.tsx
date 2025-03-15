@@ -9,7 +9,13 @@ import { ThemeToggle } from "../theme/ThemeToggle";
 import { Button } from "../ui/button";
 import NavbarSkeleton from "./NavbarSkeleton";
 
-const Navbar = () => {
+const Navbar = ({
+  setIsLoginDialogOpen,
+  isLoginDialogOpen,
+}: {
+  setIsLoginDialogOpen: (open: boolean) => void;
+  isLoginDialogOpen: boolean;
+}) => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { theme } = useTheme();
@@ -25,12 +31,12 @@ const Navbar = () => {
           <Image
             src={icon}
             alt="applyninja-icon"
-            width={40}
-            height={40}
+            width={30}
+            height={30}
             priority
           />
           <h1
-            className={`sm:text-4xl text-xl font-bold font-archivo tracking-wide ${theme === "dark" ? "text-white" : "text-black"}`}
+            className={`sm:text-2xl text-xl font-bold font-archivo tracking-wide ${theme === "dark" ? "text-white" : "text-black"}`}
           >
             ApplyNinja.ai
           </h1>
@@ -40,7 +46,10 @@ const Navbar = () => {
           {session?.user ? (
             <Button onClick={() => router.push("/dashboard")}>Dashboard</Button>
           ) : (
-            <LoginButton />
+            <LoginButton
+              setIsLoginDialogOpen={setIsLoginDialogOpen}
+              isLoginDialogOpen={isLoginDialogOpen}
+            />
           )}
         </div>
       </nav>

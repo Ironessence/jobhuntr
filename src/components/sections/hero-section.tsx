@@ -1,12 +1,20 @@
 "use client";
 
+import shuriken from "@/assets/icons/icon-applyninja.png";
 import { Button } from "@/components/ui/button";
+import { useUserContext } from "@/context/AuthContext";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { ArrowRight, Briefcase, Building, FileText, MessageSquare, Star } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-export default function HeroSection() {
+export default function HeroSection({
+  setIsLoginDialogOpen,
+}: {
+  setIsLoginDialogOpen: (open: boolean) => void;
+}) {
+  const { user } = useUserContext();
+  const router = useRouter();
   // Track page view
   usePageTracking("landing_hero");
 
@@ -31,14 +39,25 @@ export default function HeroSection() {
               interview prep tailored to your specific job applications.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <Link href="/auth">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 font-bold text-white"
-                >
-                  Try for free
-                </Button>
-              </Link>
+              <Button
+                size="lg"
+                className="flex items-center justify-center gap-1  bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-600 font-bold text-black self-center"
+                onClick={() => {
+                  if (user) {
+                    router.push("/dashboard");
+                  } else {
+                    setIsLoginDialogOpen(true);
+                  }
+                }}
+              >
+                <Image
+                  src={shuriken}
+                  alt="shuriken"
+                  width={25}
+                  height={25}
+                />
+                Try for free
+              </Button>
             </div>
 
             {/* Trust indicators */}

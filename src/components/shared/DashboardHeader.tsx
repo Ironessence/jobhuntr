@@ -13,7 +13,7 @@ const DashboardHeader = ({
   return (
     <header className="flex justify-between items-center mb-5">
       <h1
-        className="md:text-2xl text-lg font-bold cursor-pointer"
+        className="md:text-2xl text-lg font-bold cursor-pointer font-archivo"
         onClick={() => router.push("/dashboard")}
       >
         Dashboard

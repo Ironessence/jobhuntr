@@ -1,6 +1,5 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { Building2, DollarSign, FileSpreadsheet, FileText, MessageSquare } from "lucide-react";
 import { useState } from "react";
@@ -9,22 +8,22 @@ export default function HowItWorks() {
   // Track page view
   usePageTracking("landing_how_it_works");
 
-  const [activeTab, setActiveTab] = useState("cover-letter");
+  const [activeFeature, setActiveFeature] = useState("cv-suggestions");
 
   const features = {
-    "cover-letter": {
-      title: "AI Cover Letters",
-      description:
-        "Generate tailored cover letters in seconds that highlight your relevant skills and experience for each specific job application. Our AI analyzes the job description and your resume to create personalized, compelling content that gets you noticed by hiring managers.",
-      icon: <FileText className="h-6 w-6" />,
-      videoTime: 0,
-    },
     "cv-suggestions": {
       title: "CV Suggestions",
       description:
         "Get personalized recommendations to optimize your resume for each job application and increase your chances of getting an interview. Our AI identifies missing keywords, suggests improvements to your experience descriptions, and helps you highlight the most relevant skills for each position.",
       icon: <FileSpreadsheet className="h-6 w-6" />,
       videoTime: 60,
+    },
+    "cover-letter": {
+      title: "AI Cover Letters",
+      description:
+        "Generate tailored cover letters in seconds that highlight your relevant skills and experience for each specific job application. Our AI analyzes the job description and your resume to create personalized, compelling content that gets you noticed by hiring managers.",
+      icon: <FileText className="h-6 w-6" />,
+      videoTime: 0,
     },
     "company-insights": {
       title: "Company Insights",
@@ -49,14 +48,21 @@ export default function HowItWorks() {
     },
   };
 
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
+  const handleFeatureClick = (key: string) => {
+    setActiveFeature(key);
     // In a real implementation, you would control the YouTube player to jump to specific timestamps
+    // using the features[key].videoTime value
   };
 
   return (
-    <section className="py-16 md:py-24 bg-muted/30">
-      <div className="container mx-auto px-4">
+    <section className="py-24 relative">
+      <div
+        className="bg-muted/30 inset-0 absolute"
+        style={{
+          clipPath: "polygon(0 0, 100% 5%, 100% 100%, 0% 100%)",
+        }}
+      ></div>
+      <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 font-archivo">How ApplyNinja Works</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -78,45 +84,48 @@ export default function HowItWorks() {
             ></iframe>
           </div>
 
-          {/* Tabs section */}
-          <div className="h-full flex flex-col justify-center">
-            <Tabs
-              defaultValue="cover-letter"
-              value={activeTab}
-              onValueChange={handleTabChange}
-              className="h-full flex flex-col"
-            >
-              <TabsList className="grid grid-cols-3 md:grid-cols-5 mb-8 h-[40px]">
-                {Object.entries(features).map(([key, feature]) => (
-                  <TabsTrigger
-                    key={key}
-                    value={key}
-                    className="flex items-center gap-2"
+          {/* Feature cards section */}
+          <div className="space-y-4">
+            {Object.entries(features).map(([key, feature]) => (
+              <div
+                key={key}
+                onClick={() => handleFeatureClick(key)}
+                className={`p-4 rounded-lg border transition-all duration-300 cursor-pointer ${
+                  activeFeature === key
+                    ? "bg-gradient-to-r from-bg-muted/30 to-bg-muted/50 border-blue-300 shadow-md"
+                    : "bg-background hover:bg-muted/30 border-muted-foreground/20"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div
+                    className={`p-2 rounded-full ${
+                      activeFeature === key
+                        ? "bg-gradient-to-r from-amber-400 to-orange-400 text-white"
+                        : "bg-muted text-muted-foreground"
+                    }`}
                   >
                     {feature.icon}
-                    <span className="hidden md:inline">{feature.title.split(" ")[0]}</span>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-
-              <div className="flex-grow">
-                {Object.entries(features).map(([key, feature]) => (
-                  <TabsContent
-                    key={key}
-                    value={key}
-                    className="space-y-4 h-full"
-                  >
-                    <div className="bg-background p-6 rounded-lg shadow-sm border h-full">
-                      <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                        {feature.icon}
-                        {feature.title}
-                      </h3>
-                      <p className="text-muted-foreground">{feature.description}</p>
-                    </div>
-                  </TabsContent>
-                ))}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">{feature.title}</h3>
+                    <p
+                      className={`text-sm ${
+                        activeFeature === key ? "text-muted-foreground" : "text-muted-foreground/70"
+                      }`}
+                    >
+                      {activeFeature === key
+                        ? feature.description
+                        : feature.description.split(".")[0] + "."}
+                    </p>
+                    {activeFeature === key && (
+                      <button className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                        Watch this section <span className="text-xs">▶</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-            </Tabs>
+            ))}
           </div>
         </div>
       </div>
