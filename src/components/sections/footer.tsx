@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { constants } from "@/constants";
-import { GithubIcon, LinkedinIcon, TwitterIcon } from "lucide-react";
+import { InstagramIcon } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -17,52 +16,23 @@ export default function Footer() {
         { name: "FAQ", href: "#faq" },
       ],
     },
-    {
-      title: "Company",
-      links: [
-        { name: "About Us", href: "/about" },
-        { name: "Blog", href: "/blog" },
-        { name: "Careers", href: "/careers" },
-        { name: "Contact", href: "/contact" },
-      ],
-    },
-    {
-      title: "Resources",
-      links: [
-        { name: "Help Center", href: "/help" },
-        { name: "Privacy Policy", href: "/privacy" },
-        { name: "Terms of Service", href: "/terms" },
-        { name: "Cookie Policy", href: "/cookies" },
-      ],
-    },
   ];
 
   return (
     <footer className="bg-muted/30 border-t">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {/* Brand and newsletter */}
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Brand and socials */}
+          <div>
             <Link
               href="/"
               className="inline-block mb-4"
             >
               <h3 className="text-2xl font-bold">{constants.APP_TITLE}</h3>
             </Link>
-            <p className="text-muted-foreground mb-4 max-w-md">
+            <p className="text-muted-foreground mb-6 max-w-md">
               AI-powered tools to help you land your dream job faster and with less stress.
             </p>
-
-            <div className="mb-6">
-              <p className="font-medium mb-2">Subscribe to our newsletter</p>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Enter your email"
-                  className="max-w-xs"
-                />
-                <Button>Subscribe</Button>
-              </div>
-            </div>
 
             <div className="flex gap-4">
               <Button
@@ -71,37 +41,11 @@ export default function Footer() {
                 asChild
               >
                 <Link
-                  href="https://twitter.com"
+                  href="https://instagram.com/applyninja.ai"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <TwitterIcon className="h-5 w-5" />
-                </Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                asChild
-              >
-                <Link
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <LinkedinIcon className="h-5 w-5" />
-                </Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                asChild
-              >
-                <Link
-                  href="https://github.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <GithubIcon className="h-5 w-5" />
+                  <InstagramIcon className="h-5 w-5" />
                 </Link>
               </Button>
             </div>
@@ -131,18 +75,30 @@ export default function Footer() {
           <p className="text-sm text-muted-foreground">
             © {currentYear} {constants.APP_TITLE}. All rights reserved.
           </p>
-          <div className="flex gap-4 mt-4 md:mt-0">
+          <div className="flex flex-wrap gap-4 mt-4 md:mt-0 justify-center">
             <Link
-              href="/privacy"
+              href="/privacy-policy"
               className="text-sm text-muted-foreground hover:text-foreground"
             >
               Privacy Policy
             </Link>
             <Link
-              href="/terms"
+              href="/terms-of-service"
               className="text-sm text-muted-foreground hover:text-foreground"
             >
               Terms of Service
+            </Link>
+            <Link
+              href="/cookie-policy"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Cookie Policy
+            </Link>
+            <Link
+              href="mailto:support@applyninja.ai"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              support@applyninja.ai
             </Link>
           </div>
         </div>

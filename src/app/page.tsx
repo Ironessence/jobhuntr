@@ -1,9 +1,10 @@
 "use client";
 
-import Footer from "@/components/layout/footer";
 import Navbar from "@/components/navbar/Navbar";
 import CtaSection from "@/components/sections/cta-section";
+import FAQSection from "@/components/sections/faq-section";
 import FeaturesSection from "@/components/sections/features-section";
+import Footer from "@/components/sections/footer";
 import HeroSection from "@/components/sections/hero-section";
 import HowItWorks from "@/components/sections/how-it-works";
 import PricingSection from "@/components/sections/pricing-section";
@@ -33,6 +34,7 @@ export default function Home() {
       <FeaturesSection />
       <PricingSection />
       <TestimonialsSection />
+      <FAQSection />
       <CtaSection />
       <Footer />
     </div>

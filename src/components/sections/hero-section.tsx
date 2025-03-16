@@ -34,7 +34,7 @@ export default function HeroSection({
               </span>
             </h1>
 
-            <p className="text-lg md:text-xl mb-8 max-w-lg font-sans">
+            <p className="text-lg md:text-xl mb-8 max-w-lg font-semibold">
               AI-powered tools that create personalized cover letters, company insights, and
               interview prep tailored to your specific job applications.
             </p>

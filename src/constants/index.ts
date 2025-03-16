@@ -1,5 +1,5 @@
 export const constants = {
-  APP_TITLE: "Apply.ninja",
+  APP_TITLE: "ApplyNinja.ai",
   STRIPE: {
     PRICES: {
       TOKENS_1000: process.env.NEXT_PUBLIC_STRIPE_PRICE_1000_TOKENS!,
