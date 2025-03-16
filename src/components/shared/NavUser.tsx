@@ -162,10 +162,6 @@ export function NavUser({
             <File className="w-5 h-5" />
             Resume
           </DropdownMenuItem>
-          <DropdownMenuItem className="flex items-center gap-2">
-            <Settings className="w-5 h-5" />
-            Account Settings
-          </DropdownMenuItem>
         </DropdownMenuGroup>
 
         <DropdownMenuItem

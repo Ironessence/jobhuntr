@@ -20,7 +20,7 @@ import { useGetQuery, useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
 import { User } from "@/types/User.types";
 import QueryKeys from "@/utils/queryKeys";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, SearchIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -40,6 +40,14 @@ export default function Dashboard() {
     queryKey: QueryKeys.GET_JOBS,
     enabled: !!session?.user?.email,
   });
+
+  // Sort jobs by dateAdded (newest first)
+  const sortedJobs = jobs
+    ? [...jobs].sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      })
+    : null;
+
   const { data: user } = useGetQuery<User>(`/api/getUser/${session?.user?.email}`, {
     queryKey: QueryKeys.GET_USER,
     enabled: !!session?.user?.email,
@@ -55,6 +63,7 @@ export default function Dashboard() {
   const [jobDescription, setJobDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [jobSaved, setJobSaved] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -69,6 +78,15 @@ export default function Dashboard() {
   if (!session || !session.user) {
     return null;
   }
+
+  // Filter jobs based on search query
+  const filteredJobs = sortedJobs
+    ? sortedJobs.filter(
+        (job) =>
+          job.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          job.company.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+    : null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,8 +153,17 @@ export default function Dashboard() {
 
   return (
     <div className="mx-auto p-4">
-      {jobs && jobs.length > 0 && (
-        <section className="flex justify-end mb-4">
+      {sortedJobs && sortedJobs.length > 0 && (
+        <section className="flex justify-between mb-4 items-center">
+          <div className="relative w-full max-w-xs">
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search jobs..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
           <Button
             onClick={handleAddNewJobClick}
             className="flex items-center gap-2"
@@ -148,7 +175,7 @@ export default function Dashboard() {
       )}
 
       {/* Show message when no jobs exist */}
-      {(!jobs || jobs.length === 0) && (
+      {(!sortedJobs || sortedJobs.length === 0) && (
         <div className="flex flex-col items-center justify-center py-10 text-center">
           <p className="text-2xl font-semibold mb-2">No jobs to display here</p>
           <p className="text-muted-foreground mb-6">
@@ -165,15 +192,31 @@ export default function Dashboard() {
       )}
 
       {/* Show job grid when jobs exist */}
-      {jobs && jobs.length > 0 && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {jobs.map((job) => (
-            <JobCard
-              key={job._id}
-              job={job}
-            />
-          ))}
-        </div>
+      {sortedJobs && sortedJobs.length > 0 && (
+        <>
+          {filteredJobs && filteredJobs.length > 0 ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {filteredJobs.map((job) => (
+                <JobCard
+                  key={job._id}
+                  job={job}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <p className="text-xl font-semibold mb-2">No matching jobs found</p>
+              <p className="text-muted-foreground mb-6">Try adjusting your search query</p>
+              <Button
+                variant="outline"
+                onClick={() => setSearchQuery("")}
+                className="flex items-center gap-2"
+              >
+                Clear Search
+              </Button>
+            </div>
+          )}
+        </>
       )}
 
       {/* New Job Dialog */}

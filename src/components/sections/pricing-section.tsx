@@ -38,7 +38,7 @@ export default function PricingSection() {
     },
     {
       name: "Apprentice",
-      price: 19.99,
+      price: 19,
       description: "Most popular for serious job seekers",
       features: {
         included: [
@@ -57,7 +57,7 @@ export default function PricingSection() {
     },
     {
       name: "Ninja",
-      price: 39.99,
+      price: 29,
       description: "For power users and frequent job changers",
       features: {
         included: [

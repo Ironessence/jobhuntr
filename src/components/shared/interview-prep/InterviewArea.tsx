@@ -1,12 +1,14 @@
 "use client";
 
 import { AIActionButton } from "@/components/ui/ai-action-button";
+import { Button } from "@/components/ui/button";
 import { constants } from "@/constants";
 import { useUserContext } from "@/context/AuthContext";
 import { useMutateApi } from "@/lib";
 import { InterviewQuestion, Job } from "@/types/Job.types";
 import { handleApiError } from "@/utils/error-handling";
 import { QueryKeys } from "@/utils/queryKeys";
+import { useRouter } from "next/navigation";
 import { NextResponse } from "next/server";
 import NinjaLoader from "../NinjaLoader";
 import { InterviewQuiz } from "./InterviewQuiz";
@@ -17,7 +19,7 @@ interface Props {
 
 export default function InterviewArea({ job }: Props) {
   const { user } = useUserContext();
-
+  const router = useRouter();
   const { mutateAsync: generateQuestions, isPending: isGeneratingQuestions } = useMutateApi<
     InterviewQuestion[]
   >("/api/generate-interview-questions", {
@@ -44,13 +46,22 @@ export default function InterviewArea({ job }: Props) {
 
   return (
     <div>
-      <AIActionButton
-        onClick={handleGenerateQuestions}
-        isGenerating={isGeneratingQuestions}
-        existingData={job.interviewQuestions}
-        price={constants.PRICE_INTERVIEW_QUESTIONS}
-        className="mb-4"
-      />
+      {user?.tier !== "FREE" ? (
+        <AIActionButton
+          onClick={handleGenerateQuestions}
+          isGenerating={isGeneratingQuestions}
+          existingData={job.interviewQuestions}
+          price={constants.PRICE_INTERVIEW_QUESTIONS}
+          className="mb-4"
+        />
+      ) : (
+        <Button
+          className="mb-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold"
+          onClick={() => router.push("/dashboard/upgrade")}
+        >
+          ✨ Upgrade to generate
+        </Button>
+      )}
 
       {!isGeneratingQuestions && job.interviewQuestions && job.interviewQuestions.length > 0 && (
         <InterviewQuiz questions={job.interviewQuestions} />

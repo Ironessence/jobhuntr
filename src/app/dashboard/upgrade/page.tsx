@@ -56,7 +56,7 @@ function UpgradePageContent() {
     {
       name: "Apprentice",
       tier: SubscriptionTierEnum.APPRENTICE,
-      price: 19.99,
+      price: 19,
       description: "Most popular for serious job seekers",
       features: {
         included: [
@@ -77,7 +77,7 @@ function UpgradePageContent() {
     {
       name: "Ninja",
       tier: SubscriptionTierEnum.NINJA,
-      price: 39.99,
+      price: 29,
       description: "For power users and frequent job changers",
       features: {
         included: [
@@ -222,7 +222,7 @@ function UpgradePageContent() {
                 </div>
               )}
               <Card
-                className={`h-full flex flex-col ${plan.popular ? "border-blue-500 shadow-lg" : ""} ${isCurrentPlan ? "ring-2 ring-blue-500" : ""}`}
+                className={`h-full flex flex-col ${plan.popular ? "border-blue-500 shadow-lg" : ""}`}
               >
                 <CardHeader>
                   <CardTitle className="text-2xl text-center">{plan.name}</CardTitle>

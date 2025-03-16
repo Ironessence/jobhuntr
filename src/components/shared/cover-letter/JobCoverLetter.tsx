@@ -170,7 +170,7 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
         )}
       </div>
       {content && !isGeneratingCoverLetter && (
-        <div className="p-8 rounded-lg border bg-gray-900 max-w-full mx-auto shadow-sm">
+        <div className="p-8 rounded-lg border bg-gray-200 dark:bg-gray-900 max-w-full mx-auto shadow-sm">
           <textarea
             ref={textAreaRef}
             value={content}
@@ -178,12 +178,11 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
               setContent(e.target.value);
               adjustHeight();
             }}
-            className="w-full bg-transparent border-none focus:outline-none resize-none scrollbar-hidden"
+            className="w-full bg-transparent border-none focus:outline-none resize-none scrollbar-hidden text-foreground dark:text-white"
             style={{
               lineHeight: "1.5",
               fontSize: "14px",
               padding: "0",
-              color: "white",
               overflow: "hidden",
               whiteSpace: "pre-wrap",
             }}
