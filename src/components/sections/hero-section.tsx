@@ -8,11 +8,7 @@ import { ArrowRight, Briefcase, Building, FileText, MessageSquare, Star } from "
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-export default function HeroSection({
-  setIsLoginDialogOpen,
-}: {
-  setIsLoginDialogOpen: (open: boolean) => void;
-}) {
+export default function HeroSection() {
   const { user } = useUserContext();
   const router = useRouter();
   // Track page view
@@ -46,7 +42,7 @@ export default function HeroSection({
                   if (user) {
                     router.push("/dashboard");
                   } else {
-                    setIsLoginDialogOpen(true);
+                    router.push("/auth");
                   }
                 }}
               >

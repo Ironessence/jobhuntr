@@ -239,6 +239,8 @@ export function AuthForm() {
       });
     } finally {
       setIsLoading(false);
+      signUpForm.reset();
+      signInForm.reset();
       forgotPasswordForm.reset();
     }
   }

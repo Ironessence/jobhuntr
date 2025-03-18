@@ -4,18 +4,11 @@ import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import LoginButton from "../shared/LoginButton";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { Button } from "../ui/button";
 import NavbarSkeleton from "./NavbarSkeleton";
 
-const Navbar = ({
-  setIsLoginDialogOpen,
-  isLoginDialogOpen,
-}: {
-  setIsLoginDialogOpen: (open: boolean) => void;
-  isLoginDialogOpen: boolean;
-}) => {
+const Navbar = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { theme } = useTheme();
@@ -46,10 +39,7 @@ const Navbar = ({
           {session?.user ? (
             <Button onClick={() => router.push("/dashboard")}>Dashboard</Button>
           ) : (
-            <LoginButton
-              setIsLoginDialogOpen={setIsLoginDialogOpen}
-              isLoginDialogOpen={isLoginDialogOpen}
-            />
+            <Button onClick={() => router.push("/auth")}>Login</Button>
           )}
         </div>
       </nav>
