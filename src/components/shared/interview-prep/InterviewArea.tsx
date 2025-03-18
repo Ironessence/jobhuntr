@@ -46,22 +46,24 @@ export default function InterviewArea({ job }: Props) {
 
   return (
     <div>
-      {user?.tier !== "FREE" ? (
-        <AIActionButton
-          onClick={handleGenerateQuestions}
-          isGenerating={isGeneratingQuestions}
-          existingData={job.interviewQuestions}
-          price={constants.PRICE_INTERVIEW_QUESTIONS}
-          className="mb-4"
-        />
-      ) : (
-        <Button
-          className="mb-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold"
-          onClick={() => router.push("/dashboard/upgrade")}
-        >
-          ✨ Upgrade to generate
-        </Button>
-      )}
+      <div className="flex">
+        {user?.tier !== "FREE" ? (
+          <AIActionButton
+            onClick={handleGenerateQuestions}
+            isGenerating={isGeneratingQuestions}
+            existingData={job.interviewQuestions.length > 0}
+            price={constants.PRICE_INTERVIEW_QUESTIONS}
+            className="mb-4"
+          />
+        ) : (
+          <Button
+            className="mb-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold ml-auto mr-auto"
+            onClick={() => router.push("/dashboard/upgrade")}
+          >
+            ✨ Upgrade to generate
+          </Button>
+        )}
+      </div>
 
       {!isGeneratingQuestions && job.interviewQuestions && job.interviewQuestions.length > 0 && (
         <InterviewQuiz questions={job.interviewQuestions} />

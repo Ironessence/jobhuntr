@@ -39,7 +39,7 @@ export type Job = {
   jobDescription: string;
   status: JobStatus;
   coverLetter?: string;
-  interviewQuestions?: InterviewQuestion[];
+  interviewQuestions: InterviewQuestion[];
   companyInsights?: CompanyInsight;
   createdAt: Date;
 };
