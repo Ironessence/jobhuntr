@@ -9,73 +9,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { constants } from "@/constants";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { Check, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function PricingSection() {
   // Track page view
   usePageTracking("landing_pricing");
-
-  const subscriptionPlans = [
-    {
-      name: "Free",
-      price: 0,
-      description: "Get started with basic features",
-      features: {
-        included: [
-          "<strong>400</strong> starting tokens",
-          "<strong>50</strong> job limit",
-          "CV suggestions",
-          "Cover letter generation",
-          "Company insights",
-          "Salary insights",
-          "Basic AI model",
-        ],
-        excluded: ["<strong>Interview preparation</strong>", "<strong>Advanced AI model</strong>"],
-      },
-      popular: false,
-    },
-    {
-      name: "Apprentice",
-      price: 19,
-      description: "Most popular for serious job seekers",
-      features: {
-        included: [
-          "<strong>2000</strong> monthly tokens",
-          "<strong>100</strong> job limit",
-          "CV suggestions",
-          "Cover letter generation",
-          "Company insights",
-          "Salary insights",
-          "<strong>Interview preparation</strong>",
-          "<strong>Advanced AI model</strong>",
-        ],
-        excluded: [],
-      },
-      popular: true,
-    },
-    {
-      name: "Ninja",
-      price: 29,
-      description: "For power users and frequent job changers",
-      features: {
-        included: [
-          "<strong>4000</strong> monthly tokens",
-          "<strong>200</strong> job limit",
-          "CV suggestions",
-          "Cover letter generation",
-          "Company insights",
-          "Salary insights",
-          "<strong>Interview preparation</strong>",
-          "<strong>Advanced AI model</strong>",
-        ],
-        excluded: [],
-      },
-      popular: false,
-    },
-  ];
-
+  const router = useRouter();
   return (
     <section
       className="py-16 md:py-24 bg-muted/30"
@@ -92,7 +35,7 @@ export default function PricingSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {subscriptionPlans.map((plan, index) => (
+          {Object.values(constants.SUBSCRIPTION.TIERS).map((plan, index) => (
             <div
               key={index}
               className="relative"
@@ -106,7 +49,9 @@ export default function PricingSection() {
                 className={`h-full flex flex-col ${plan.popular ? "border-blue-500 shadow-lg" : ""}`}
               >
                 <CardHeader>
-                  <CardTitle className="text-2xl text-center">{plan.name}</CardTitle>
+                  <CardTitle className="text-2xl text-center">
+                    {plan.name.charAt(0).toUpperCase() + plan.name.slice(1).toLowerCase()}
+                  </CardTitle>
                   <CardDescription className="text-center">{plan.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
@@ -129,7 +74,7 @@ export default function PricingSection() {
                         key={`excluded-${i}`}
                         className="flex items-center gap-2 text-muted-foreground"
                       >
-                        <X className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                        <X className="h-5 w-5 text-red-500 flex-shrink-0" />
                         <span dangerouslySetInnerHTML={{ __html: feature }}></span>
                       </div>
                     ))}
@@ -143,8 +88,9 @@ export default function PricingSection() {
                     <Button
                       className={`w-full ${plan.popular ? "bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white" : ""}`}
                       variant={plan.popular ? "default" : "outline"}
+                      onClick={() => router.push("/auth")}
                     >
-                      {plan.price === 0 ? "Sign Up Free" : "Get Started"}
+                      Get Started
                     </Button>
                   </Link>
                 </CardFooter>

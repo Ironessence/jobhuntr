@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { NextAuthOptions, Profile } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import { sendWelcomeEmail } from "./email";
 
 interface GoogleProfile extends Profile {
   picture?: string;
@@ -70,10 +71,12 @@ export const authOptions: NextAuthOptions = {
             email,
             image: googleProfile.picture,
             cv: "",
-            tokens: 1000,
+            tokens: 50,
             tier: "FREE",
             emailVerified: true,
           });
+
+          await sendWelcomeEmail(email!);
         }
       }
 

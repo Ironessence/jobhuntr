@@ -29,7 +29,7 @@ export default function CtaSection() {
         </Link>
 
         <p className="mt-4 text-sm text-muted-foreground">
-          No credit card required. Start with <span className="font-bold">400 free tokens</span>.
+          No credit card required. Start with <span className="font-bold">50 free tokens</span>.
         </p>
       </div>
     </section>

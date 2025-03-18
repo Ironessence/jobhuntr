@@ -8,8 +8,12 @@ export interface SubscriptionTier {
   name: string;
   price: number;
   monthlyTokens: number;
-  features: string[];
+  features: {
+    included: string[];
+    excluded: string[];
+  };
   priceId?: string;
+  description?: string;
   popular?: boolean;
 }
 

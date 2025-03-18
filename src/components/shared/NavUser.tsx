@@ -120,7 +120,9 @@ export function NavUser({
                     `}
                   >
                     <Sparkles className="w-3 h-3" />
-                    {tierInfo.name}
+                    <span className="text-xs font-bold tracking-wide">
+                      {tierInfo.name.charAt(0).toUpperCase() + tierInfo.name.slice(1).toLowerCase()}
+                    </span>
                   </div>
                 </div>
               )}

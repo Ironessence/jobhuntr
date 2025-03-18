@@ -14,7 +14,6 @@ export default function LoginButton({
   isLoginDialogOpen: boolean;
 }) {
   const { data: session, status } = useSession();
-  //const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   if (status === "loading") {
     return <NinjaLoader className="w-20 h-20" />;

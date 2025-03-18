@@ -32,70 +32,21 @@ function UpgradePageContent() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
 
-  const subscriptionPlans = [
-    {
-      name: "Free",
-      tier: SubscriptionTierEnum.FREE,
-      price: 0,
-      description: "Get started with basic features",
-      features: {
-        included: [
-          "<strong>400</strong> starting tokens",
-          "<strong>50</strong> job limit",
-          "CV suggestions",
-          "Cover letter generation",
-          "Company insights",
-          "Salary insights",
-          "Basic AI model",
-        ],
-        excluded: ["<strong>Interview preparation</strong>", "<strong>Advanced AI model</strong>"],
-      },
-      priceId: constants.SUBSCRIPTION.TIERS.FREE,
-      popular: false,
-    },
-    {
-      name: "Apprentice",
-      tier: SubscriptionTierEnum.APPRENTICE,
-      price: 19,
-      description: "Most popular for serious job seekers",
-      features: {
-        included: [
-          "<strong>2000</strong> monthly tokens",
-          "<strong>100</strong> job limit",
-          "CV suggestions",
-          "Cover letter generation",
-          "Company insights",
-          "Salary insights",
-          "<strong>Interview preparation</strong>",
-          "<strong>Advanced AI model</strong>",
-        ],
-        excluded: [],
-      },
-      priceId: constants.SUBSCRIPTION.TIERS.APPRENTICE.priceId,
-      popular: true,
-    },
-    {
-      name: "Ninja",
-      tier: SubscriptionTierEnum.NINJA,
-      price: 29,
-      description: "For power users and frequent job changers",
-      features: {
-        included: [
-          "<strong>4000</strong> monthly tokens",
-          "<strong>200</strong> job limit",
-          "CV suggestions",
-          "Cover letter generation",
-          "Company insights",
-          "Salary insights",
-          "<strong>Interview preparation</strong>",
-          "<strong>Advanced AI model</strong>",
-        ],
-        excluded: [],
-      },
-      priceId: constants.SUBSCRIPTION.TIERS.NINJA.priceId,
-      popular: false,
-    },
-  ];
+  // Helper function to determine if a plan is a lower tier than the user's current plan
+  const isPlanLowerTier = (planName: string, userTier?: string): boolean => {
+    if (!userTier) return false;
+
+    const tierRanking = {
+      FREE: 0,
+      APPRENTICE: 1,
+      NINJA: 2,
+    };
+
+    return (
+      tierRanking[planName as keyof typeof tierRanking] <
+      tierRanking[userTier as keyof typeof tierRanking]
+    );
+  };
 
   const handleUpgrade = async (priceId: string) => {
     // If user has an active subscription (regardless of cancellation status)
@@ -207,9 +158,9 @@ function UpgradePageContent() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {subscriptionPlans.map((plan, index) => {
-          const isCurrentPlan = user?.tier === plan.tier && !user?.cancelAtPeriodEnd;
-          const subscriptionStatus = getSubscriptionStatus(plan.tier);
+        {Object.values(constants.SUBSCRIPTION.TIERS).map((plan, index) => {
+          const isCurrentPlan = user?.tier === plan.name && !user?.cancelAtPeriodEnd;
+          const subscriptionStatus = getSubscriptionStatus(plan.name);
 
           return (
             <div
@@ -225,7 +176,9 @@ function UpgradePageContent() {
                 className={`h-full flex flex-col ${plan.popular ? "border-blue-500 shadow-lg" : ""}`}
               >
                 <CardHeader>
-                  <CardTitle className="text-2xl text-center">{plan.name}</CardTitle>
+                  <CardTitle className="text-2xl text-center">
+                    {plan.name.charAt(0).toUpperCase() + plan.name.slice(1).toLowerCase()}
+                  </CardTitle>
                   <CardDescription className="text-center">{plan.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
@@ -254,7 +207,7 @@ function UpgradePageContent() {
                         key={`excluded-${i}`}
                         className="flex items-center gap-2 text-muted-foreground"
                       >
-                        <X className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                        <X className="h-5 w-5 text-red-500 flex-shrink-0" />
                         <span dangerouslySetInnerHTML={{ __html: feature }}></span>
                       </div>
                     ))}
@@ -264,14 +217,23 @@ function UpgradePageContent() {
                   <Button
                     className={`w-full ${plan.popular ? "bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white" : ""}`}
                     variant={plan.popular ? "default" : "outline"}
-                    disabled={isCurrentPlan || !plan.priceId}
+                    disabled={
+                      isCurrentPlan ||
+                      !plan.priceId ||
+                      (user?.tier === plan.name && user?.cancelAtPeriodEnd) ||
+                      isPlanLowerTier(plan.name, user?.tier)
+                    }
                     onClick={() => plan.priceId && handleUpgrade(plan.priceId as string)}
                   >
                     {isCurrentPlan
                       ? "Current Plan"
                       : plan.price === 0
-                        ? "Downgrade to Free"
-                        : "Upgrade"}
+                        ? "Free Plan"
+                        : user?.tier === plan.name && user?.cancelAtPeriodEnd
+                          ? `Ends on ${formatDate(user.currentPeriodEnd)}`
+                          : isPlanLowerTier(plan.name, user?.tier)
+                            ? "Lower tier"
+                            : "Upgrade"}
                   </Button>
                 </CardFooter>
               </Card>
