@@ -42,6 +42,13 @@ const JobSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+const PaymentHistorySchema = new mongoose.Schema({
+  amount: Number,
+  tokens: Number,
+  date: Date,
+  stripePaymentId: String,
+});
+
 const UserSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
@@ -51,19 +58,10 @@ const UserSchema = new mongoose.Schema({
   cv_suggestions: [String],
   jobs: [JobSchema],
   tokens: { type: Number, default: 0 },
-  tier: {
-    type: String,
-    enum: ["FREE", "APPRENTICE", "NINJA"],
-    default: "FREE",
-  },
+  paymentHistory: [PaymentHistorySchema],
+
   stripeCustomerId: String,
-  stripeSubscriptionId: String,
-  currentPeriodEnd: Date,
-  cancelAtPeriodEnd: {
-    type: Boolean,
-    default: false,
-  },
-  cancellingSubscriptionId: String,
+
   createdAt: { type: Date, default: Date.now },
   password: { type: String, required: false },
   emailVerified: { type: Boolean, default: false },

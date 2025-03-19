@@ -1,41 +1,84 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { constants } from "@/constants";
 import { usePageTracking } from "@/hooks/usePageTracking";
-import { Check, X } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
+import { handleApiError } from "@/utils/error-handling";
+import { Check } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { NextResponse } from "next/server";
+import { useState } from "react";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 
 export default function PricingSection() {
   // Track page view
   usePageTracking("landing_pricing");
   const router = useRouter();
+  const pathname = usePathname();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handlePurchase = async (priceId: string, tokenAmount: number) => {
+    try {
+      setIsLoading(true);
+
+      // Track the purchase attempt
+      trackEvent("token_purchase_initiated", {
+        token_amount: tokenAmount,
+      });
+
+      const response = await fetch("/api/purchase-tokens", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          priceId,
+          tokenAmount,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to process purchase");
+      }
+
+      // Redirect to Stripe checkout
+      window.location.href = data.url;
+    } catch (error) {
+      handleApiError(error as NextResponse);
+
+      // Track error
+      trackEvent("token_purchase_error", {
+        token_amount: tokenAmount,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <section
-      className="py-16 md:py-24 bg-muted/30"
+      className={`py-16 md:py-24 ${pathname === "/dashboard/buy-tokens" ? "" : "bg-muted/30"}`}
       id="pricing"
     >
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 font-archivo">
-            Flexible Subscription Plans
+            {pathname === "/dashboard/buy-tokens"
+              ? "Purchase Tokens"
+              : "Flexible one-time payments"}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Choose the plan that fits your needs. Use your tokens on any feature you want.
+            Pay once and focus on your job search, not on your wallet. Use the tokens on any feature
+            you want, depending on your job search priorities.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {Object.values(constants.SUBSCRIPTION.TIERS).map((plan, index) => (
+          {Object.values(constants.STRIPE.PRICES).map((plan, index) => (
             <div
               key={index}
               className="relative"
@@ -49,18 +92,15 @@ export default function PricingSection() {
                 className={`h-full flex flex-col ${plan.popular ? "border-blue-500 shadow-lg" : ""}`}
               >
                 <CardHeader>
-                  <CardTitle className="text-2xl text-center">
-                    {plan.name.charAt(0).toUpperCase() + plan.name.slice(1).toLowerCase()}
-                  </CardTitle>
+                  <CardTitle className="text-2xl text-center font-extrabold">{plan.name}</CardTitle>
                   <CardDescription className="text-center">{plan.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <div className="text-center mb-6">
                     <span className="text-4xl font-bold">${plan.price}</span>
-                    <span className="text-muted-foreground">{plan.price > 0 ? "/month" : ""}</span>
                   </div>
                   <div className="space-y-2">
-                    {plan.features.included.map((feature, i) => (
+                    {plan.features.map((feature, i) => (
                       <div
                         key={`included-${i}`}
                         className="flex items-center gap-2"
@@ -69,18 +109,10 @@ export default function PricingSection() {
                         <span dangerouslySetInnerHTML={{ __html: feature }}></span>
                       </div>
                     ))}
-                    {plan.features.excluded.map((feature, i) => (
-                      <div
-                        key={`excluded-${i}`}
-                        className="flex items-center gap-2 text-muted-foreground"
-                      >
-                        <X className="h-5 w-5 text-red-500 flex-shrink-0" />
-                        <span dangerouslySetInnerHTML={{ __html: feature }}></span>
-                      </div>
-                    ))}
                   </div>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="flex flex-col gap-4">
+                  <span className="text-muted-foreground text-center">One-time payment</span>
                   <Link
                     href="/auth"
                     className="w-full"
@@ -88,22 +120,22 @@ export default function PricingSection() {
                     <Button
                       className={`w-full ${plan.popular ? "bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white" : ""}`}
                       variant={plan.popular ? "default" : "outline"}
-                      onClick={() => router.push("/auth")}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (pathname === "/dashboard/buy-tokens") {
+                          handlePurchase(plan.priceId, plan.tokenAmount);
+                        } else {
+                          router.push("/auth");
+                        }
+                      }}
                     >
-                      Get Started
+                      {pathname === "/dashboard/buy-tokens" ? "Buy Tokens" : "Get Started"}
                     </Button>
                   </Link>
                 </CardFooter>
               </Card>
             </div>
           ))}
-        </div>
-
-        <div className="mt-12 text-center max-w-2xl mx-auto">
-          <p className="text-muted-foreground">
-            All plans allow you to use your tokens on any feature you prefer. Allocate them based on
-            your job search priorities.
-          </p>
         </div>
       </div>
     </section>

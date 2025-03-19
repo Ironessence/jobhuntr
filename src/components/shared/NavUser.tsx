@@ -1,6 +1,6 @@
 "use client";
 
-import { File, LogOut, Settings, Sparkles } from "lucide-react";
+import { File, LogOut, Sparkles } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -12,14 +12,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { constants } from "@/constants";
 import { useUserContext } from "@/context/AuthContext";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Switch } from "../ui/switch";
 
 export function NavUser({
@@ -31,44 +29,6 @@ export function NavUser({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-
-  // Get tier display info
-  const tierInfo = user?.tier ? constants.SUBSCRIPTION.TIERS[user.tier] : null;
-
-  const getTierGradient = (tier: string) => {
-    switch (tier) {
-      case "FREE":
-        return "from-blue-400 to-blue-500";
-      case "APPRENTICE":
-        return "from-blue-500 to-purple-500";
-      case "NINJA":
-        return "from-purple-500 to-purple-600";
-      default:
-        return "from-blue-400 to-blue-500";
-    }
-  };
-
-  const handleManageSubscription = async () => {
-    try {
-      const response = await fetch("/api/create-portal-session", {
-        method: "POST",
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to access subscription portal");
-      }
-
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (error) {
-      console.error("Error accessing portal:", error);
-      toast.error("Unable to access subscription management", {
-        description: "Please try again later or contact support.",
-      });
-    }
-  };
 
   if (!user) return null;
 
@@ -110,22 +70,6 @@ export function NavUser({
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">{user.name}</span>
               <span className="truncate text-xs">{user.email}</span>
-              {tierInfo && (
-                <div className="flex">
-                  <div
-                    className={`
-                      inline-flex items-center gap-1 px-2.5 py-0.5 mt-1
-                      text-xs font-medium text-white rounded-full
-                      w-fit bg-gradient-to-r ${getTierGradient(user?.tier)}
-                    `}
-                  >
-                    <Sparkles className="w-3 h-3" />
-                    <span className="text-xs font-bold tracking-wide">
-                      {tierInfo.name.charAt(0).toUpperCase() + tierInfo.name.slice(1).toLowerCase()}
-                    </span>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </DropdownMenuLabel>
@@ -144,15 +88,9 @@ export function NavUser({
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          {user?.stripeCustomerId && (
-            <DropdownMenuItem onClick={handleManageSubscription}>
-              <Settings className="w-5 h-5 mr-2" />
-              Manage Subscription
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem onClick={() => router.push("/dashboard/upgrade")}>
+          <DropdownMenuItem onClick={() => router.push("/dashboard/buy-tokens")}>
             <Sparkles className="w-4 h-4 mr-2" />
-            {user?.stripeCustomerId ? "Change Plan" : "Upgrade Plan"}
+            Buy Tokens
           </DropdownMenuItem>
           <DropdownMenuItem
             className="flex items-center gap-2"

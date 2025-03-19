@@ -1,4 +1,5 @@
 import { Job } from "./Job.types";
+import { PaymentHistory } from "./PaymentHistory.types";
 import { SubscriptionTiers } from "./Subscription.types";
 
 export interface User {
@@ -12,10 +13,7 @@ export interface User {
   tokens: number;
   tier: keyof SubscriptionTiers;
   stripeCustomerId?: string;
-  stripeSubscriptionId?: string;
-  currentPeriodEnd?: Date;
-  cancelAtPeriodEnd: boolean;
-  cancellingSubscriptionId?: string;
   password?: string;
   emailVerified?: boolean;
+  paymentHistory?: PaymentHistory[];
 }

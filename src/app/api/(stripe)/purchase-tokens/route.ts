@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const { priceId } = await req.json();
+    const { priceId, tokenAmount } = await req.json();
 
     const user = await User.findOne({ email: session.user.email });
     if (!user) {
@@ -35,10 +35,10 @@ export async function POST(req: NextRequest) {
       await User.findByIdAndUpdate(user._id, { stripeCustomerId: customerId });
     }
 
-    // Create checkout session
+    // Create checkout session for one-time payment
     const checkoutSession = await stripe.checkout.sessions.create({
       customer: customerId,
-      mode: "subscription",
+      mode: "payment",
       payment_method_types: ["card"],
       line_items: [
         {
@@ -46,13 +46,17 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: `${req.headers.get("origin")}/dashboard?subscription=success`,
-      cancel_url: `${req.headers.get("origin")}/dashboard/upgrade?subscription=cancelled`,
+      metadata: {
+        userId: user._id.toString(),
+        tokenAmount: tokenAmount.toString(),
+      },
+      success_url: `${req.headers.get("origin")}/dashboard?purchase=success`,
+      cancel_url: `${req.headers.get("origin")}/dashboard/buy-tokens?purchase=cancelled`,
     });
 
     return NextResponse.json({ url: checkoutSession.url });
   } catch (error) {
-    console.error("Error creating subscription:", error);
-    return NextResponse.json({ error: "Error creating subscription" }, { status: 500 });
+    console.error("Error creating token purchase:", error);
+    return NextResponse.json({ error: "Error processing purchase" }, { status: 500 });
   }
 }
