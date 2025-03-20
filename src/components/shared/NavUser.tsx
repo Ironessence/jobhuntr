@@ -1,6 +1,6 @@
 "use client";
 
-import { File, LogOut, Sparkles } from "lucide-react";
+import { CreditCard, File, LogOut, Sparkles } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -91,6 +91,10 @@ export function NavUser({
           <DropdownMenuItem onClick={() => router.push("/dashboard/buy-tokens")}>
             <Sparkles className="w-4 h-4 mr-2" />
             Buy Tokens
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/dashboard/payment-history")}>
+            <CreditCard className="w-4 h-4 mr-2" />
+            Payment History
           </DropdownMenuItem>
           <DropdownMenuItem
             className="flex items-center gap-2"

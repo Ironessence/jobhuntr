@@ -42,6 +42,11 @@ export default function PaymentHistory() {
                     {formatDate(new Date(payment.date))}
                   </p>
                 </div>
+                {payment.status === "failed" ? (
+                  <p className="bg-red-500 py-1 px-4 rounded-xl font-bold">Failed</p>
+                ) : (
+                  <p className=" bg-green-500 py-1 px-4 rounded-xl font-bold">Completed</p>
+                )}
                 <p className="font-medium">${payment.amount.toFixed(2)}</p>
               </div>
             ))}

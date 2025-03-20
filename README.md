@@ -38,4 +38,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 // Stripe:
 
 stripe login
-stripe listen --forward-to localhost:3000/api/webhook
+stripe listen --forward-to localhost:3000/api/webhooks/stripe

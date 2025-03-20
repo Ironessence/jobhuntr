@@ -47,6 +47,8 @@ const PaymentHistorySchema = new mongoose.Schema({
   tokens: Number,
   date: Date,
   stripePaymentId: String,
+  status: String,
+  errorMessage: String, // This is optional
 });
 
 const UserSchema = new mongoose.Schema({

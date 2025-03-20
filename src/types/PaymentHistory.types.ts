@@ -3,4 +3,6 @@ export interface PaymentHistory {
   tokens: number;
   date: Date;
   stripePaymentId: string;
+  status: string;
+  errorMessage?: string;
 }
