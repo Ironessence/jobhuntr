@@ -20,11 +20,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Switch } from "../ui/switch";
 
-export function NavUser({
-  setIsResumeDialogOpen,
-}: {
-  setIsResumeDialogOpen: (open: boolean) => void;
-}) {
+export function NavUser() {
   const { user } = useUserContext();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const router = useRouter();

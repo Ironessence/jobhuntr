@@ -3,11 +3,7 @@ import { useRouter } from "next/navigation";
 import { NavUser } from "./NavUser";
 import TokensDisplay from "./TokensDisplay";
 
-const DashboardHeader = ({
-  setIsResumeDialogOpen,
-}: {
-  setIsResumeDialogOpen: (open: boolean) => void;
-}) => {
+const DashboardHeader = () => {
   const { user } = useUserContext();
   const router = useRouter();
   return (
@@ -20,7 +16,7 @@ const DashboardHeader = ({
       </h1>
       <div className="flex items-center gap-5">
         <TokensDisplay />
-        {user && <NavUser setIsResumeDialogOpen={setIsResumeDialogOpen} />}
+        {user && <NavUser />}
       </div>
     </header>
   );
