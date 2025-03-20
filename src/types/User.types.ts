@@ -1,3 +1,4 @@
+import { Suggestion } from "./Cv.types";
 import { Job } from "./Job.types";
 import { PaymentHistory } from "./PaymentHistory.types";
 import { SubscriptionTiers } from "./Subscription.types";
@@ -8,7 +9,7 @@ export interface User {
   image: string;
   cv_full_text?: string;
   cv_file_name?: string;
-  cv_suggestions?: string[];
+  cv_suggestions?: Suggestion[];
   jobs?: Job[];
   tokens: number;
   tier: keyof SubscriptionTiers;

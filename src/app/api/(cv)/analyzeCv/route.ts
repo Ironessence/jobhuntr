@@ -34,19 +34,43 @@ ${cvText}
 
 Return ONLY a valid JSON object with the following structure:
 {
-  "suggestions": ["suggestion1", "suggestion2", ...]
+  "suggestions": [
+    {
+      "highlighted": "specific text from the CV that needs improvement",
+      "suggestion": "detailed suggestion for improving this specific part"
+    },
+    ...
+  ]
 }
 
-Each suggestion should be clear, actionable, and focused on improving the CV.
-Limit to 5-7 most important suggestions.`;
+Each suggestion should:
+1. Include the exact text from the CV in the "highlighted" field
+2. Provide a clear, actionable suggestion in the "suggestion" field
+3. Focus on improving the CV's impact, clarity, or presentation
+
+If the CV is already excellent and you have no suggestions, return an empty array.
+Limit to a maximum of 10 most important suggestions.`;
 
     const schema: ResponseSchema = {
       type: SchemaType.OBJECT,
       properties: {
         suggestions: {
           type: SchemaType.ARRAY,
-          items: { type: SchemaType.STRING },
-          description: "Array of CV improvement suggestions",
+          items: {
+            type: SchemaType.OBJECT,
+            properties: {
+              highlighted: {
+                type: SchemaType.STRING,
+                description: "The specific text from the CV that needs improvement",
+              },
+              suggestion: {
+                type: SchemaType.STRING,
+                description: "Detailed suggestion for improving this specific part",
+              },
+            },
+            required: ["highlighted", "suggestion"],
+          },
+          description: "Array of CV improvement suggestions with highlighted text",
         },
       },
       required: ["suggestions"],

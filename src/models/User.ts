@@ -51,13 +51,18 @@ const PaymentHistorySchema = new mongoose.Schema({
   errorMessage: String, // This is optional
 });
 
+const SuggestionSchema = new mongoose.Schema({
+  highlighted: String,
+  suggestion: String,
+});
+
 const UserSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
   image: String,
   cv_full_text: String,
   cv_file_name: String,
-  cv_suggestions: [String],
+  cv_suggestions: [SuggestionSchema],
   jobs: [JobSchema],
   tokens: { type: Number, default: 0 },
   paymentHistory: [PaymentHistorySchema],

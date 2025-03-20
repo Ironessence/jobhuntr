@@ -98,10 +98,7 @@ export function NavUser({
           </DropdownMenuItem>
           <DropdownMenuItem
             className="flex items-center gap-2"
-            onClick={() => {
-              setIsResumeDialogOpen(true);
-              setIsDialogOpen(false);
-            }}
+            onClick={() => router.push("/dashboard/resume")}
           >
             <File className="w-5 h-5" />
             Resume
