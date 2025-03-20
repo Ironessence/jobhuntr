@@ -1,6 +1,5 @@
 "use client";
 
-import NinjaLoader from "@/components/shared/NinjaLoader";
 import HighlightedSegment from "@/components/shared/resume/HighlightedSegment";
 import { AIActionButton } from "@/components/ui/ai-action-button";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,8 @@ import { useMutateApi } from "@/lib";
 import { handleApiError } from "@/utils/error-handling";
 import QueryKeys from "@/utils/queryKeys";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { RefreshCcwIcon, UploadIcon } from "lucide-react";
+import { jsPDF } from "jspdf";
+import { DownloadIcon, RefreshCcwIcon, UploadIcon, WandSparklesIcon } from "lucide-react";
 import { NextResponse } from "next/server";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -31,6 +31,7 @@ export default function ResumePage() {
   const { user } = useUserContext();
   const [isUploading, setIsUploading] = useState(false);
   const [textSegments, setTextSegments] = useState<TextSegment[]>([]);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { mutateAsync: updateResume, isPending: isUpdatingResume } = useMutateApi(
     "/api/update-cv",
@@ -47,6 +48,11 @@ export default function ResumePage() {
       invalidate: QueryKeys.GET_USER,
     },
   );
+
+  const { mutateAsync: fixResume, isPending: isFixingResume } = useMutateApi("/api/fixResume", {
+    queryKey: QueryKeys.FIX_CV,
+    invalidate: [QueryKeys.GET_USER],
+  });
 
   const processResumeText = useCallback(() => {
     if (!user?.cv_full_text) return;
@@ -199,6 +205,148 @@ export default function ResumePage() {
     }
   };
 
+  const handleFixResume = async () => {
+    try {
+      await fixResume({
+        cvText: user?.cv_full_text,
+        suggestions: user?.cv_suggestions,
+        email: user?.email,
+      });
+      toast.success("Resume has been improved successfully");
+    } catch (error) {
+      handleApiError(error as NextResponse, "fixing resume");
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    try {
+      setIsDownloading(true);
+
+      if (!user?.cv_full_text) {
+        toast.error("No resume content found");
+        return;
+      }
+
+      // Create a new PDF document
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      // Set font size and add text
+      doc.setFontSize(11);
+
+      // Split text into lines to handle line breaks properly
+      const textLines = user.cv_full_text.split("\n");
+
+      // Start position
+      let yPos = 20;
+      const leftMargin = 20;
+      const rightMargin = 190; // A4 is 210mm wide
+      const lineHeight = 6;
+      const pageHeight = 280; // A4 height minus margins
+
+      // Add each line to the PDF with proper text wrapping
+      textLines.forEach((line) => {
+        // Skip empty lines but still add spacing
+        if (line.trim() === "") {
+          yPos += lineHeight / 2;
+          return;
+        }
+
+        // Check if this is a header line (all caps or contains specific keywords)
+        const isHeader = line.toUpperCase() === line && line.length > 3;
+
+        if (isHeader) {
+          // Add more space before headers
+          yPos += 3;
+          doc.setFontSize(12);
+          doc.setFont(undefined as unknown as string, "bold");
+        } else {
+          doc.setFontSize(10);
+          doc.setFont(undefined as unknown as string, "normal");
+        }
+
+        // Check if we need to add a new page
+        if (yPos > pageHeight) {
+          doc.addPage();
+          yPos = 20;
+        }
+
+        // Handle bullet points
+        if (line.trim().startsWith("•")) {
+          // Split the line into words for wrapping
+          const words = line.split(" ");
+          let currentLine = words[0] + " "; // Start with the bullet
+          const maxWidth = rightMargin - leftMargin - 5; // Slightly narrower for bullet points
+
+          // Process each word
+          for (let i = 1; i < words.length; i++) {
+            const word = words[i];
+            const testLine = currentLine + word + " ";
+            const testWidth = doc.getTextWidth(testLine);
+
+            if (testWidth > maxWidth) {
+              // Add the current line and start a new one
+              doc.text(currentLine, leftMargin + 5, yPos); // Indent bullet points
+              yPos += lineHeight;
+              currentLine = "  " + word + " "; // Indent continuation lines
+
+              // Check if we need a new page
+              if (yPos > pageHeight) {
+                doc.addPage();
+                yPos = 20;
+              }
+            } else {
+              currentLine = testLine;
+            }
+          }
+
+          // Add the last line
+          if (currentLine.trim()) {
+            doc.text(currentLine, leftMargin + 5, yPos);
+            yPos += lineHeight;
+          }
+        } else {
+          // Regular text - handle wrapping
+          const maxWidth = rightMargin - leftMargin;
+
+          // Use the built-in text wrapping
+          const textLines = doc.splitTextToSize(line, maxWidth);
+
+          // Add each wrapped line
+          textLines.forEach((wrappedLine: string) => {
+            doc.text(wrappedLine, leftMargin, yPos);
+            yPos += lineHeight;
+
+            // Check if we need a new page
+            if (yPos > pageHeight) {
+              doc.addPage();
+              yPos = 20;
+            }
+          });
+        }
+
+        // Add extra space after headers
+        if (isHeader) {
+          yPos += 2;
+        }
+      });
+
+      // Save the PDF
+      const filename = `${user?.cv_file_name?.replace(/\.[^/.]+$/, "") || "resume"}_improved.pdf`;
+      doc.save(filename);
+
+      toast.success("Resume downloaded as PDF");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to generate PDF");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   if (!user?.cv_file_name) {
     return (
       <div className="flex flex-col items-center justify-center h-[70vh] max-w-3xl mx-auto">
@@ -214,26 +362,33 @@ export default function ResumePage() {
               Upload your resume to get AI-powered suggestions for improvement and make your resume
               stand out to potential employers.
             </p>
-            <input
-              type="file"
-              accept=".pdf,.docx"
-              className="hidden"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              disabled={isUploading || isUpdatingResume}
-            />
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              className="gap-2"
-              disabled={isUploading || isUpdatingResume}
-            >
-              {isUploading || isUpdatingResume ? (
-                <NinjaLoader />
-              ) : (
+            <div className="flex gap-2">
+              <Button
+                onClick={handleDownloadPdf}
+                variant="outline"
+                disabled={isDownloading || !user?.cv_full_text}
+                className="gap-2"
+              >
+                <DownloadIcon className="w-4 h-4" />
+                {isDownloading ? "Downloading..." : "Download PDF"}
+              </Button>
+              <input
+                type="file"
+                accept=".pdf,.docx"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                disabled={isUploading || isUpdatingResume}
+              />
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                className="gap-2"
+                disabled={isUploading || isUpdatingResume}
+              >
                 <UploadIcon className="w-4 h-4" />
-              )}
-              {isUploading || isUpdatingResume ? "Uploading..." : "Upload Resume"}
-            </Button>
+                {isUploading || isUpdatingResume ? "Uploading..." : "Upload Resume"}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -249,35 +404,54 @@ export default function ResumePage() {
           <h3 className="font-medium">File name:</h3>
           <p className="text-muted-foreground">{user?.cv_file_name}</p>
         </div>
-        <input
-          type="file"
-          accept=".pdf,.docx"
-          className="hidden"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          disabled={isUploading || isUpdatingResume}
-        />
-        <Button
-          onClick={() => fileInputRef.current?.click()}
-          variant="outline"
-          disabled={isUploading || isUpdatingResume}
-        >
-          {isUploading || isUpdatingResume ? (
-            <NinjaLoader />
-          ) : (
+        <div className="flex gap-2">
+          <Button
+            onClick={handleDownloadPdf}
+            variant="outline"
+            disabled={isDownloading || !user?.cv_full_text}
+            className="gap-2"
+          >
+            <DownloadIcon className="w-4 h-4" />
+            {isDownloading ? "Downloading..." : "Download PDF"}
+          </Button>
+          <input
+            type="file"
+            accept=".pdf,.docx"
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            disabled={isUploading || isUpdatingResume}
+          />
+          <Button
+            onClick={() => fileInputRef.current?.click()}
+            variant="outline"
+            disabled={isUploading || isUpdatingResume}
+          >
             <RefreshCcwIcon className="w-4 h-4 mr-1" />
-          )}
-          {isUploading || isUpdatingResume ? "Uploading..." : "Replace"}
-        </Button>
+
+            {isUploading || isUpdatingResume ? "Uploading..." : "Replace"}
+          </Button>
+        </div>
       </div>
 
-      <div className="w-full mb-2 flex justify-center">
+      <div className="w-full mb-2 flex justify-center gap-4">
         <AIActionButton
           onClick={handleGenerateSuggestions}
           isGenerating={isGeneratingCvSuggestions}
           existingData={user?.cv_suggestions!.length > 0}
           price={constants.PRICE_CV_SUGGESTIONS}
         />
+
+        {user?.cv_suggestions && (user.cv_suggestions as Suggestion[]).length > 0 && (
+          <Button
+            onClick={handleFixResume}
+            disabled={isFixingResume}
+            className="gap-2"
+          >
+            <WandSparklesIcon className="w-4 h-4" />
+            {isFixingResume ? "Improving..." : `Fix Resume (${constants.PRICE_CV_FIX} tokens)`}
+          </Button>
+        )}
       </div>
 
       {user?.cv_suggestions && (user.cv_suggestions as Suggestion[]).length > 0 && (
@@ -308,13 +482,17 @@ export default function ResumePage() {
               if (segment.suggestionIndex !== null && user?.cv_suggestions) {
                 const suggestion = (user.cv_suggestions as Suggestion[])[segment.suggestionIndex];
 
-                return (
-                  <HighlightedSegment
-                    key={index}
-                    text={segment.text}
-                    suggestion={suggestion.suggestion}
-                  />
-                );
+                if (suggestion && suggestion.suggestion) {
+                  return (
+                    <HighlightedSegment
+                      key={index}
+                      text={segment.text}
+                      suggestion={suggestion.suggestion}
+                    />
+                  );
+                }
+
+                return <span key={index}>{segment.text}</span>;
               }
 
               return <span key={index}>{segment.text}</span>;

@@ -14,6 +14,7 @@ export enum QueryKeys {
   UPDATE_JOB_STATUS = "updateJobStatus",
   DELETE_JOB = "deleteJob",
   GET_SALARY_RANGE = "fetchSalaryRange",
+  FIX_CV = "fixCV",
 }
 
 export default QueryKeys;
