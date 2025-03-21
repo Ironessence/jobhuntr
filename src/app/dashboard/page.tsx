@@ -72,7 +72,11 @@ export default function Dashboard() {
   }, [status, router]);
 
   if (status === "loading") {
-    return <NinjaLoader className="w-20 h-20" />;
+    return (
+      <div className="flex flex-col items-center justify-center mt-20 max-w-3xl mx-auto">
+        <NinjaLoader className="w-20 h-20" />
+      </div>
+    );
   }
 
   if (!session || !session.user) {

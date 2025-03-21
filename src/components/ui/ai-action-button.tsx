@@ -8,6 +8,7 @@ interface AIActionButtonProps extends ButtonProps {
   isGenerating?: boolean;
   existingData?: any;
   className?: string;
+  text?: string;
 }
 
 export function AIActionButton({
@@ -15,11 +16,12 @@ export function AIActionButton({
   isGenerating,
   existingData,
   className,
+  text,
   ...props
 }: AIActionButtonProps) {
   return (
     <Button
-      className={cn("gap-2 text-md font-normal", className)}
+      className={cn("gap-2 text-md font-normal self-center", className)}
       disabled={isGenerating}
       {...props}
     >
@@ -27,7 +29,7 @@ export function AIActionButton({
         "Generating..."
       ) : (
         <>
-          {existingData ? "Regenerate" : "Generate"}
+          {text ? text : existingData ? "Regenerate" : "Generate"}
           <span className="flex items-center gap-1 font-bold ">
             {price}
             <Image

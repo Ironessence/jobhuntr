@@ -60,15 +60,16 @@ Please create a completely new, professionally formatted resume that:
 9. Has consistent formatting throughout
 
 Format the resume with:
-- Name at the top in ALL CAPS with proper spacing between letters (e.g., "A L E X A N D R U  D I N C")
-- Contact information on one line with pipe separators (e.g., "Location | Phone | Email | Website | LinkedIn | GitHub")
+- Name at the top in ALL CAPS - enter regular letters, no special characters
+- Contact information on multiple lines if necessary so it doesn't overflow the line with pipe separators (e.g., "Location | Phone | Email | Website | LinkedIn | GitHub")
 - Clear section headers in ALL CAPS (e.g., "WORK EXPERIENCE")
+- Dividers between sections (e.g., "---")
 - Proper spacing between sections
 - Bullet points for work experience items
 - Dates aligned properly
 
 HEADER FORMAT EXAMPLE:
-A L E X A N D R U  D I N C
+ALEXANDRU DINCA
 
 Brasov, Romania  |  +40 722 301 831  |  alexdinca.dev@gmail.com  |  https://alexdinca.com  |  linkedin.com/in/alexandrudinca1  |  github.com/ironessence
 
@@ -81,7 +82,13 @@ IMPORTANT FORMATTING INSTRUCTIONS:
 6. Use standard bullet points (•) for list items
 7. Make sure the name at the top has proper spacing between letters as shown in the example
 
-Return ONLY the complete, formatted resume text that I can directly use.`;
+Return ONLY the complete, formatted resume text that I can directly use.
+
+IMPORTANT:
+- Do not include any additional text or comments in your response.
+- Only return the formatted resume text.
+- Make it sound like a human wrote it, avoid words like "spearheaded", "streamlined", "maximized", etc, but keep it professional
+`;
 
     // Instantiate the Gemini client
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);

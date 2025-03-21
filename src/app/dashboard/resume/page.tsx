@@ -1,5 +1,6 @@
 "use client";
 
+import NinjaLoader from "@/components/shared/NinjaLoader";
 import HighlightedSegment from "@/components/shared/resume/HighlightedSegment";
 import { AIActionButton } from "@/components/ui/ai-action-button";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { handleApiError } from "@/utils/error-handling";
 import QueryKeys from "@/utils/queryKeys";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { jsPDF } from "jspdf";
-import { DownloadIcon, RefreshCcwIcon, UploadIcon, WandSparklesIcon } from "lucide-react";
+import { DownloadIcon, RefreshCcwIcon, UploadIcon } from "lucide-react";
 import { NextResponse } from "next/server";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -28,7 +29,7 @@ type TextSegment = {
 
 export default function ResumePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { user } = useUserContext();
+  const { user, isLoading } = useUserContext();
   const [isUploading, setIsUploading] = useState(false);
   const [textSegments, setTextSegments] = useState<TextSegment[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -347,7 +348,14 @@ export default function ResumePage() {
     }
   };
 
-  if (!user?.cv_file_name) {
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[70vh] max-w-3xl mx-auto">
+        <NinjaLoader />
+      </div>
+    );
+  }
+  if (!user?.cv_file_name && !isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-[70vh] max-w-3xl mx-auto">
         <Card className="w-full">
@@ -395,111 +403,109 @@ export default function ResumePage() {
     );
   }
 
-  return (
-    <div className="py-8 flex flex-col items-center justify-center max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Your Resume</h1>
+  if (!isLoading && user && user.cv_file_name) {
+    return (
+      <div className="py-8 flex flex-col items-center justify-center max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">Your Resume</h1>
 
-      <div className="flex gap-3 items-center justify-between mb-8 bg-card p-4 rounded-lg border w-full">
-        <div>
-          <h3 className="font-medium">File name:</h3>
-          <p className="text-muted-foreground">{user?.cv_file_name}</p>
+        <div className="flex gap-3 items-center justify-between mb-8 bg-card p-4 rounded-lg border w-full">
+          <div>
+            <h3 className="font-medium">File name:</h3>
+            <p className="text-muted-foreground">{user?.cv_file_name}</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button
+              onClick={handleDownloadPdf}
+              variant="outline"
+              disabled={isDownloading || !user?.cv_full_text}
+              className="gap-2"
+            >
+              <DownloadIcon className="w-4 h-4" />
+              {isDownloading ? "Downloading..." : "Download PDF"}
+            </Button>
+            <input
+              type="file"
+              accept=".pdf,.docx"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              disabled={isUploading || isUpdatingResume}
+            />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              variant="outline"
+              disabled={isUploading || isUpdatingResume}
+            >
+              <RefreshCcwIcon className="w-4 h-4 mr-1" />
+
+              {isUploading || isUpdatingResume ? "Uploading..." : "Replace"}
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button
-            onClick={handleDownloadPdf}
-            variant="outline"
-            disabled={isDownloading || !user?.cv_full_text}
-            className="gap-2"
-          >
-            <DownloadIcon className="w-4 h-4" />
-            {isDownloading ? "Downloading..." : "Download PDF"}
-          </Button>
-          <input
-            type="file"
-            accept=".pdf,.docx"
-            className="hidden"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            disabled={isUploading || isUpdatingResume}
+
+        <div className="w-full mb-6 flex flex-col sm:flex-row justify-center gap-4">
+          <AIActionButton
+            onClick={handleGenerateSuggestions}
+            isGenerating={isGeneratingCvSuggestions}
+            existingData={user?.cv_suggestions!.length > 0}
+            price={constants.PRICE_CV_SUGGESTIONS}
+            text={"Generate suggestions"}
           />
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            variant="outline"
-            disabled={isUploading || isUpdatingResume}
-          >
-            <RefreshCcwIcon className="w-4 h-4 mr-1" />
 
-            {isUploading || isUpdatingResume ? "Uploading..." : "Replace"}
-          </Button>
+          {user?.cv_suggestions && (user.cv_suggestions as Suggestion[]).length > 0 && (
+            <AIActionButton
+              onClick={handleFixResume}
+              isGenerating={isFixingResume}
+              existingData={user?.cv_full_text}
+              price={constants.PRICE_CV_FIX}
+              text={"Fix resume"}
+            />
+          )}
         </div>
-      </div>
 
-      <div className="w-full mb-2 flex justify-center gap-4">
-        <AIActionButton
-          onClick={handleGenerateSuggestions}
-          isGenerating={isGeneratingCvSuggestions}
-          existingData={user?.cv_suggestions!.length > 0}
-          price={constants.PRICE_CV_SUGGESTIONS}
-        />
+        {(isGeneratingCvSuggestions || isFixingResume) && (
+          <div className="flex flex-col justify-center items-center mt-4">
+            <NinjaLoader className="w-20 h-20" />
+            <p className="text-sm text-gray-500">Please wait. This may take up to one minute.</p>
+          </div>
+        )}
 
         {user?.cv_suggestions && (user.cv_suggestions as Suggestion[]).length > 0 && (
-          <Button
-            onClick={handleFixResume}
-            disabled={isFixingResume}
-            className="gap-2"
-          >
-            <WandSparklesIcon className="w-4 h-4" />
-            {isFixingResume ? "Improving..." : `Fix Resume (${constants.PRICE_CV_FIX} tokens)`}
-          </Button>
+          <div className="flex items-center justify-center bg-yellow-600/60 p-4 rounded-lg mt-2 mb-6">
+            <ExclamationTriangleIcon className="w-16 sm:w-6 h-16 sm:h-6 mr-2" />
+            <p className="text-center text-white  max-w-xl ">
+              Looks like we found some improvements you can make. Click on each individual highlight
+              to see what our trained AI suggested.
+            </p>
+          </div>
         )}
-      </div>
 
-      {user?.cv_suggestions && (user.cv_suggestions as Suggestion[]).length > 0 && (
-        <div className="flex items-center justify-center bg-yellow-600/60 p-4 rounded-lg mt-2 mb-6">
-          <ExclamationTriangleIcon className="w-8 h-8 mr-2" />
-          <p className="text-center text-white  max-w-xl ">
-            Looks like we found some improvements you can make. Click on each individual highlight
-            to see what our trained AI suggested.
-          </p>
-        </div>
-      )}
+        <Card className="w-full">
+          <CardContent className="pt-6">
+            <div className="whitespace-pre-wrap text-muted-foreground bg-muted/50 p-4 rounded-lg">
+              {textSegments.map((segment, index) => {
+                if (segment.suggestionIndex !== null && user?.cv_suggestions) {
+                  const suggestion = (user.cv_suggestions as Suggestion[])[segment.suggestionIndex];
 
-      <Card className="w-full">
-        <CardContent className="pt-6">
-          {user?.cv_suggestions && (user.cv_suggestions as Suggestion[]).length === 0 ? (
-            <div className="text-center py-4 mb-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-              <p className="text-xl font-medium text-green-600 dark:text-green-400 mb-2">
-                Everything looks perfect!
-              </p>
-              <p className="text-muted-foreground">
-                Your resume is well-crafted and ready for job applications. Good luck!
-              </p>
-            </div>
-          ) : null}
+                  if (suggestion && suggestion.suggestion) {
+                    return (
+                      <HighlightedSegment
+                        key={index}
+                        text={segment.text}
+                        suggestion={suggestion.suggestion}
+                      />
+                    );
+                  }
 
-          <div className="whitespace-pre-wrap text-muted-foreground bg-muted/50 p-4 rounded-lg">
-            {textSegments.map((segment, index) => {
-              if (segment.suggestionIndex !== null && user?.cv_suggestions) {
-                const suggestion = (user.cv_suggestions as Suggestion[])[segment.suggestionIndex];
-
-                if (suggestion && suggestion.suggestion) {
-                  return (
-                    <HighlightedSegment
-                      key={index}
-                      text={segment.text}
-                      suggestion={suggestion.suggestion}
-                    />
-                  );
+                  return <span key={index}>{segment.text}</span>;
                 }
 
                 return <span key={index}>{segment.text}</span>;
-              }
-
-              return <span key={index}>{segment.text}</span>;
-            })}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 }
