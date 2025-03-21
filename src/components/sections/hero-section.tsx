@@ -1,25 +1,38 @@
 "use client";
 
 import shuriken from "@/assets/icons/icon-applyninja.png";
+import heroBlack from "@/assets/images/hero-black.png";
+import heroWhite from "@/assets/images/hero-white.png";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useUserContext } from "@/context/AuthContext";
 import { usePageTracking } from "@/hooks/usePageTracking";
-import { ArrowRight, Briefcase, Building, FileText, MessageSquare, Star } from "lucide-react";
+import { Star } from "lucide-react";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function HeroSection() {
   const { user } = useUserContext();
   const router = useRouter();
+  const { theme, resolvedTheme } = useTheme();
+  const [currentTheme, setCurrentTheme] = useState<string | undefined>("light");
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   // Track page view
   usePageTracking("landing_hero");
 
+  useEffect(() => {
+    setCurrentTheme(resolvedTheme || theme);
+  }, [theme, resolvedTheme]);
+
   return (
-    <section className="relative text-foreground overflow-hidden py-16 md:py-24">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+    <section className="relative text-foreground overflow-hidden py-16 md:py-24 min-h-[95vh] ">
+      <div className="mx-auto px-8 md:px-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
           {/* Left content */}
-          <div className="z-10 ">
+          <div className="z-10 md:ml-6">
             <h1
               className="text-4xl md:text-5xl lg:text-6xl font-archivo font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-400 to-blue-800 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] filter-none"
               style={{ lineHeight: "1.2" }}
@@ -92,92 +105,20 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Right visual representation */}
-          <div className="relative">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-lg blur opacity-30"></div>
-            <div className="relative bg-background/80 backdrop-blur-xl border rounded-lg overflow-hidden shadow-xl p-8">
-              {/* Visual flow diagram */}
-              <div className="flex flex-col items-center">
-                {/* User */}
-                <div className="flex flex-col items-center mb-8">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 flex items-center justify-center">
-                    <span
-                      className="text-3xl"
-                      role="img"
-                      aria-label="Pointing at you"
-                    >
-                      🫵🏼
-                    </span>
-                  </div>
-                  <p className="font-extrabold font-archivo mt-2">You</p>
-                </div>
-
-                {/* Arrow down */}
-                <ArrowRight className="h-8 w-8 text-blue-500 rotate-90 mb-4" />
-
-                {/* ApplyNinja */}
-                <div className="w-full max-w-xs p-4 bg-gradient-to-r from-blue-600/10 to-cyan-500/10 border border-blue-200 dark:border-blue-800 rounded-lg mb-8 text-center">
-                  <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500 mb-2">
-                    ApplyNinja.ai
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    AI-powered job application tools
-                  </p>
-
-                  {/* Features */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="flex flex-col items-center p-2 bg-background rounded border">
-                      <FileText className="h-5 w-5 text-blue-500 mb-1" />
-                      <span className="text-xs">Cover Letters</span>
-                    </div>
-                    <div className="flex flex-col items-center p-2 bg-background rounded border">
-                      <Building className="h-5 w-5 text-cyan-500 mb-1" />
-                      <span className="text-xs">Company Insights</span>
-                    </div>
-                    <div className="flex flex-col items-center p-2 bg-background rounded border">
-                      <MessageSquare className="h-5 w-5 text-blue-500 mb-1" />
-                      <span className="text-xs">Interview Prep</span>
-                    </div>
-                    <div className="flex flex-col items-center p-2 bg-background rounded border">
-                      <FileText className="h-5 w-5 text-cyan-500 mb-1" />
-                      <span className="text-xs">CV Suggestions</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Arrow down */}
-                <ArrowRight className="h-8 w-8 text-blue-500 rotate-90 mb-4" />
-
-                {/* Job opportunities */}
-                <div className="flex justify-center gap-4 flex-wrap">
-                  <span
-                    className="text-xl"
-                    role="img"
-                    aria-label="Confetti"
-                  >
-                    🎉
-                  </span>
-                  {["Google", "Amazon", "Microsoft"].map((company, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-2 p-2 bg-background border rounded-lg"
-                    >
-                      <Briefcase
-                        className={`h-5 w-5 ${i % 2 === 0 ? "text-blue-500" : "text-cyan-500"}`}
-                      />
-                      <span className="text-sm font-medium">{company}</span>
-                    </div>
-                  ))}
-                  <span
-                    className="text-xl transform scale-x-[-1]"
-                    role="img"
-                    aria-label="Confetti"
-                  >
-                    🎉
-                  </span>
-                </div>
+          {/* Right visual representation - made larger */}
+          <div className="relative md:-ml-4 md:scale-100">
+            {!imageLoaded && (
+              <div className="absolute inset-0">
+                <Skeleton className="w-[100%] sm:w-full h-full rounded-lg" />
               </div>
-            </div>
+            )}
+            <Image
+              src={currentTheme === "dark" ? heroBlack : heroWhite}
+              alt="hero-image"
+              className={`w-[120%] sm:w-full h-full  scale-110 sm:scale-100 aspect-auto ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+              priority
+              onLoad={() => setImageLoaded(true)}
+            />
           </div>
         </div>
       </div>
