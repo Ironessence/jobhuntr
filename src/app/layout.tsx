@@ -1,6 +1,7 @@
 import { PostHogProvider } from "@/components/analytics/PostHogProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { ProgressProvider } from "@/context/ProgressContext";
 import Providers from "@/providers/Providers";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
@@ -50,14 +51,16 @@ export default function RootLayout({
       >
         <PostHogProvider>
           <Providers>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem={false}
-              disableTransitionOnChange
-            >
-              {children}
-            </ThemeProvider>
+            <ProgressProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="dark"
+                enableSystem={false}
+                disableTransitionOnChange
+              >
+                {children}
+              </ThemeProvider>
+            </ProgressProvider>
           </Providers>
         </PostHogProvider>
         <Toaster />

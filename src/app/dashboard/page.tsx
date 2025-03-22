@@ -14,11 +14,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { constants } from "@/constants";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { useGetQuery, useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
-import { User } from "@/types/User.types";
 import QueryKeys from "@/utils/queryKeys";
 import { PlusIcon, SearchIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -48,10 +46,10 @@ export default function Dashboard() {
       })
     : null;
 
-  const { data: user } = useGetQuery<User>(`/api/getUser/${session?.user?.email}`, {
-    queryKey: QueryKeys.GET_USER,
-    enabled: !!session?.user?.email,
-  });
+  // const { data: user } = useGetQuery<User>(`/api/getUser/${session?.user?.email}`, {
+  //   queryKey: QueryKeys.GET_USER,
+  //   enabled: !!session?.user?.email,
+  // });
   const { mutateAsync: saveJob } = useMutateApi("/api/saveJob", {
     queryKey: QueryKeys.SAVE_JOB,
     invalidate: QueryKeys.GET_JOBS,
@@ -124,21 +122,7 @@ export default function Dashboard() {
   };
 
   const handleAddNewJobClick = () => {
-    const userTier = user?.tier || "FREE";
-    let jobLimit;
-
-    switch (userTier) {
-      case "NINJA":
-        jobLimit = constants.LIMIT_JOBS_NINJA;
-        break;
-      case "APPRENTICE":
-        jobLimit = constants.LIMIT_JOBS_APPRENTICE;
-        break;
-      default:
-        jobLimit = constants.LIMIT_JOBS_FREE;
-    }
-
-    if (jobs && jobs.length >= jobLimit) {
+    if (jobs && jobs.length >= 100) {
       toast("Job limit reached", {
         description:
           "You have reached your jobs limit. Please delete existing jobs or upgrade to add more jobs.",

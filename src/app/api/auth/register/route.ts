@@ -33,7 +33,6 @@ export async function POST(req: NextRequest) {
       name,
       emailVerified: false,
       tokens: 50,
-      tier: "FREE",
     });
 
     try {

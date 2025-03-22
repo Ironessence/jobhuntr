@@ -5,6 +5,7 @@ import { Job } from "@/types/Job.types";
 
 import { AIActionButton } from "@/components/ui/ai-action-button";
 import { constants } from "@/constants";
+import { useProgress } from "@/context/ProgressContext";
 import { handleApiError } from "@/utils/error-handling";
 import QueryKeys from "@/utils/queryKeys";
 import { CheckCircle2, XCircle } from "lucide-react";
@@ -26,7 +27,7 @@ const CompanyInsights = ({ job }: { job: Job }) => {
   const { user } = useUserContext();
   const params = useParams();
   const jobId = params.jobId as string;
-
+  const { trackProgress } = useProgress();
   const { mutateAsync: generateInsights, isPending: isGeneratingInsights } = useMutateApi(
     "/api/generate-insights",
     {
@@ -46,6 +47,7 @@ const CompanyInsights = ({ job }: { job: Job }) => {
         jobId: jobId,
         role: job.jobTitle,
       });
+      await trackProgress({ type: "COMPANY_INSIGHT_GENERATED" });
     } catch (error) {
       handleApiError(error as NextResponse, "generating company insights");
     }

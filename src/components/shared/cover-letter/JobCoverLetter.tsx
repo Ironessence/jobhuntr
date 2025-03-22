@@ -2,6 +2,7 @@ import { AIActionButton } from "@/components/ui/ai-action-button";
 import { Button } from "@/components/ui/button";
 import { constants } from "@/constants";
 import { useUserContext } from "@/context/AuthContext";
+import { useProgress } from "@/context/ProgressContext";
 import { useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
 import { handleApiError } from "@/utils/error-handling";
@@ -19,6 +20,7 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
   const jobId = params.jobId as string;
   const [content, setContent] = useState(job?.coverLetter || "");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const { trackProgress } = useProgress();
 
   const { mutateAsync: generateCoverLetter, isPending: isGeneratingCoverLetter } = useMutateApi(
     "/api/generate-cover-letter",
@@ -39,6 +41,7 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
       })) as { coverLetter: string };
 
       setContent(data.coverLetter);
+      await trackProgress({ type: "COVER_LETTER_GENERATED" });
 
       // Force height adjustment after content is set
     } catch (error) {

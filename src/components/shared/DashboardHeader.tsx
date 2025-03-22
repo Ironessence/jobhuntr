@@ -1,6 +1,6 @@
 import { useUserContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { NavUser } from "./NavUser";
+import NavUser from "./NavUser";
 import TokensDisplay from "./TokensDisplay";
 
 const DashboardHeader = () => {

@@ -1,7 +1,6 @@
 "use client";
 
 import { AIActionButton } from "@/components/ui/ai-action-button";
-import { Button } from "@/components/ui/button";
 import { constants } from "@/constants";
 import { useUserContext } from "@/context/AuthContext";
 import { useMutateApi } from "@/lib";
@@ -47,22 +46,13 @@ export default function InterviewArea({ job }: Props) {
   return (
     <div>
       <div className="flex">
-        {user?.tier !== "FREE" ? (
-          <AIActionButton
-            onClick={handleGenerateQuestions}
-            isGenerating={isGeneratingQuestions}
-            existingData={job.interviewQuestions.length > 0}
-            price={constants.PRICE_INTERVIEW_QUESTIONS}
-            className="mb-4"
-          />
-        ) : (
-          <Button
-            className="mb-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold ml-auto mr-auto"
-            onClick={() => router.push("/dashboard/upgrade")}
-          >
-            ✨ Upgrade to generate
-          </Button>
-        )}
+        <AIActionButton
+          onClick={handleGenerateQuestions}
+          isGenerating={isGeneratingQuestions}
+          existingData={job.interviewQuestions.length > 0}
+          price={constants.PRICE_INTERVIEW_QUESTIONS}
+          className="mb-4"
+        />
       </div>
 
       {!isGeneratingQuestions && job.interviewQuestions && job.interviewQuestions.length > 0 && (

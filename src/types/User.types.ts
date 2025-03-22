@@ -1,7 +1,22 @@
 import { Suggestion } from "./Cv.types";
 import { Job } from "./Job.types";
 import { PaymentHistory } from "./PaymentHistory.types";
-import { SubscriptionTiers } from "./Subscription.types";
+
+export interface CompletedChallenge {
+  challengeId: string;
+  completedAt: Date;
+  rewardClaimed: boolean;
+}
+
+export interface UserProgress {
+  coverLettersGenerated: number;
+  companyInsightsGenerated: number;
+  salaryInsightsGenerated: number;
+  interviewPrepsGenerated: number;
+  cvSuggestionsGenerated: number;
+  jobsAdded: number;
+  completedChallenges: CompletedChallenge[];
+}
 
 export interface User {
   name: string;
@@ -12,7 +27,12 @@ export interface User {
   cv_suggestions?: Suggestion[];
   jobs?: Job[];
   tokens: number;
-  tier: keyof SubscriptionTiers;
+
+  // Gamification fields
+  experience: number;
+  level: number;
+  progress: UserProgress;
+
   stripeCustomerId?: string;
   password?: string;
   emailVerified?: boolean;

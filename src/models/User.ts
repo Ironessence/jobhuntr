@@ -56,6 +56,22 @@ const SuggestionSchema = new mongoose.Schema({
   suggestion: String,
 });
 
+const CompletedChallengeSchema = new mongoose.Schema({
+  challengeId: String,
+  completedAt: { type: Date, default: Date.now },
+  rewardClaimed: { type: Boolean, default: true },
+});
+
+const UserProgressSchema = new mongoose.Schema({
+  coverLettersGenerated: { type: Number, default: 0 },
+  companyInsightsGenerated: { type: Number, default: 0 },
+  salaryInsightsGenerated: { type: Number, default: 0 },
+  interviewPrepsGenerated: { type: Number, default: 0 },
+  cvSuggestionsGenerated: { type: Number, default: 0 },
+  jobsAdded: { type: Number, default: 0 },
+  completedChallenges: [CompletedChallengeSchema],
+});
+
 const UserSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
@@ -66,6 +82,11 @@ const UserSchema = new mongoose.Schema({
   jobs: [JobSchema],
   tokens: { type: Number, default: 0 },
   paymentHistory: [PaymentHistorySchema],
+
+  // Gamification fields
+  experience: { type: Number, default: 0 },
+  level: { type: Number, default: 1 },
+  progress: { type: UserProgressSchema, default: () => ({}) },
 
   stripeCustomerId: String,
 
