@@ -35,7 +35,6 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 
   const trackProgress = async (action: ProgressAction) => {
     try {
-      console.log("Tracking progress:", action);
       setIsUpdating(true);
 
       // Get the current user ID
@@ -46,7 +45,6 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       }
 
       const userData = await response.json();
-      console.log("Current user data:", userData);
 
       // Update user progress
       const result = await updateUserProgress(userData.id, action);

@@ -10,14 +10,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getCurrentLevelProgress } from "@/constants/challenges";
 import { useUserContext } from "@/context/AuthContext";
 import { File, LogOut, Sparkles, User } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import UserLevelDisplay from "../navbar/UserLevelDisplay";
+import { Badge } from "../ui/badge";
 
 export default function NavUser() {
   const { user } = useUserContext();
+  const { badge } = getCurrentLevelProgress(user?.experience || 0);
 
   if (!user) return null;
 
@@ -55,6 +58,11 @@ export default function NavUser() {
             user={user}
             compact
           />
+          <div className="flex justify-center mb-2">
+            <Badge className="bg-gradient-to-br from-blue-400 to-blue-700 text-white font-bold py-1 px-2 rounded-full">
+              {badge.name}
+            </Badge>
+          </div>
         </div>
 
         <DropdownMenuSeparator />

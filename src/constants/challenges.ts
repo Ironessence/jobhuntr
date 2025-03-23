@@ -46,7 +46,7 @@ export const LEVEL_BADGES = [
 ];
 
 export const EXPERIENCE_PER_LEVEL = 100; // Base XP needed per level
-export const LEVEL_SCALING_FACTOR = 1.5; // How much more XP is needed for each level
+export const LEVEL_SCALING_FACTOR = 1; // How much more XP is needed for each level
 
 export function getExperienceForLevel(level: number): number {
   return Math.floor(EXPERIENCE_PER_LEVEL * Math.pow(LEVEL_SCALING_FACTOR, level - 1));

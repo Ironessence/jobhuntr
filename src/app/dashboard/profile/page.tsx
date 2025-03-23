@@ -2,7 +2,6 @@
 
 import UserLevelDisplay from "@/components/navbar/UserLevelDisplay";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { challenges, getChallengeById, getCompletedChallenges } from "@/constants/challenges";
@@ -79,16 +78,6 @@ function UserProfile() {
                 <p className="text-sm text-muted-foreground mb-4">{user.email}</p>
 
                 <UserLevelDisplay user={user} />
-
-                <div className="mt-4 w-full">
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => router.push("/dashboard/settings")}
-                  >
-                    Edit Profile
-                  </Button>
-                </div>
               </div>
             </CardContent>
           </Card>

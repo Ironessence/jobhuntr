@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { constants } from "@/constants";
 import { useUserContext } from "@/context/AuthContext";
+import { useProgress } from "@/context/ProgressContext";
 import { useMutateApi } from "@/lib";
 import { cn } from "@/lib/utils";
 import { Job } from "@/types/Job.types";
@@ -39,6 +40,7 @@ export function SalaryRangeSelector({ job }: { job: Job }) {
   const [filteredCountries, setFilteredCountries] = useState(countryList);
   const [salaryRange, setSalaryRange] = useState(job.companyInsights?.salaryRange || null);
   const [isButtonVisible, setIsButtonVisible] = useState(!job.companyInsights?.salaryRange);
+  const { trackProgress } = useProgress();
 
   const { mutateAsync: fetchSalaryRange, isPending } = useMutateApi("/api/generate-salary-range", {
     queryKey: [QueryKeys.GET_SALARY_RANGE],
@@ -72,6 +74,7 @@ export function SalaryRangeSelector({ job }: { job: Job }) {
       });
       setSalaryRange(result as SalaryRange);
       setIsButtonVisible(false); // Hide button after successful fetch
+      await trackProgress({ type: "SALARY_INSIGHT_GENERATED" });
     } catch (error) {
       setSalaryRange(job.companyInsights?.salaryRange || null);
       handleApiError(error as NextResponse, "fetching salary range");

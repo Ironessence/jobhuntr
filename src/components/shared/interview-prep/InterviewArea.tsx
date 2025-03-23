@@ -3,11 +3,11 @@
 import { AIActionButton } from "@/components/ui/ai-action-button";
 import { constants } from "@/constants";
 import { useUserContext } from "@/context/AuthContext";
+import { useProgress } from "@/context/ProgressContext";
 import { useMutateApi } from "@/lib";
 import { InterviewQuestion, Job } from "@/types/Job.types";
 import { handleApiError } from "@/utils/error-handling";
 import { QueryKeys } from "@/utils/queryKeys";
-import { useRouter } from "next/navigation";
 import { NextResponse } from "next/server";
 import NinjaLoader from "../NinjaLoader";
 import { InterviewQuiz } from "./InterviewQuiz";
@@ -18,7 +18,7 @@ interface Props {
 
 export default function InterviewArea({ job }: Props) {
   const { user } = useUserContext();
-  const router = useRouter();
+  const { trackProgress } = useProgress();
   const { mutateAsync: generateQuestions, isPending: isGeneratingQuestions } = useMutateApi<
     InterviewQuestion[]
   >("/api/generate-interview-questions", {
@@ -38,6 +38,7 @@ export default function InterviewArea({ job }: Props) {
         jobId: job._id,
         currentQuestions: job.interviewQuestions,
       });
+      await trackProgress({ type: "INTERVIEW_PREP_GENERATED" });
     } catch (error) {
       handleApiError(error as NextResponse, "generating interview questions");
     }

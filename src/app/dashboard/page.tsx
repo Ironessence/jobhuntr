@@ -17,8 +17,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { useGetQuery, useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
+import { User } from "@/types/User.types";
 import QueryKeys from "@/utils/queryKeys";
-import { PlusIcon, SearchIcon } from "lucide-react";
+import { FileText, PlusIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -39,6 +40,14 @@ export default function Dashboard() {
     enabled: !!session?.user?.email,
   });
 
+  // Get user data to check if CV exists
+  const { data: user } = useGetQuery<User>(`/api/getUser/${session?.user?.email}`, {
+    queryKey: QueryKeys.GET_USER,
+    enabled: !!session?.user?.email,
+  });
+
+  const hasCV = user?.cv_file_name;
+
   // Sort jobs by dateAdded (newest first)
   const sortedJobs = jobs
     ? [...jobs].sort((a, b) => {
@@ -46,10 +55,6 @@ export default function Dashboard() {
       })
     : null;
 
-  // const { data: user } = useGetQuery<User>(`/api/getUser/${session?.user?.email}`, {
-  //   queryKey: QueryKeys.GET_USER,
-  //   enabled: !!session?.user?.email,
-  // });
   const { mutateAsync: saveJob } = useMutateApi("/api/saveJob", {
     queryKey: QueryKeys.SAVE_JOB,
     invalidate: QueryKeys.GET_JOBS,
@@ -141,7 +146,7 @@ export default function Dashboard() {
 
   return (
     <div className="mx-auto p-4">
-      {sortedJobs && sortedJobs.length > 0 && (
+      {/* {sortedJobs && sortedJobs.length > 0 && (
         <section className="flex justify-between mb-4 items-center">
           <div className="relative w-full max-w-xs">
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -160,10 +165,46 @@ export default function Dashboard() {
             Add New Job
           </Button>
         </section>
+      )} */}
+
+      {sortedJobs && sortedJobs.length === 0 && !user?.cv_file_name && (
+        <div className="mx-auto p-4 max-w-2xl">
+          <div className="flex flex-col items-center justify-center py-10 text-center bg-gradient-to-br from-blue-900/10 to-purple-900/10 backdrop-blur-sm border border-blue-500/20 rounded-xl p-8 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+            <div className="mb-6 w-32 h-32 relative">
+              <FileText className="w-full h-full" />
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-xl -z-10"></div>
+            </div>
+
+            <h2 className="text-2xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
+              Let&apos;s Get Started with ApplyNinja!
+            </h2>
+
+            <p className="text-lg mb-6 text-foreground/80">
+              To start enjoying the AI benefits of ApplyNinja, let&apos;s add your resume so the AI
+              can start analyzing it and helping you out on your job search journey. You can start
+              adding jobs right after.
+            </p>
+
+            <div className="flex gap-4">
+              <Button
+                onClick={() => router.push("/dashboard/resume")}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+              >
+                Upload Resume
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleAddNewJobClick()}
+              >
+                Skip & Add Job
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Show message when no jobs exist */}
-      {(!sortedJobs || sortedJobs.length === 0) && (
+      {sortedJobs && sortedJobs.length === 0 && user?.cv_file_name && (
         <div className="flex flex-col items-center justify-center py-10 text-center">
           <p className="text-2xl font-semibold mb-2">No jobs to display here</p>
           <p className="text-muted-foreground mb-6">
