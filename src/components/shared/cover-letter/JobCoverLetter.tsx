@@ -164,7 +164,7 @@ const JobCoverLetter = ({ job }: { job: Job }) => {
         {job?.coverLetter && (
           <Button
             variant="outline"
-            className="flex items-center gap-1 max-w-[250px]"
+            className="flex items-center gap-1 max-w-[250px] self-center"
             onClick={handleDownloadPDF}
           >
             <Download className="w-4 h-4" />

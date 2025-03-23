@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { useUserContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import NavUser from "./NavUser";
@@ -16,17 +15,6 @@ const DashboardHeader = () => {
         >
           Dashboard
         </h1>
-        <div className="relative">
-          <span className="md:text-2xl text-lg font-bold cursor-not-allowed text-muted-foreground/60 font-archivo">
-            Leaderboard
-          </span>
-          <Badge
-            variant="outline"
-            className="absolute -top-3 -right-16 bg-amber-500/20 text-amber-500 border-amber-500/50 text-[10px]"
-          >
-            Coming Soon
-          </Badge>
-        </div>
       </div>
       <div className="flex items-center gap-5">
         <TokensDisplay />

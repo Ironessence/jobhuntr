@@ -169,26 +169,26 @@ export default function Dashboard() {
 
       {sortedJobs && sortedJobs.length === 0 && !user?.cv_file_name && (
         <div className="mx-auto p-4 max-w-2xl">
-          <div className="flex flex-col items-center justify-center py-10 text-center bg-gradient-to-br from-blue-900/10 to-purple-900/10 backdrop-blur-sm border border-blue-500/20 rounded-xl p-8 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+          <div className="flex flex-col items-center justify-center py-10 text-center bg-gradient-to-br from-blue-900/5 to-purple-900/5 border border-blue-500/20 rounded-xl p-8 shadow-md">
             <div className="mb-6 w-32 h-32 relative">
-              <FileText className="w-full h-full" />
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-xl -z-10"></div>
+              <FileText className="w-full h-full text-blue-500" />
+              <div className="absolute inset-0 bg-blue-500/10 rounded-full -z-10"></div>
             </div>
 
-            <h2 className="text-2xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
+            <h2 className="text-2xl font-bold mb-4 text-blue-600 dark:text-blue-400">
               Let&apos;s Get Started with ApplyNinja!
             </h2>
 
-            <p className="text-lg mb-6 text-foreground/80">
+            <p className="text-lg mb-6 text-foreground/90">
               To start enjoying the AI benefits of ApplyNinja, let&apos;s add your resume so the AI
               can start analyzing it and helping you out on your job search journey. You can start
               adding jobs right after.
             </p>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 onClick={() => router.push("/dashboard/resume")}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 Upload Resume
               </Button>
