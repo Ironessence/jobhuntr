@@ -2,9 +2,12 @@ import { Button } from "@/components/ui/button";
 import { constants } from "@/constants";
 import { InstagramIcon } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import ContactFormModal from "../shared/ContactFormModal";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   const footerLinks = [
     {
@@ -94,15 +97,26 @@ export default function Footer() {
             >
               Cookie Policy
             </Link>
-            <Link
-              href="mailto:support@applyninja.ai"
+            <button
+              onClick={() => setIsContactModalOpen(true)}
               className="text-sm text-muted-foreground hover:text-foreground"
             >
-              support@applyninja.ai
+              Report a Bug
+            </button>
+            <Link
+              href="mailto:confirmation@applyninja.ai"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              support@confirmation.applyninja.ai
             </Link>
           </div>
         </div>
       </div>
+
+      <ContactFormModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
     </footer>
   );
 }

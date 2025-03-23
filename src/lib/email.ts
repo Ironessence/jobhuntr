@@ -2,6 +2,54 @@ import formData from "form-data";
 import Mailgun from "mailgun.js";
 import { generateVerificationToken } from "./tokens";
 
+// Add this new interface
+interface ContactEmailData {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+// Add this new function
+export async function sendContactEmail({ name, email, subject, message }: ContactEmailData) {
+  if (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN) {
+    throw new Error("Missing Mailgun configuration");
+  }
+
+  // Initialize Mailgun
+  const mailgun = new Mailgun(formData);
+  const mg = mailgun.client({
+    username: "api",
+    key: process.env.MAILGUN_API_KEY,
+    url: "https://api.eu.mailgun.net",
+  });
+
+  try {
+    await mg.messages.create(process.env.MAILGUN_DOMAIN, {
+      from: `${name} <${email}>`,
+      to: `support@confirmation.applyninja.ai`,
+      subject: `[ApplyNinja Bug Report] ${subject}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #333;">New Bug Report from ApplyNinja</h2>
+          <p><strong>From:</strong> ${name} (${email})</p>
+          <p><strong>Subject:</strong> ${subject}</p>
+          <div style="margin: 20px 0; padding: 15px; border-left: 4px solid #0070f3; background-color: #f5f5f5;">
+            <p style="white-space: pre-wrap;">${message}</p>
+          </div>
+          <p style="color: #666; font-size: 12px;">
+            This message was sent from the ApplyNinja bug report form.
+          </p>
+        </div>
+      `,
+      "h:Reply-To": email,
+    });
+  } catch (error) {
+    console.error("Contact email sending error:", error);
+    throw error;
+  }
+}
+
 export async function sendVerificationEmail(email: string) {
   if (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN) {
     throw new Error("Missing Mailgun configuration");
