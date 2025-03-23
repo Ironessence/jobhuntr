@@ -38,7 +38,7 @@ export default function UserLevelDisplay({ user, compact = false }: UserLevelDis
   }
 
   return (
-    <div className="p-4 border rounded-lg bg-card">
+    <div className="p-4 border rounded-lg bg-card w-full">
       <div className="flex items-center gap-3 mb-3">
         <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900">
           <BadgeIcon className="w-6 h-6 text-blue-600 dark:text-blue-300" />

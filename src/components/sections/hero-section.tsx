@@ -143,7 +143,7 @@ export default function HeroSection() {
           </div>
 
           {/* Right visual representation - made larger */}
-          <div className="relative md:-ml-4 md:scale-100 bg-card rounded-xl shadow-lg overflow-hidden border border-border">
+          <div className="relative md:-ml-4 md:scale-100 bg-card rounded-xl shadow-lg overflow-hidden border border-border scale-105 mt-10 sm:mt-0 sm:scale-100">
             <div className="p-6 flex flex-col gap-6">
               {/* Platform visualization */}
               <div className="flex items-center justify-between">
