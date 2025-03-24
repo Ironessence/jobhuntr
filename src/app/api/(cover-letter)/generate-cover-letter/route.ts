@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
       3. Demonstrate enthusiasm for the specific role and company.
       4. Keep the tone professional yet personable.
       5. Ensure the letter is concise, and do not exceed 360 words.
+      6. Important - Do not lie. Do not make up skills or experiences, only write about what is actually in the CV.
 
       Return only valid JSON with no markdown formatting.
     `;
