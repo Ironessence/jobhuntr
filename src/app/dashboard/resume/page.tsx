@@ -458,7 +458,7 @@ export default function ResumePage() {
               isGenerating={isFixingResume}
               existingData={user?.cv_full_text}
               price={constants.PRICE_CV_FIX}
-              text={"Fix resume"}
+              text={"Auto-fix resume"}
             />
           )}
         </div>

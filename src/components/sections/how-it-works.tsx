@@ -1,5 +1,6 @@
 "use client";
 
+import { useIsMobile } from "@/hooks/use-mobile";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import {
   ArrowRight,
@@ -18,13 +19,17 @@ import {
 export default function HowItWorks() {
   // Track page view
   usePageTracking("landing_how_it_works");
+  const isMobile = useIsMobile();
 
   return (
-    <section className="py-24 relative">
+    <section
+      className="py-24 relative"
+      id="features"
+    >
       <div
         className="bg-muted/30 inset-0 absolute"
         style={{
-          clipPath: "polygon(0 0, 100% 5%, 100% 100%, 0% 100%)",
+          clipPath: `polygon(0 0, 100% ${isMobile ? "2%" : "8%"}, 100% 100%, 0% 100%)`,
         }}
       ></div>
       <div className="container mx-auto px-4 relative z-10">

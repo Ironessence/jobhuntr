@@ -8,6 +8,7 @@ import Footer from "@/components/sections/footer";
 import HeroSection from "@/components/sections/hero-section";
 import HowItWorks from "@/components/sections/how-it-works";
 import PricingSection from "@/components/sections/pricing-section";
+import ProblemSection from "@/components/sections/problem-section";
 import TestimonialsSection from "@/components/sections/testimonials-section";
 import { ResetPasswordToast } from "@/components/verification/ResetPasswordToast";
 import { VerificationToast } from "@/components/verification/VerificationToast";
@@ -25,6 +26,7 @@ export default function Home() {
       <ResetPasswordToast />
       <Navbar />
       <HeroSection />
+      <ProblemSection />
       <HowItWorks />
       <FeaturesSection />
       <PricingSection />

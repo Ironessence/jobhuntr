@@ -15,7 +15,7 @@ export default function CtaSection() {
           Ready to Land Your Dream Job?
         </h2>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-          Join thousands of successful job seekers who have accelerated their career with
+          Join hundreds of successful job seekers who have accelerated their career with
           ApplyNinja.ai
         </p>
 

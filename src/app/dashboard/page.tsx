@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { constants } from "@/constants";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { useGetQuery, useMutateApi } from "@/lib";
 import { Job } from "@/types/Job.types";
@@ -67,6 +68,14 @@ export default function Dashboard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [jobSaved, setJobSaved] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Check if user has made a payment
+  const hasSuccessfulPayment = user?.paymentHistory?.some(
+    (payment) => payment.status === "succeeded" || payment.status === "completed",
+  );
+
+  // Determine job limit based on payment status
+  const jobLimit = hasSuccessfulPayment ? constants.LIMIT_JOBS : constants.LIMIT_JOBS_FREE;
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -127,16 +136,22 @@ export default function Dashboard() {
   };
 
   const handleAddNewJobClick = () => {
-    if (jobs && jobs.length >= 100) {
-      toast("Job limit reached", {
-        description:
-          "You have reached your jobs limit. Please delete existing jobs or upgrade to add more jobs.",
-        action: {
-          label: "🚀 Upgrade",
-          onClick: () => router.push("/dashboard/upgrade"),
-        },
-        duration: 5000,
-      });
+    if (jobs && jobs.length >= jobLimit) {
+      if (hasSuccessfulPayment) {
+        toast.error("Job limit reached", {
+          description: `You have reached your limit of ${constants.LIMIT_JOBS} jobs. Please delete existing jobs to add more.`,
+          duration: 5000,
+        });
+      } else {
+        toast("Free limit reached", {
+          description: `You've reached the free usage limit of ${constants.LIMIT_JOBS_FREE} jobs. Remove existing jobs or make a payment to add up to ${constants.LIMIT_JOBS} jobs.`,
+          action: {
+            label: "🚀 Buy Tokens",
+            onClick: () => router.push("/dashboard/buy-tokens"),
+          },
+          duration: 5000,
+        });
+      }
       return;
     }
 
@@ -146,27 +161,6 @@ export default function Dashboard() {
 
   return (
     <div className="mx-auto p-4">
-      {/* {sortedJobs && sortedJobs.length > 0 && (
-        <section className="flex justify-between mb-4 items-center">
-          <div className="relative w-full max-w-xs">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search jobs..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Button
-            onClick={handleAddNewJobClick}
-            className="flex items-center gap-2"
-          >
-            <PlusIcon className="w-4 h-4" />
-            Add New Job
-          </Button>
-        </section>
-      )} */}
-
       {sortedJobs && sortedJobs.length === 0 && !user?.cv_file_name && (
         <div className="mx-auto p-4 max-w-2xl">
           <div className="flex flex-col items-center justify-center py-10 text-center bg-gradient-to-br from-blue-900/5 to-purple-900/5 border border-blue-500/20 rounded-xl p-8 shadow-md">
@@ -216,6 +210,37 @@ export default function Dashboard() {
           >
             <PlusIcon className="w-4 h-4" />
             Add Your First Job
+          </Button>
+        </div>
+      )}
+
+      {/* Add job limit indicator */}
+      {sortedJobs && sortedJobs.length > 0 && (
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Search jobs..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="max-w-xs"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSearchQuery("")}
+              >
+                Clear
+              </Button>
+            )}
+          </div>
+
+          <Button
+            onClick={handleAddNewJobClick}
+            className="flex items-center gap-2"
+          >
+            <PlusIcon className="w-4 h-4" />
+            Add Job
           </Button>
         </div>
       )}

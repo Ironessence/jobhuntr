@@ -61,7 +61,7 @@ export default function PricingSection() {
   };
   return (
     <section
-      className={`py-16 md:py-24 ${pathname === "/dashboard/buy-tokens" ? "" : "bg-muted/30"}`}
+      className={`py-16 ${pathname === "/dashboard/buy-tokens" ? "sm:py-8" : "sm:py-24"} ${pathname === "/dashboard/buy-tokens" ? "" : "bg-muted/30"}`}
       id="pricing"
     >
       <div className="container mx-auto px-4">

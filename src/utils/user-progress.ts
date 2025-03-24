@@ -33,26 +33,35 @@ export async function updateUserProgress(
   // Create a copy of the user's progress to work with
   const updatedProgress: UserProgress = { ...user.progress };
 
+  // Base experience for each action
+  let baseExperienceGained = 0;
+
   // Update the appropriate counter based on the action
   switch (action.type) {
     case "COVER_LETTER_GENERATED":
       updatedProgress.coverLettersGenerated = (updatedProgress.coverLettersGenerated || 0) + 1;
+      baseExperienceGained = 10;
       break;
     case "COMPANY_INSIGHT_GENERATED":
       updatedProgress.companyInsightsGenerated =
         (updatedProgress.companyInsightsGenerated || 0) + 1;
+      baseExperienceGained = 10;
       break;
     case "SALARY_INSIGHT_GENERATED":
       updatedProgress.salaryInsightsGenerated = (updatedProgress.salaryInsightsGenerated || 0) + 1;
+      baseExperienceGained = 10;
       break;
     case "INTERVIEW_PREP_GENERATED":
       updatedProgress.interviewPrepsGenerated = (updatedProgress.interviewPrepsGenerated || 0) + 1;
+      baseExperienceGained = 10;
       break;
     case "CV_SUGGESTION_GENERATED":
       updatedProgress.cvSuggestionsGenerated = (updatedProgress.cvSuggestionsGenerated || 0) + 1;
+      baseExperienceGained = 10;
       break;
     case "JOB_ADDED":
       updatedProgress.jobsAdded = (updatedProgress.jobsAdded || 0) + 1;
+      baseExperienceGained = 0;
       break;
     case "LEVEL_REACHED":
       // No counter to update for level reached
@@ -68,7 +77,7 @@ export async function updateUserProgress(
   );
 
   // Calculate rewards
-  let experienceGained = 0;
+  let experienceGained = baseExperienceGained;
   let tokensAwarded = 0;
 
   // Mark challenges as completed and calculate rewards

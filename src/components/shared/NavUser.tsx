@@ -12,17 +12,26 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getCurrentLevelProgress } from "@/constants/challenges";
 import { useUserContext } from "@/context/AuthContext";
-import { File, LogOut, Sparkles, User } from "lucide-react";
+import { File, History, LogOut, Moon, Sparkles, Sun, User } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { useTheme } from "next-themes";
 import Link from "next/link";
 import UserLevelDisplay from "../navbar/UserLevelDisplay";
 import { Badge } from "../ui/badge";
+import { Switch } from "../ui/switch";
 
 export default function NavUser() {
   const { user } = useUserContext();
   const { badge } = getCurrentLevelProgress(user?.experience || 0);
+  const { theme, setTheme } = useTheme();
 
   if (!user) return null;
+
+  const handleThemeToggle = (e: React.MouseEvent, checked: boolean) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setTheme(checked ? "dark" : "light");
+  };
 
   return (
     <DropdownMenu>
@@ -68,6 +77,21 @@ export default function NavUser() {
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
+          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2">
+                {theme === "dark" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                <span>Dark Mode</span>
+              </div>
+              <Switch
+                checked={theme === "dark"}
+                onCheckedChange={(checked) =>
+                  handleThemeToggle(event as unknown as React.MouseEvent, checked)
+                }
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link
               href="/dashboard/profile"
@@ -84,6 +108,15 @@ export default function NavUser() {
             >
               <Sparkles className="w-5 h-5" />
               Buy Tokens
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link
+              href="/dashboard/payment-history"
+              className="flex items-center gap-2"
+            >
+              <History className="w-5 h-5" />
+              Payment History
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>

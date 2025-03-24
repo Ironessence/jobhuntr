@@ -1,6 +1,7 @@
 "use client";
 
 import LevelUpNotification from "@/components/notifications/LevelUpNotification";
+import SimpleXPNotification from "@/components/notifications/SimpleXPNotification";
 import { Challenge } from "@/constants/challenges";
 import QueryKeys from "@/utils/queryKeys";
 import { ProgressAction, updateUserProgress } from "@/utils/user-progress";
@@ -12,12 +13,15 @@ interface ProgressContextType {
   isUpdating: boolean;
 }
 
-const ProgressContext = createContext<ProgressContextType>({
-  trackProgress: async () => {},
-  isUpdating: false,
-});
+const ProgressContext = createContext<ProgressContextType | undefined>(undefined);
 
-export const useProgress = () => useContext(ProgressContext);
+export function useProgress() {
+  const context = useContext(ProgressContext);
+  if (!context) {
+    throw new Error("useProgress must be used within a ProgressProvider");
+  }
+  return context;
+}
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const [isUpdating, setIsUpdating] = useState(false);
@@ -29,6 +33,14 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     newLevel?: number;
   }>({
     show: false,
+  });
+
+  const [simpleXPNotification, setSimpleXPNotification] = useState<{
+    show: boolean;
+    xp: number;
+  }>({
+    show: false,
+    xp: 0,
   });
 
   const queryClient = useQueryClient();
@@ -49,14 +61,21 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       // Update user progress
       const result = await updateUserProgress(userData.id, action);
 
-      // Show notification if challenges were completed or level up
+      // Show notification based on what happened
       if (result.completedChallenges.length > 0 || result.leveledUp) {
+        // Show the challenge/level up notification for significant achievements
         setNotification({
           show: true,
           challenge: result.completedChallenges[0], // Show the first completed challenge
           experienceGained: result.experienceGained,
           tokensAwarded: result.tokensAwarded,
           newLevel: result.newLevel,
+        });
+      } else if (result.experienceGained > 0) {
+        // Show simple XP notification for basic actions
+        setSimpleXPNotification({
+          show: true,
+          xp: result.experienceGained,
         });
       }
 
@@ -76,6 +95,12 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       <LevelUpNotification
         {...notification}
         onClose={() => setNotification({ show: false })}
+      />
+
+      <SimpleXPNotification
+        show={simpleXPNotification.show}
+        xp={simpleXPNotification.xp}
+        onClose={() => setSimpleXPNotification({ show: false, xp: 0 })}
       />
     </ProgressContext.Provider>
   );
