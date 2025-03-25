@@ -41,10 +41,10 @@ export const handleApiError = async (
     if (errorMessage.toLowerCase().includes("insufficient tokens")) {
       toast.error("Insufficient Tokens", {
         description:
-          "You don't have enough tokens for this operation. Click here to upgrade your account.",
+          "You don't have enough tokens for this operation. Click here to purchase more.",
         action: {
-          label: "Upgrade Plan",
-          onClick: () => (window.location.href = "/dashboard/upgrade"),
+          label: "Buy Tokens",
+          onClick: () => (window.location.href = "/dashboard/buy-tokens"),
         },
       });
       return;
