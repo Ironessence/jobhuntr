@@ -104,10 +104,10 @@ export default function Footer() {
               Report a Bug
             </button>
             <Link
-              href="mailto:confirmation@applyninja.ai"
+              href="mailto:support@applyninja.ai"
               className="text-sm text-muted-foreground hover:text-foreground"
             >
-              support@confirmation.applyninja.ai
+              support@applyninja.ai
             </Link>
           </div>
         </div>

@@ -170,7 +170,7 @@ export default function Dashboard() {
             </div>
 
             <h2 className="text-2xl font-bold mb-4 text-blue-600 dark:text-blue-400">
-              Let&apos;s Get Started with ApplyNinja!
+              Let&apos;s Get Started!
             </h2>
 
             <p className="text-lg mb-6 text-foreground/90">
