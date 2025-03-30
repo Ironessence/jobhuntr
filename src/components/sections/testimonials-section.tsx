@@ -5,6 +5,20 @@ import { usePageTracking } from "@/hooks/usePageTracking";
 import { StarIcon } from "lucide-react";
 import Image from "next/image";
 
+// Helper component to highlight text
+const HighlightedText = ({ children }: { children: React.ReactNode }) => (
+  <span className="bg-yellow-400 text-black font-medium">{children}</span>
+);
+
+// Component to render testimonial content with highlighted parts
+const TestimonialContent = ({ content }: { content: Array<string | { highlight: string }> }) => (
+  <p className="mb-4 text-sm">
+    {content.map((part, i) =>
+      typeof part === "string" ? part : <HighlightedText key={i}>{part.highlight}</HighlightedText>,
+    )}
+  </p>
+);
+
 export default function TestimonialsSection() {
   // Track page view
   usePageTracking("landing_testimonials");
@@ -13,64 +27,118 @@ export default function TestimonialsSection() {
     {
       name: "Sarah J.",
       role: "Software Engineer",
-      content:
-        "ApplyNinja helped me land my dream job! The cover letter generator and company insights gave me a huge advantage in the application process.",
+      content: [
+        "ApplyNinja helped me ",
+        { highlight: "land my dream job" },
+        "! The ",
+        { highlight: "cover letter generator" },
+        " and company insights gave me a ",
+        { highlight: "huge advantage" },
+        " in the application process.",
+      ],
       rating: 5,
       image: "https://randomuser.me/api/portraits/women/1.jpg",
     },
     {
       name: "Michael C.",
       role: "Product Manager",
-      content:
-        "I was struggling with interview preparation until I found ApplyNinja. The AI-generated questions were spot on and helped me ace my interviews.",
+      content: [
+        "I was struggling with ",
+        { highlight: "interview preparation" },
+        " until I found ApplyNinja. The ",
+        { highlight: "AI-generated questions" },
+        " were spot on and helped me ",
+        { highlight: "ace my interviews" },
+        ".",
+      ],
       rating: 5,
       image: "https://randomuser.me/api/portraits/men/2.jpg",
     },
     {
       name: "Emily R.",
       role: "UX Designer",
-      content:
-        "The salary insights feature helped me negotiate a 15% higher offer than I would have accepted otherwise. This tool pays for itself!",
+      content: [
+        "The ",
+        { highlight: "salary insights" },
+        " feature helped me ",
+        { highlight: "negotiate a 15% higher offer" },
+        " than I would have accepted otherwise. This tool ",
+        { highlight: "pays for itself" },
+        "!",
+      ],
       rating: 5,
       image: "https://randomuser.me/api/portraits/women/3.jpg",
     },
     {
       name: "David K.",
       role: "Data Scientist",
-      content:
-        "I applied to over 50 jobs using ApplyNinja and got 10 interviews. The personalized cover letters for each application made all the difference.",
+      content: [
+        "I applied to ",
+        { highlight: "over 50 jobs" },
+        " using ApplyNinja and got ",
+        { highlight: "10 interviews" },
+        ". The ",
+        { highlight: "personalized cover letters" },
+        " for each application made all the difference.",
+      ],
       rating: 5,
       image: "https://randomuser.me/api/portraits/men/4.jpg",
     },
     {
       name: "Jessica P.",
       role: "Marketing Manager",
-      content:
-        "As someone switching careers, I needed all the help I could get. ApplyNinja's CV suggestions helped me highlight transferable skills I wouldn't have thought of.",
+      content: [
+        "As someone ",
+        { highlight: "switching careers" },
+        ", I needed all the help I could get. ApplyNinja's ",
+        { highlight: "CV suggestions" },
+        " helped me highlight ",
+        { highlight: "transferable skills" },
+        " I wouldn't have thought of.",
+      ],
       rating: 5,
       image: "https://randomuser.me/api/portraits/women/5.jpg",
     },
     {
       name: "Thomas W.",
       role: "Frontend Developer",
-      content:
-        "The company insights feature gave me talking points that impressed the interviewer. They literally said 'You've really done your research!'",
+      content: [
+        "The ",
+        { highlight: "company insights" },
+        " feature gave me talking points that ",
+        { highlight: "impressed the interviewer" },
+        ". They literally said '",
+        { highlight: "You've really done your research!" },
+        "'",
+      ],
       rating: 5,
       image: "https://randomuser.me/api/portraits/men/6.jpg",
     },
     {
       name: "Olivia M.",
       role: "Project Manager",
-      content:
-        "I was skeptical about AI-generated content, but ApplyNinja's cover letters are incredibly personalized and well-written. Worth every penny!",
+      content: [
+        "I was skeptical about AI-generated content, but ApplyNinja's ",
+        { highlight: "cover letters are incredibly personalized" },
+        " and well-written. ",
+        { highlight: "Worth every penny!" },
+        "",
+      ],
       rating: 5,
       image: "https://randomuser.me/api/portraits/women/7.jpg",
     },
     {
       name: "James T.",
       role: "DevOps Engineer",
-      content:
-        "The technical interview prep was a game-changer. It helped me prepare for questions I never would have anticipated. Highly recommend!",
+      content: [
+        "The ",
+        { highlight: "technical interview prep" },
+        " was a game-changer. It helped me prepare for questions I ",
+        { highlight: "never would have anticipated" },
+        ". ",
+        { highlight: "Highly recommend!" },
+        "",
+      ],
       rating: 5,
       image: "https://randomuser.me/api/portraits/men/8.jpg",
     },
@@ -105,7 +173,7 @@ export default function TestimonialsSection() {
                   ))}
                 </div>
 
-                <p className="mb-4 text-sm">{testimonial.content}</p>
+                <TestimonialContent content={testimonial.content} />
 
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full overflow-hidden">
