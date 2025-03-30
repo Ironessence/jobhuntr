@@ -24,13 +24,9 @@ export default function CtaSection() {
             size="lg"
             className="bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-light font-archivo"
           >
-            Get Started for Free
+            Get Started
           </Button>
         </Link>
-
-        <p className="mt-4 text-sm text-muted-foreground">
-          No credit card required. Start with <span className="font-bold">50 free tokens</span>.
-        </p>
       </div>
     </section>
   );

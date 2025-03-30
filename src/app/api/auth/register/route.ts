@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       password: hashedPassword,
       name,
       emailVerified: false,
-      tokens: 50,
+      tokens: 0,
     });
 
     try {

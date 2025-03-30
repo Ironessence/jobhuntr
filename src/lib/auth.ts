@@ -71,7 +71,7 @@ export const authOptions: NextAuthOptions = {
             email,
             image: googleProfile.picture,
             cv: "",
-            tokens: 50,
+            tokens: 0,
             emailVerified: true,
           });
 

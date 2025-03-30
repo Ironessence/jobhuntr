@@ -15,7 +15,6 @@ export default function HeroSection() {
   const router = useRouter();
   const { theme, resolvedTheme } = useTheme();
   const [currentTheme, setCurrentTheme] = useState<string | undefined>("light");
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   // Track page view
   usePageTracking("landing_hero");
@@ -104,7 +103,7 @@ export default function HeroSection() {
                     height={25}
                   />
                 </div>
-                Try for free
+                Get started
               </Button>
             </div>
 

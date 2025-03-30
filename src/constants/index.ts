@@ -19,6 +19,7 @@ export const constants = {
         description: "For serious job seekers",
         price: 29,
         features: [
+          "Up to <strong>250</strong> generations",
           "CV suggestions",
           "CV auto-fix",
           "Cover letter generation",
@@ -37,6 +38,7 @@ export const constants = {
         description: "For power users and job hunters",
         price: 39,
         features: [
+          "Up to <strong>400</strong> generations",
           "CV suggestions",
           "CV auto-fix",
           "Cover letter generation",
@@ -55,6 +57,7 @@ export const constants = {
         description: "Best value for the money for true ninjas",
         price: 49,
         features: [
+          "Up to <strong>600</strong> generations",
           "CV suggestions",
           "CV auto-fix",
           "Cover letter generation",
