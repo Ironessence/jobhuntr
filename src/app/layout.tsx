@@ -75,13 +75,7 @@ export default function RootLayout({
         >
           {`
             !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
-            rdt('init','a2_gs7s1ae0xvbb', {
-              email: '', // Will be populated when user is logged in
-              phoneNumber: '', // Will be populated when user is logged in
-              externalId: '', // Will be populated when user is logged in
-              idfa: '', // iOS device ID
-              aaid: '', // Android device ID
-            });
+            rdt('init','a2_gs7s1ae0xvbb');
             rdt('track', 'PageVisit');
           `}
         </Script>
