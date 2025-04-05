@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
   },
   other: {
-    "reddit-pixel": "a2_gs4nv2zt9ah4",
+    "reddit-pixel": "a2_gs7s1ae0xvbb",
   },
 };
 
@@ -75,7 +75,7 @@ export default function RootLayout({
         >
           {`
             !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
-            rdt('init','a2_gs4nv2zt9ah4', {
+            rdt('init','a2_gs7s1ae0xvbb', {
               email: '', // Will be populated when user is logged in
               phoneNumber: '', // Will be populated when user is logged in
               externalId: '', // Will be populated when user is logged in
