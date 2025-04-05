@@ -26,6 +26,24 @@ const archivoBlack = localFont({
 export const metadata: Metadata = {
   title: "ApplyNinja.ai",
   description: "Apply to jobs faster and better with AI",
+  openGraph: {
+    title: "ApplyNinja.ai",
+    description: "Apply to jobs faster and better with AI",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ApplyNinja.ai Dashboard",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ApplyNinja.ai",
+    description: "Apply to jobs faster and better with AI",
+    images: ["/og-image.png"],
+  },
 };
 
 export const viewport = {
