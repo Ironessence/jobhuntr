@@ -5,6 +5,7 @@ import { ProgressProvider } from "@/context/ProgressContext";
 import Providers from "@/providers/Providers";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -44,6 +45,9 @@ export const metadata: Metadata = {
     description: "Apply to jobs faster and better with AI",
     images: ["/og-image.png"],
   },
+  other: {
+    "reddit-pixel": "a2_gs4nv2zt9ah4",
+  },
 };
 
 export const viewport = {
@@ -64,6 +68,24 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
     >
+      <head>
+        <Script
+          id="reddit-pixel"
+          strategy="afterInteractive"
+        >
+          {`
+            !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
+            rdt('init','a2_gs4nv2zt9ah4', {
+              email: '', // Will be populated when user is logged in
+              phoneNumber: '', // Will be populated when user is logged in
+              externalId: '', // Will be populated when user is logged in
+              idfa: '', // iOS device ID
+              aaid: '', // Android device ID
+            });
+            rdt('track', 'PageVisit');
+          `}
+        </Script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${archivoBlack.variable} antialiased`}
       >
