@@ -45,9 +45,6 @@ export const metadata: Metadata = {
     description: "Apply to jobs faster and better with AI",
     images: ["/og-image.png"],
   },
-  other: {
-    "reddit-pixel": "a2_gs7s1ae0xvbb",
-  },
 };
 
 export const viewport = {
@@ -70,13 +67,21 @@ export default function RootLayout({
     >
       <head>
         <Script
-          id="reddit-pixel"
+          id="facebook-pixel"
           strategy="afterInteractive"
         >
           {`
-            !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
-            rdt('init','a2_gs7s1ae0xvbb');
-            rdt('track', 'PageVisit');
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            
+            fbq('init', '3131677536981074');
+            fbq('track', 'PageView');
           `}
         </Script>
       </head>

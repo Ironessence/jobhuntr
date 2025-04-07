@@ -1,6 +1,7 @@
 "use client";
 
 import { constants } from "@/constants";
+import { useFacebookTracking } from "@/hooks/useFacebookTracking";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { trackEvent } from "@/lib/analytics";
 import { handleApiError } from "@/utils/error-handling";
@@ -18,6 +19,7 @@ export default function PricingSection() {
   const router = useRouter();
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(false);
+  const { trackFbEvent } = useFacebookTracking();
 
   const handlePurchase = async (priceId: string, tokenAmount: number) => {
     try {
@@ -25,6 +27,10 @@ export default function PricingSection() {
 
       // Track the purchase attempt
       trackEvent("token_purchase_initiated", {
+        token_amount: tokenAmount,
+      });
+
+      trackFbEvent("InitiateCheckout", {
         token_amount: tokenAmount,
       });
 
