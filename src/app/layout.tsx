@@ -25,11 +25,20 @@ const archivoBlack = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "ApplyNinja.ai",
-  description: "Apply to jobs faster and better with AI",
+  title: "ApplyNinja.ai | AI-Powered Job Application Assistant",
+  description:
+    "Transform your job search with ApplyNinja.ai. Our AI-powered platform helps you create winning applications, track your progress, and land your dream job faster. Craft personalized resumes, cover letters, and get insider tips for successful applications.",
+  keywords:
+    "job application, AI assistant, resume builder, cover letter generator, job search tool, career advancement, job hunting AI, application tracking",
+  authors: [{ name: "ApplyNinja.ai" }],
+  creator: "ApplyNinja.ai",
+  publisher: "ApplyNinja.ai",
   openGraph: {
-    title: "ApplyNinja.ai",
-    description: "Apply to jobs faster and better with AI",
+    title: "ApplyNinja.ai | AI-Powered Job Application Assistant",
+    description:
+      "Transform your job search with ApplyNinja.ai. Our AI-powered platform helps you create winning applications, track your progress, and land your dream job faster.",
+    url: "https://applyninja.ai",
+    siteName: "ApplyNinja.ai",
     images: [
       {
         url: "/og-image.png",
@@ -38,12 +47,46 @@ export const metadata: Metadata = {
         alt: "ApplyNinja.ai Dashboard",
       },
     ],
+    locale: "en_US",
+    type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ApplyNinja.ai",
-    description: "Apply to jobs faster and better with AI",
+    title: "ApplyNinja.ai | AI-Powered Job Application Assistant",
+    description:
+      "Transform your job search with ApplyNinja.ai. Our AI-powered platform helps you create winning applications, track your progress, and land your dream job faster.",
     images: ["/og-image.png"],
+    creator: "@applyninja",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: ["/favicon.ico"],
+  },
+  manifest: "/manifest.json",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    minimumScale: 1,
+  },
+  // verification: {
+  //   google: "google-site-verification=YOUR_VERIFICATION_CODE", // Add your Google verification code
+  // },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
